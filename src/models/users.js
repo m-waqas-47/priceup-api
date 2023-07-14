@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema(
       required: "Password is required",
       minlength: [6, "Password must be atleast 6 character long"],
     },
+    image: {
+      type: String,
+      default: "images/users/default.jpg",
+    },
     role: {
       type: String,
       default: "admin",
@@ -47,6 +51,7 @@ userSchema.methods.generateJwt = function (companyId) {
       id: this._id,
       name: this.name,
       email: this.email,
+      image: this.image,
       company_id: companyId,
       role: userRoles.ADMIN,
     },

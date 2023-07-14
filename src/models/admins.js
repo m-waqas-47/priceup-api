@@ -18,7 +18,7 @@ const adminSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: "images/staff/default.jpg",
+      default: "images/users/default.jpg",
     },
     password: {
       type: String,
@@ -49,6 +49,7 @@ adminSchema.methods.generateJwt = function (companyId) {
       id: this._id,
       name: this.name,
       email: this.email,
+      image:this.image,
       company_id: companyId,
       role: userRoles.SUPER_ADMIN,
     },

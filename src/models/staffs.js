@@ -61,6 +61,7 @@ staffSchema.methods.generateJwt = function (companyId) {
       id: this._id,
       name: this.name,
       email: this.email,
+      image: this.image,
       company_id: companyId,
       role: userRoles.STAFF,
     },
