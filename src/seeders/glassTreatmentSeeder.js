@@ -19,9 +19,11 @@ exports.glassTreatments = [
     options: [
       {
         thickness: "1/2",
+        cost: 0.75,
       },
       {
         thickness: "3/8",
+        cost: 0.75,
       },
     ],
   },
