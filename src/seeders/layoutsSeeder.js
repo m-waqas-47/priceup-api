@@ -32,6 +32,7 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 2,
+      priceBySqftFormula:"(a*b)/144"
     },
   },
   {
@@ -72,6 +73,7 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 3,
+      priceBySqftFormula:"(a*(b+c))/144"
     },
   },
 ];

@@ -168,6 +168,10 @@ const layoutsSchema = new mongoose.Schema(
         type: Number,
         default: 2,
       },
+      priceBySqftFormula:{
+        type:String,
+        default:""
+      }
     },
   },
   { timestamps: true }
