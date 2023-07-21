@@ -383,6 +383,18 @@ const generateLayoutSettings = (settings, companyId) => {
           glassTreatment: new mongoose.Types.ObjectId(glassTreatment?.id),
         };
       }
+      if (settings?.measurementSides) {
+        result = {
+          ...result,
+          measurementSides: settings?.measurementSides,
+        };
+      }
+      if (settings?.priceBySqftFormula) {
+        result = {
+          ...result,
+          priceBySqftFormula: settings?.priceBySqftFormula,
+        };
+      }
       if (settings?.other) {
         // other
         result = {
