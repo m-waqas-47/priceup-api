@@ -1,6 +1,7 @@
 const CompanyService = require("../../services/company");
 const CustomerService = require("../../services/customer");
 const EstimateService = require("../../services/estimate");
+const LayoutService = require("../../services/layout");
 const {
   nestedObjectsToDotNotation,
   getCurrentDate,
@@ -23,7 +24,8 @@ exports.getEstimate = async (req, res) => {
   const { id } = req.params;
   EstimateService.findBy({ _id: id })
     .then(async (estimate) => {
-      handleResponse(res, 200, "Success", estimate);
+      const layoutData = await LayoutService.findBy({ id: estimate.layout_id });
+      handleResponse(res, 200, "Success", { ...estimate, layout: layoutData });
     })
     .catch((err) => {
       handleError(res, err);
