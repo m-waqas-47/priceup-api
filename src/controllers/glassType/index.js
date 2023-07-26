@@ -86,11 +86,38 @@ exports.deleteGlassType = async (req, res) => {
 
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
-  GlassTypeService.create(data)
+  const glassTypeOptions = await generateOptions();
+  GlassTypeService.create({ ...data, options: glassTypeOptions })
     .then((glassType) => {
       handleResponse(res, 200, "Glass Type created successfully", glassType);
     })
     .catch((err) => {
       handleError(res, err);
     });
+};
+
+exports.generateOptions = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const options = [
+        {
+          partNumber: "",
+          cost: 0.0,
+          priceBySqFt: true,
+          thickness: "1/2",
+          status: false,
+        },
+        {
+          partNumber: "",
+          cost: 0.0,
+          priceBySqFt: true,
+          thickness: "3/8",
+          status: false,
+        },
+      ];
+      resolve(options);
+    } catch (error) {
+      reject(error);
+    }
+  });
 };

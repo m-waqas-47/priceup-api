@@ -1,6 +1,7 @@
 const GlassTreatmentService = require("../../services/glassTreatment");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
+const { generateOptions } = require("../glassType");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -96,7 +97,8 @@ exports.deleteGlassTreatment = async (req, res) => {
 
 exports.saveGlassTreatment = async (req, res) => {
   const data = { ...req.body };
-  GlassTreatmentService.create(data)
+  const glassTreatmentOptions = await generateOptions();
+  GlassTreatmentService.create({ ...data, options: glassTreatmentOptions })
     .then((glassTreatment) => {
       handleResponse(
         res,
