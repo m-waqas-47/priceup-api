@@ -11,7 +11,6 @@ const customerSchema = new mongoose.Schema(
       type: String,
       required: "Email is required",
       match: /.+\@.+\..+/,
-      unique: true,
     },
     image: {
       type: String,
