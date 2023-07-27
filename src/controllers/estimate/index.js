@@ -107,7 +107,7 @@ exports.saveEstimate = async (req, res) => {
     });
   }
   try {
-    await CustomerService.findByAndUpdate(
+   const customer =  await CustomerService.findByAndUpdate(
       {
         email: customerData?.email,
         company_id: company_id,
@@ -122,6 +122,7 @@ exports.saveEstimate = async (req, res) => {
     );
     const estimate = await EstimateService.create({
       ...data?.estimateData,
+      customer_id:customer._id,
       company_id: company_id,
     });
     handleResponse(res, 200, "Estimate created successfully", estimate);

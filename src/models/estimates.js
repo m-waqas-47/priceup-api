@@ -18,6 +18,10 @@ const estimateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: "Creator reference is required",
     },
+    customer_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: "Customer reference is required",
+    },
     hardwareFinishes: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Hardware reference is required",
