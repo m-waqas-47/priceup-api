@@ -33,9 +33,9 @@ exports.getAll = async (req, res) => {
 exports.getDashboardTotals = async (req, res) => {
   const company_id = req.company_id;
   try {
-    const estimates = EstimateService.findAll({ company_id: company_id });
-    const customers = CustomerService.findAll({ company_id: company_id });
-    const staff = StaffService.findAll({ company_id: company_id });
+    const estimates = await EstimateService.findAll({ company_id: company_id });
+    const customers = await CustomerService.findAll({ company_id: company_id });
+    const staff = await StaffService.findAll({ company_id: company_id });
     handleResponse(res, 200, "Dashboard Data", {
       estimates: estimates.length,
       customers: customers.length,
