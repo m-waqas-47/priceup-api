@@ -16,8 +16,26 @@ exports.getAll = async (req, res) => {
   try {
     const company_id = req.company_id;
     const estimates = await EstimateService.findAll({ company_id });
+    let total = 0;
+    let pending = 0;
+    let voided = 0;
+    let approved = 0;
     const result = await Promise.all(
       estimates.map(async (estimate) => {
+        total += estimate.cost;
+        switch (estimate.status) {
+          case estimateStatus.PENDING:
+            pending += 1;
+            break;
+          case estimateStatus.VOIDED:
+            voided += 1;
+            break;
+          case estimateStatus.APPROVED:
+            approved += 1;
+            break;
+          default:
+            break;
+        }
         const layoutData = await LayoutService.findBy({
           _id: estimate.layout_id,
         });
@@ -61,7 +79,13 @@ exports.getAll = async (req, res) => {
         };
       })
     );
-    handleResponse(res, 200, "All Estimates", result);
+    handleResponse(res, 200, "All Estimates", {
+      estimates: result,
+      total: total,
+      pending: pending,
+      voided: voided,
+      approved: approved,
+    });
   } catch (err) {
     handleError(res, err);
   }
