@@ -198,7 +198,7 @@ const estimateSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      required: "pending",
+      default: "pending",
     },
   },
   { timestamps: true }

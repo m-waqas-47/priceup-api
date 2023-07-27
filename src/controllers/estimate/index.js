@@ -55,7 +55,7 @@ exports.getAll = async (req, res) => {
           customerData: customer
             ? {
                 name: customer.name,
-                email: creator.email,
+                email: customer.email,
               }
             : null,
         };

@@ -18,6 +18,9 @@ const HardwareCategoryService = require("../../services/hardwareCategory");
 const LayoutService = require("../../services/layout");
 const GlassTypeService = require("../../services/glassType");
 const GlassTreatmentService = require("../../services/glassTreatment");
+const EstimateService = require("../../services/estimate");
+const CustomerService = require("../../services/customer");
+const StaffService = require("../../services/staff");
 exports.getAll = async (req, res) => {
   UserService.findAll()
     .then((users) => {
@@ -26,6 +29,21 @@ exports.getAll = async (req, res) => {
     .catch((err) => {
       handleError(res, err);
     });
+};
+exports.getDashboardTotals = async (req, res) => {
+  const company_id = req.company_id;
+  try {
+    const estimates = EstimateService.findAll({ company_id: company_id });
+    const customers = CustomerService.findAll({ company_id: company_id });
+    const staff = StaffService.findAll({ company_id: company_id });
+    handleResponse(res, 200, "Dashboard Data", {
+      estimates: estimates.length,
+      customers: customers.length,
+      staff: staff.length,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
 };
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
