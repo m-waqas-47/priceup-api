@@ -10,14 +10,31 @@ const {
 const { handleResponse, handleError } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
-  EstimateService.findAll({ company_id: company_id })
-    .then((estimates) => {
-      handleResponse(res, 200, "All Estimates", estimates);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const company_id = req.company_id;
+    const estimates = await EstimateService.findAll({ company_id });
+    const result = await Promise.all(
+      estimates.map(async (estimate) => {
+        const layoutData = await LayoutService.findBy({
+          _id: estimate.layout_id,
+        });
+        const estimateObject = estimate.toObject();
+        return {
+          ...estimateObject,
+          layoutData: layoutData
+            ? {
+                image: layoutData.image,
+                name: layoutData.name,
+                _id: layoutData._id,
+              }
+            : null,
+        };
+      })
+    );
+    handleResponse(res, 200, "All Estimates", result);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.getEstimate = async (req, res) => {
@@ -25,7 +42,14 @@ exports.getEstimate = async (req, res) => {
   EstimateService.findBy({ _id: id })
     .then(async (estimate) => {
       const layoutData = await LayoutService.findBy({ id: estimate.layout_id });
-      handleResponse(res, 200, "Success", { ...estimate, layout: layoutData });
+      handleResponse(res, 200, "Success", {
+        ...estimate,
+        layout: {
+          image: layoutData.image,
+          name: layoutData.name,
+          _id: layoutData._id,
+        },
+      });
     })
     .catch((err) => {
       handleError(res, err);
