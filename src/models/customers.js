@@ -33,4 +33,7 @@ const customerSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Create a compound index for email and company_id
+customerSchema.index({ email: 1, company_id: 1 }, { unique: true });
+
 module.exports = mongoose.model("customers", customerSchema);
