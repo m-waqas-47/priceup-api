@@ -1,7 +1,10 @@
+const { userRoles } = require("../../config/common");
 const CompanyService = require("../../services/company");
 const CustomerService = require("../../services/customer");
 const EstimateService = require("../../services/estimate");
 const LayoutService = require("../../services/layout");
+const StaffService = require("../../services/staff");
+const UserService = require("../../services/user");
 const {
   nestedObjectsToDotNotation,
   getCurrentDate,
@@ -18,6 +21,20 @@ exports.getAll = async (req, res) => {
         const layoutData = await LayoutService.findBy({
           _id: estimate.layout_id,
         });
+        let creator = null;
+        switch (estimate.creator_type) {
+          case userRoles.ADMIN:
+            creator = await UserService.findBy({ _id: estimate.creator_id });
+            break;
+          case userRoles.STAFF:
+            creator = await StaffService.findBy({ _id: estimate.creator_id });
+            break;
+          default:
+            break;
+        }
+        const customer = await CustomerService.findBy({
+          _id: estimate.customer_id,
+        });
         const estimateObject = estimate.toObject();
         return {
           ...estimateObject,
@@ -26,6 +43,19 @@ exports.getAll = async (req, res) => {
                 image: layoutData.image,
                 name: layoutData.name,
                 _id: layoutData._id,
+              }
+            : null,
+          creatorData: creator
+            ? {
+                name: creator.name,
+                image: creator.image,
+                email: creator.email,
+              }
+            : null,
+          customerData: customer
+            ? {
+                name: customer.name,
+                email: creator.email,
               }
             : null,
         };
@@ -107,7 +137,7 @@ exports.saveEstimate = async (req, res) => {
     });
   }
   try {
-   const customer =  await CustomerService.findByAndUpdate(
+    const customer = await CustomerService.findByAndUpdate(
       {
         email: customerData?.email,
         company_id: company_id,
@@ -122,7 +152,7 @@ exports.saveEstimate = async (req, res) => {
     );
     const estimate = await EstimateService.create({
       ...data?.estimateData,
-      customer_id:customer._id,
+      customer_id: customer._id,
       company_id: company_id,
     });
     handleResponse(res, 200, "Estimate created successfully", estimate);
