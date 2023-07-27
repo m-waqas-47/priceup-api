@@ -18,9 +18,9 @@ const estimateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: "Creator reference is required",
     },
-    creator_type:{
+    creator_type: {
       type: String,
-      required:"Creator role is required",
+      required: "Creator role is required",
     },
     customer_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -195,6 +195,10 @@ const estimateSchema = new mongoose.Schema(
     cost: {
       type: Number,
       required: "Total Cost is required",
+    },
+    status: {
+      type: String,
+      required: "pending",
     },
   },
   { timestamps: true }

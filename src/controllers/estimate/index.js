@@ -1,4 +1,4 @@
-const { userRoles } = require("../../config/common");
+const { userRoles, estimateStatus } = require("../../config/common");
 const CompanyService = require("../../services/company");
 const CustomerService = require("../../services/customer");
 const EstimateService = require("../../services/estimate");
@@ -156,6 +156,41 @@ exports.saveEstimate = async (req, res) => {
       company_id: company_id,
     });
     handleResponse(res, 200, "Estimate created successfully", estimate);
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+exports.getEstimateTotals = async (req, res) => {
+  const company_id = req.company_id;
+  try {
+    const estimates = await EstimateService.findAll({ company_id: company_id });
+    let total = 0;
+    let pending = 0;
+    let voided = 0;
+    let approved = 0;
+    estimates.map((estimate) => {
+      total += estimate.cost;
+      switch (estimate.status) {
+        case estimateStatus.PENDING:
+          pending += 1;
+          break;
+        case estimateStatus.VOIDED:
+          voided += 1;
+          break;
+        case estimateStatus.APPROVED:
+          approved += 1;
+          break;
+        default:
+          break;
+      }
+    });
+    handleResponse(res, 200, "Estimates Data", {
+      total: total,
+      pending: pending,
+      approved: approved,
+      voided: voided,
+    });
   } catch (error) {
     handleError(res, error);
   }

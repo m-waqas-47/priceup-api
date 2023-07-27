@@ -6,11 +6,13 @@ const {
   updateEstimate,
   deleteEstimate,
   getEstimateListsData,
+  getEstimateTotals,
 } = require("../controllers/estimate");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
+router.get("/total", verifyToken, getEstimateTotals);
 router.get("/listsData", verifyToken, getEstimateListsData);
 router.get("/:id", verifyToken, getEstimate);
 router.put("/:id", verifyToken, updateEstimate);
