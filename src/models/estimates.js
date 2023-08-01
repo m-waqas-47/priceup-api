@@ -200,6 +200,14 @@ const estimateSchema = new mongoose.Schema(
       type: String,
       default: "pending",
     },
+    perimeter: {
+      type: Number,
+      default: 0,
+    },
+    sqftArea: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
