@@ -32,7 +32,8 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 2,
-      priceBySqftFormula:"(a*b)/144"
+      priceBySqftFormula:"(a*b)/144",
+      perimeterFormula:"(a+b)*2"
     },
   },
   {
@@ -73,7 +74,8 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 3,
-      priceBySqftFormula:"(a*(b+c))/144"
+      priceBySqftFormula:"(a*(b+c))/144",
+      perimeterFormula:"((b+c+a)*2)+a+a"
     },
   },
 ];

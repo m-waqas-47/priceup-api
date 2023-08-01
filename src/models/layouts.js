@@ -171,6 +171,10 @@ const layoutsSchema = new mongoose.Schema(
       priceBySqftFormula:{
         type:String,
         default:""
+      },
+      perimeterFormula:{
+        type:String,
+        default:""
       }
     },
   },

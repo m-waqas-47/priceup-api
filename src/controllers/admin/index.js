@@ -35,7 +35,7 @@ exports.saveAdmin = async (req, res) => {
   const data = { ...req.body, password: password };
   AdminService.create(data)
     .then((admin) => {
-      handleResponse(res, 200, "Admin crated successfully", admin);
+      handleResponse(res, 200, "Admin created successfully", admin);
     })
     .catch((err) => {
       handleError(res, err);

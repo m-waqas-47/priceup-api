@@ -401,16 +401,25 @@ const generateLayoutSettings = (settings, companyId) => {
           glassTreatment: new mongoose.Types.ObjectId(glassTreatment?.id),
         };
       }
+      // measurement Sides
       if (settings?.measurementSides) {
         result = {
           ...result,
           measurementSides: settings?.measurementSides,
         };
       }
+      // area by sqft formula
       if (settings?.priceBySqftFormula) {
         result = {
           ...result,
           priceBySqftFormula: settings?.priceBySqftFormula,
+        };
+      }
+      // permieter formula
+      if (settings?.perimeterFormula) {
+        result = {
+          ...result,
+          perimeterFormula: settings?.perimeterFormula,
         };
       }
       if (settings?.other) {
