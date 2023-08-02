@@ -61,7 +61,7 @@ exports.layouts = [
       channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
       wallClamp: {
-        type: "beveled-wall-clamp",
+        wallClampType: "beveled-wall-clamp",
         count: 3,
       },
       glassType: {
@@ -103,11 +103,11 @@ exports.layouts = [
       channelOrClamps: "Clamps",
       mountingChannel: "u-channel-3-8",
       wallClamp: {
-        type: "beveled-wall-clamp",
+        wallClampType: "beveled-wall-clamp",
         count: 6,
       },
       sleeveOver: {
-        type: "corner-clamp",
+        sleeveOverType: "corner-clamp",
         count: 1,
       },
       glassType: {
@@ -122,7 +122,7 @@ exports.layouts = [
       },
       measurementSides: 4,
       priceBySqftFormula: "((d+c+b)*a)/144",
-      perimeterFormula: "(d+c+b+(a*2)+a+a+a+a)",
+      perimeterFormula: "((d+c+b+a)*2)+a+a+a+a",
     },
   },
 ];
