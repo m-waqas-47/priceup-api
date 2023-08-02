@@ -74,7 +74,7 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 3,
-      priceBySqftFormula: "(a*(b+c))/144",
+      priceBySqftFormula: "((c+b)*a)/144",
       perimeterFormula: "((b+c+a)*2)+a+a",
     },
   },
@@ -123,6 +123,38 @@ exports.layouts = [
       measurementSides: 4,
       priceBySqftFormula: "((d+c+b)*a)/144",
       perimeterFormula: "((d+c+b+a)*2)+a+a+a+a",
+    },
+  },
+  {
+    name: "Single Barn",
+    image: "images/layouts/layout_4.png",
+    settings: {
+      hardwareFinishes: "polished-chrome",
+      handles: {
+        handleType: "8-x-8-d-pull",
+        count: 1,
+      },
+      channelOrClamps: "Clamps",
+      wallClamp: {
+        wallClampType: "beveled-wall-clamp",
+        count: 2,
+      },
+      glassType: {
+        type: "clear",
+        thickness: "3/8",
+      },
+      slidingDoorSystem: {
+        type: "cardinal-skyline-60",
+        count: 1,
+      },
+      outages: 2,
+      other: {
+        people: 2,
+        hours: 2,
+      },
+      measurementSides: 3,
+      priceBySqftFormula: "((c+b)*a)/144",
+      perimeterFormula: "((c+b+a)*2)+a+a",
     },
   },
 ];
