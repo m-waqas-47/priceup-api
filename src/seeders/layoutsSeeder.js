@@ -32,8 +32,8 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 2,
-      priceBySqftFormula:"(a*b)/144",
-      perimeterFormula:"(a+b)*2"
+      priceBySqftFormula: "(a*b)/144",
+      perimeterFormula: "(a+b)*2",
     },
   },
   {
@@ -74,8 +74,55 @@ exports.layouts = [
         hours: 2,
       },
       measurementSides: 3,
-      priceBySqftFormula:"(a*(b+c))/144",
-      perimeterFormula:"((b+c+a)*2)+a+a"
+      priceBySqftFormula: "(a*(b+c))/144",
+      perimeterFormula: "((b+c+a)*2)+a+a",
+    },
+  },
+  {
+    name: "Door Panel & Return",
+    image: "images/layouts/layout_3.png",
+    settings: {
+      hardwareFinishes: "polished-chrome",
+      handles: {
+        handleType: "8-x-8-d-pull",
+        count: 1,
+      },
+      hinges: {
+        hingesType: "std-bevel",
+        count: 2,
+      },
+      pivotHingeOption: {
+        pivotHingeType: "hvy-pivot-bevel",
+        count: 2,
+      },
+      heavyDutyOption: {
+        heavyDutyType: "hvy-square",
+        threshold: 85,
+        height: 100,
+      },
+      channelOrClamps: "Clamps",
+      mountingChannel: "u-channel-3-8",
+      wallClamp: {
+        type: "beveled-wall-clamp",
+        count: 6,
+      },
+      sleeveOver: {
+        type: "corner-clamp",
+        count: 1,
+      },
+      glassType: {
+        type: "clear",
+        thickness: "3/8",
+      },
+      glassTreatment: "no-treatment",
+      outages: 3,
+      other: {
+        people: 2,
+        hours: 3,
+      },
+      measurementSides: 4,
+      priceBySqftFormula: "((d+c+b)*a)/144",
+      perimeterFormula: "(d+c+b+(a*2)+a+a+a+a)",
     },
   },
 ];
