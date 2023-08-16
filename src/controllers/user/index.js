@@ -408,6 +408,13 @@ const generateLayoutSettings = (settings, companyId) => {
           measurementSides: settings?.measurementSides,
         };
       }
+      // measurement Sides
+      if (settings?.variant) {
+        result = {
+          ...result,
+          variant: settings?.variant,
+        };
+      }
       // area by sqft formula
       if (settings?.priceBySqftFormula) {
         result = {

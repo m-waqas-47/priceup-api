@@ -168,14 +168,18 @@ const layoutsSchema = new mongoose.Schema(
         type: Number,
         default: 2,
       },
-      priceBySqftFormula:{
-        type:String,
-        default:""
-      },
-      perimeterFormula:{
-        type:String,
-        default:""
+      variant:{
+        type: String,
+        required:"Layout Variant is required"
       }
+      // priceBySqftFormula:{
+      //   type:String,
+      //   default:""
+      // },
+      // perimeterFormula:{
+      //   type:String,
+      //   default:""
+      // }
     },
   },
   { timestamps: true }
