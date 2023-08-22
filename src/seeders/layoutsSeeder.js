@@ -209,7 +209,7 @@ exports.layouts = [
       },
       channelOrClamps: "Clamps",
       mountingChannel: "u-channel-3-8",
-      glassToGlassClamp: {
+      glassToGlass: {
         glassToGlassType: "corner-clamp",
         count: 1,
       },
@@ -244,7 +244,7 @@ exports.layouts = [
       },
       channelOrClamps: "Clamps",
       mountingChannel: "u-channel-3-8",
-      glassToGlassClamp: {
+      glassToGlass: {
         glassToGlassType: "corner-clamp",
         count: 1,
       },
