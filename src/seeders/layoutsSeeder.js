@@ -209,12 +209,8 @@ exports.layouts = [
       },
       channelOrClamps: "Clamps",
       mountingChannel: "u-channel-3-8",
-      wallClamp: {
-        wallClampType: "beveled-wall-clamp",
-        count: 6,
-      },
-      sleeveOver: {
-        sleeveOverType: "corner-clamp",
+      glassToGlassClamp: {
+        glassToGlassType: "corner-clamp",
         count: 1,
       },
       glassType: {
@@ -248,6 +244,10 @@ exports.layouts = [
       },
       channelOrClamps: "Clamps",
       mountingChannel: "u-channel-3-8",
+      glassToGlassClamp: {
+        glassToGlassType: "corner-clamp",
+        count: 1,
+      },
       glassType: {
         type: "clear",
         thickness: "3/8",
