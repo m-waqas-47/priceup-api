@@ -1,11 +1,11 @@
-const GlassTreatment = require("../../models/glassTreatments");
+const GlassAddon = require("../../models/glassAddons");
 
-class GlassTreatmentService {
+class GlassAddonService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      GlassTreatment.find(data)
-        .then((glassTreatments) => {
-          resolve(glassTreatments);
+      GlassAddon.find(data).sort({createdAt: "asc"})
+        .then((glassAddons) => {
+          resolve(glassAddons);
         })
         .catch((err) => {
           reject(err);
@@ -15,9 +15,9 @@ class GlassTreatmentService {
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
-      GlassTreatment.findOne(data)
-        .then((glassTreatment) => {
-          resolve(glassTreatment);
+      GlassAddon.findOne(data)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -27,9 +27,9 @@ class GlassTreatmentService {
 
   static delete(condition) {
     return new Promise((resolve, reject) => {
-      GlassTreatment.findOneAndDelete(condition)
-        .then((glassTreatment) => {
-          resolve(glassTreatment);
+      GlassAddon.findOneAndDelete(condition)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -39,9 +39,9 @@ class GlassTreatmentService {
 
   static update(condition, data) {
     return new Promise((resolve, reject) => {
-      GlassTreatment.findOneAndUpdate(condition, data, { new: true })
-        .then((glassTreatment) => {
-          resolve(glassTreatment);
+      GlassAddon.findOneAndUpdate(condition, data, { new: true })
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -51,9 +51,9 @@ class GlassTreatmentService {
 
   static create(data) {
     return new Promise((resolve, reject) => {
-      GlassTreatment.create(data)
-        .then((glassTreatment) => {
-          resolve(glassTreatment);
+      GlassAddon.create(data)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -62,4 +62,4 @@ class GlassTreatmentService {
   }
 }
 
-module.exports = GlassTreatmentService;
+module.exports = GlassAddonService;

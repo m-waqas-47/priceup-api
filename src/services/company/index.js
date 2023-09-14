@@ -3,7 +3,7 @@ const Company = require("../../models/companies");
 class CompanyService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Company.find(data)
+      Company.find(data).sort({createdAt: "asc"})
         .then((companies) => {
           resolve(companies);
         })

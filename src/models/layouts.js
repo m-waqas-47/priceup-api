@@ -150,10 +150,10 @@ const layoutsSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         default: null,
       },
-      glassTreatment: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
-      },
+      glassAddon: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
       other: {
         people: {
           type: Number,
@@ -168,10 +168,10 @@ const layoutsSchema = new mongoose.Schema(
         type: Number,
         default: 2,
       },
-      variant:{
+      variant: {
         type: String,
-        required:"Layout Variant is required"
-      }
+        required: "Layout Variant is required",
+      },
       // priceBySqftFormula:{
       //   type:String,
       //   default:""

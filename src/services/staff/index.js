@@ -3,7 +3,7 @@ const Staff = require("../../models/staffs");
 class StaffService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Staff.find(data)
+      Staff.find(data).sort({createdAt: "asc"})
         .then((staffs) => {
           resolve(staffs);
         })

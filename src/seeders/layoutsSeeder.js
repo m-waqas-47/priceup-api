@@ -217,7 +217,7 @@ exports.layouts = [
         type: "clear",
         thickness: "3/8",
       },
-      glassTreatment: "no-treatment",
+      glassAddon: "no-treatment",
       outages: 3,
       other: {
         people: 2,

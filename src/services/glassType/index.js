@@ -3,7 +3,7 @@ const GlassType = require("../../models/glassTypes");
 class GlassTypeService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      GlassType.find(data)
+      GlassType.find(data).sort({createdAt: "asc"})
         .then((glassTypes) => {
           resolve(glassTypes);
         })

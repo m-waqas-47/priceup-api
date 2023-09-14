@@ -3,7 +3,7 @@ const Estimate = require("../../models/estimates");
 class EstimateService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Estimate.find(data)
+      Estimate.find(data).sort({createdAt: "asc"})
         .then((estimates) => {
           resolve(estimates);
         })

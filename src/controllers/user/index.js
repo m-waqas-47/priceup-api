@@ -10,14 +10,14 @@ const {
 } = require("../../seeders/hardwareCategoriesSeeder");
 const { layouts } = require("../../seeders/layoutsSeeder");
 const { glassTypes } = require("../../seeders/glassTypeSeeder");
-const { glassTreatments } = require("../../seeders/glassTreatmentSeeder");
+const { glassAddons } = require("../../seeders/glassAddonsSeeder");
 
 const FinishService = require("../../services/finish");
 const HardwareService = require("../../services/hardware");
 const HardwareCategoryService = require("../../services/hardwareCategory");
 const LayoutService = require("../../services/layout");
 const GlassTypeService = require("../../services/glassType");
-const GlassTreatmentService = require("../../services/glassTreatment");
+const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
@@ -145,10 +145,10 @@ exports.saveUser = async (req, res) => {
       // create user glass types
       await GlassTypeService.create({ ...glassType, company_id: company?.id });
     });
-    glassTreatments?.map(async (glassTreatment) => {
+    glassAddons?.map(async (glassAddon) => {
       // create user glass treatments
-      await GlassTreatmentService.create({
-        ...glassTreatment,
+      await GlassAddonService.create({
+        ...glassAddon,
         company_id: company?.id,
       });
     });
@@ -390,15 +390,15 @@ const generateLayoutSettings = (settings, companyId) => {
           header: new mongoose.Types.ObjectId(header?.id),
         };
       }
-      if (settings?.glassTreatment) {
-        // glassTreatment
-        const glassTreatment = await GlassTreatmentService.findBy({
-          slug: settings?.glassTreatment,
+      if (settings?.glassAddon) {
+        // glassAddon
+        const glassAddon = await GlassAddonService.findBy({
+          slug: settings?.glassAddon,
           company_id: new mongoose.Types.ObjectId(companyId),
         });
         result = {
           ...result,
-          glassTreatment: new mongoose.Types.ObjectId(glassTreatment?.id),
+          glassAddon: new mongoose.Types.ObjectId(glassAddon?.id),
         };
       }
       // measurement Sides

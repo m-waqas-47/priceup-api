@@ -14,7 +14,7 @@ const finishRouter = require("./src/routes/finishes");
 const hardwareRouter = require("./src/routes/hardwares");
 const layoutRouter = require("./src/routes/layouts");
 const glassTypeRouter = require("./src/routes/glassTypes");
-const glassTreatmentRouter = require("./src/routes/glassTreatments");
+const glassAddonRouter = require("./src/routes/glassAddons");
 const staffRouter = require("./src/routes/staffs");
 const customerRouter = require("./src/routes/customers");
 const estimateRouter = require("./src/routes/estimates");
@@ -43,7 +43,7 @@ app.use("/hardwares", hardwareRouter);
 app.use("/layouts", layoutRouter);
 app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
-app.use("/glassTreatments", glassTreatmentRouter);
+app.use("/glassAddons", glassAddonRouter);
 app.use("/*", indexRouter);
 
 app.listen(port, () => {

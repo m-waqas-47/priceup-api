@@ -122,11 +122,13 @@ const estimateSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    glassTreatment: {
-      type: mongoose.Schema.Types.ObjectId,
-      default: null,
-    },
-    addOns: [
+    glassAddons: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        default: null,
+      },
+    ],
+    hardwareAddons: [
       {
         type: mongoose.Schema.Types.ObjectId,
         default: null,

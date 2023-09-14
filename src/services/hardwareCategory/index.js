@@ -2,7 +2,7 @@ const HardwareCategory = require("../../models/hardwareCategories");
 class HardwareCategoryService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      HardwareCategory.find(data)
+      HardwareCategory.find(data).sort({createdAt: "asc"})
         .then((users) => {
           resolve(users);
         })

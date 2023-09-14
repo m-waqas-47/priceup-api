@@ -1,5 +1,5 @@
 const FinishService = require("../services/finish");
-const GlassTreatmentService = require("../services/glassTreatment");
+const GlassAddonService = require("../services/glassAddon");
 const GlassTypeService = require("../services/glassType");
 const HardwareService = require("../services/hardware");
 
@@ -93,14 +93,14 @@ exports.getListsData = (company_id) => {
         hardware_category_slug: "header",
         company_id: company_id,
       });
-      const addOns = await HardwareService.findAllBy({
+      const hardwareAddOns = await HardwareService.findAllBy({
         hardware_category_slug: "add-ons",
         company_id: company_id,
       });
       const glassType = await GlassTypeService.findAll({
         company_id: company_id,
       });
-      const glassTreatment = await GlassTreatmentService.findAll({
+      const glassAddons = await GlassAddonService.findAll({
         company_id: company_id,
       });
 
@@ -120,8 +120,8 @@ exports.getListsData = (company_id) => {
         slidingDoorSystem: slidingDoorSystem,
         transom: transom,
         header: header,
-        glassTreatment: glassTreatment,
-        addOns: addOns,
+        glassAddons: glassAddons,
+        hardwareAddOns: hardwareAddOns,
       };
       resolve(listData);
     } catch (error) {

@@ -3,7 +3,7 @@ const Finish = require("../../models/finishes");
 class FinishService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Finish.find(data)
+      Finish.find(data).sort({createdAt: "asc"})
         .then((finishes) => {
           resolve(finishes);
         })

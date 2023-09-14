@@ -86,7 +86,7 @@ exports.deleteGlassType = async (req, res) => {
 
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
-  const glassTypeOptions = await this.generateOptions();
+  const glassTypeOptions = await generateOptions();
   GlassTypeService.create({ ...data, options: glassTypeOptions })
     .then((glassType) => {
       handleResponse(res, 200, "Glass Type created successfully", glassType);
@@ -96,7 +96,7 @@ exports.saveGlassType = async (req, res) => {
     });
 };
 
-exports.generateOptions = () => {
+const generateOptions = () => {
   return new Promise(async (resolve, reject) => {
     try {
       const options = [

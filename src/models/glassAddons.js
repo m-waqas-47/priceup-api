@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const glassTreatment = new mongoose.Schema(
+const glassAddons = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -34,10 +34,6 @@ const glassTreatment = new mongoose.Schema(
           type: Boolean,
           default: true,
         },
-        thickness: {
-          type: String,
-          required: "Thickness value is required",
-        },
         status: {
           type: Boolean,
           default: false,
@@ -48,4 +44,4 @@ const glassTreatment = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("glassTreatments", glassTreatment);
+module.exports = mongoose.model("glassAddons", glassAddons);
