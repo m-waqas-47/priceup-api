@@ -128,8 +128,8 @@ exports.getEstimateListsData = async (req, res) => {
 
 exports.updateEstimate = async (req, res) => {
   const { id } = req.params;
-  const payload = { ...req.body };
-  const data = await nestedObjectsToDotNotation(payload);
+  const {customerData, estimateData} = req.body;
+  const data = await nestedObjectsToDotNotation(estimateData);
   EstimateService.update({ _id: id }, data)
     .then((estimate) => {
       handleResponse(res, 200, "Estimate updated successfully", estimate);

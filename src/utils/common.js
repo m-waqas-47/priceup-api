@@ -93,7 +93,7 @@ exports.getListsData = (company_id) => {
         hardware_category_slug: "header",
         company_id: company_id,
       });
-      const hardwareAddOns = await HardwareService.findAllBy({
+      const hardwareAddons = await HardwareService.findAllBy({
         hardware_category_slug: "add-ons",
         company_id: company_id,
       });
@@ -121,7 +121,7 @@ exports.getListsData = (company_id) => {
         transom: transom,
         header: header,
         glassAddons: glassAddons,
-        hardwareAddOns: hardwareAddOns,
+        hardwareAddons: hardwareAddons,
       };
       resolve(listData);
     } catch (error) {

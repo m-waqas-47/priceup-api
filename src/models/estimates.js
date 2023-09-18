@@ -50,9 +50,9 @@ const estimateSchema = new mongoose.Schema(
         default: 0,
       },
     },
-    mounting: {
-      clamps: {
-        wallClamp: {
+    mountingClamps: {
+      wallClamp: [
+        {
           type: {
             type: mongoose.Schema.Types.ObjectId,
             default: null,
@@ -62,7 +62,9 @@ const estimateSchema = new mongoose.Schema(
             default: 0,
           },
         },
-        sleeveOver: {
+      ],
+      sleeveOver: [
+        {
           type: {
             type: mongoose.Schema.Types.ObjectId,
             default: null,
@@ -72,7 +74,9 @@ const estimateSchema = new mongoose.Schema(
             default: 0,
           },
         },
-        glassToGlass: {
+      ],
+      glassToGlass: [
+        {
           type: {
             type: mongoose.Schema.Types.ObjectId,
             default: null,
@@ -82,15 +86,11 @@ const estimateSchema = new mongoose.Schema(
             default: 0,
           },
         },
-      },
-      channel: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
-      },
-      activeType: {
-        type: String,
-        default: "clamps",
-      },
+      ],
+    },
+    mountingChannel: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
     },
     glassType: {
       type: {
