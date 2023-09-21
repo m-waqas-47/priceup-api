@@ -130,18 +130,16 @@ const estimateSchema = new mongoose.Schema(
     ],
     hardwareAddons: [
       {
+      type:{
         type: mongoose.Schema.Types.ObjectId,
         default: null,
       },
+      count:{
+        type: Number,
+        default: 0,
+      }
+      }
     ],
-    sleeveOverCount: {
-      type: Number,
-      default: 0,
-    },
-    towelBarsCount: {
-      type: Number,
-      default: 0,
-    },
     oneInchHoles: {
       type: Number,
       default: 0,
