@@ -8,7 +8,8 @@ const estimateSchema = new mongoose.Schema(
     },
     layout_id: {
       type: mongoose.Schema.Types.ObjectId,
-      required: "Layout reference is required",
+      // required: "Layout reference is required",
+      default: null,
     },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -130,15 +131,15 @@ const estimateSchema = new mongoose.Schema(
     ],
     hardwareAddons: [
       {
-      type:{
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
+        type: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
       },
-      count:{
-        type: Number,
-        default: 0,
-      }
-      }
     ],
     oneInchHoles: {
       type: Number,
