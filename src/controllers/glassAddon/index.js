@@ -1,6 +1,10 @@
 const GlassAddonService = require("../../services/glassAddon");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const path = require('path')
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -28,13 +32,23 @@ exports.updateGlassAddon = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   const updatedData = nestedObjectsToDotNotation(data);
-  GlassAddonService.update({ _id: id }, updatedData)
-    .then((glassAddon) => {
-      handleResponse(res, 200, "Glass Addon updated successfully", glassAddon);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+
+  try {
+    const oldHardware = await GlassAddonService.findById(id);
+
+    if (req.file) {
+      updatedData.image = `images/adonsType/${req.file.filename}`; 
+      if (oldHardware && oldHardware.image) {
+        const oldImagePath = `public/${oldHardware.image}`;
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+  const glassTypeAddon = await GlassAddonService.update({ _id: id }, updatedData);
+  handleResponse(res, 200, "glassTypeAddon updated successfully", glassTypeAddon);
+} catch (err) {
+  handleError(res, err);
+}
 };
 
 exports.deleteGlassAddonOptions = async (req, res) => {
@@ -86,6 +100,13 @@ exports.deleteGlassAddon = async (req, res) => {
 
 exports.saveGlassAddon = async (req, res) => {
   const data = { ...req.body };
+
+  if (req.file && req.file.fieldname === "image") {
+    const imagePath = req.file.path;
+    const newImagePath = `images/adonsType/${path.basename(imagePath)}`;
+    const imageBuffer = await readFile(imagePath);
+    data.image = newImagePath;
+  }
   const glassAddonOptions = await generateOptions();
   GlassAddonService.create({ ...data, options: glassAddonOptions })
     .then((glassAddon) => {

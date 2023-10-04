@@ -1,6 +1,10 @@
 const GlassTypeService = require("../../services/glassType");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const path = require('path')
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -18,19 +22,6 @@ exports.getGlassType = async (req, res) => {
   GlassTypeService.findBy({ _id: id })
     .then((glassType) => {
       handleResponse(res, 200, "Success", glassType);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
-};
-
-exports.updateGlassType = async (req, res) => {
-  const { id } = req.params;
-  const data = { ...req.body };
-  const updatedData = nestedObjectsToDotNotation(data);
-  GlassTypeService.update({ _id: id }, updatedData)
-    .then((glassType) => {
-      handleResponse(res, 200, "Glass Type updated successfully", glassType);
     })
     .catch((err) => {
       handleError(res, err);
@@ -86,6 +77,14 @@ exports.deleteGlassType = async (req, res) => {
 
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
+
+  if (req.file && req.file.fieldname === "image") {
+    const imagePath = req.file.path;
+    const newImagePath = `images/glassType/${path.basename(imagePath)}`;
+    const imageBuffer = await readFile(imagePath);
+    data.image = newImagePath;
+  }
+
   const glassTypeOptions = await generateOptions();
   GlassTypeService.create({ ...data, options: glassTypeOptions })
     .then((glassType) => {
@@ -120,4 +119,24 @@ const generateOptions = () => {
       reject(error);
     }
   });
+};
+exports.updateGlassType = async (req, res) => {
+  const { id } = req.params;
+  const data = { ...req.body };
+  const updatedData = nestedObjectsToDotNotation(data);
+  try {
+    const oldHardware = await GlassTypeService.findById(id);
+
+    if (req.file) {
+      updatedData.image = `images/glassType/${req.file.filename}`; 
+      if (oldHardware && oldHardware.image) {
+        const oldImagePath = `public/${oldHardware.image}`;
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+  const glassType = await GlassTypeService.update({ _id: id }, updatedData);
+    handleResponse(res, 200, "glassType updated successfully", glassType);
+  } catch (err) {
+    handleError(res, err);
+  }
 };

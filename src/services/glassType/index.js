@@ -12,6 +12,17 @@ class GlassTypeService {
         });
     });
   }
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      GlassType.findById(id)
+        .then((glassTypes) => {
+          resolve(glassTypes);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {

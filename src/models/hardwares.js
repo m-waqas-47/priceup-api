@@ -14,7 +14,6 @@ const hardware = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: "images/hardwarers/default.png",
     },
     operableTransom: {
       type: Boolean,
@@ -37,7 +36,6 @@ const hardware = new mongoose.Schema(
         },
         image: {
           type: String,
-          default: "",
         },
         partNumber: {
           type: String,

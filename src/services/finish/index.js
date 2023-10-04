@@ -12,6 +12,17 @@ class FinishService {
         });
     });
   }
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      Finish.findById(id)
+        .then((finish) => {
+          resolve(finish);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {

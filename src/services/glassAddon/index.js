@@ -12,6 +12,18 @@ class GlassAddonService {
         });
     });
   }
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      GlassAddon.findById(id)
+        .then((glassAddons) => {
+          resolve(glassAddons);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
 
   static findBy(data) {
     return new Promise((resolve, reject) => {

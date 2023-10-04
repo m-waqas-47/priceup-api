@@ -5,16 +5,15 @@ const finishSchema = new mongoose.Schema(
     name: {
       type: String,
       required: "Name is required",
-      minlength: [3, "Name must be atleast 3 character long"],
+      minlength: [3, "Name must be at least 3 characters long"],
     },
     slug: {
       type: String,
       required: "Slug is required",
-      minlength: [3, "slug must be atleast 3 character long"],
+      minlength: [3, "Slug must be at least 3 characters long"],
     },
     image: {
-      type: String,
-      default: "images/finishes/default.png",
+      type: String, // Store the filename of the image
     },
     partNumber: {
       type: String,
@@ -28,14 +27,6 @@ const finishSchema = new mongoose.Schema(
       type: Number,
       default: 0.0,
     },
-    // price: {
-    //   type: Number,
-    //   default: 0.0,
-    // },
-    // thickness: {
-    //   type: String,
-    //   required: "Thickness value is required",
-    // },
     status: {
       type: Boolean,
       default: false,

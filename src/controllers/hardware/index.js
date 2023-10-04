@@ -3,6 +3,11 @@ const HardwareService = require("../../services/hardware");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
 const { generateFinishes } = require("../user");
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const path = require('path')
+
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -20,19 +25,6 @@ exports.getHardware = async (req, res) => {
   HardwareService.findBy({ _id: id })
     .then((hardware) => {
       handleResponse(res, 200, "Success", hardware);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
-};
-
-exports.updateHardware = async (req, res) => {
-  const { id } = req.params;
-  const data = { ...req.body };
-  const updatedData = nestedObjectsToDotNotation(data);
-  HardwareService.update({ _id: id }, updatedData)
-    .then((hardware) => {
-      handleResponse(res, 200, "Hardware updated successfully", hardware);
     })
     .catch((err) => {
       handleError(res, err);
@@ -104,8 +96,16 @@ exports.getHardwaresByCategory = async (req, res) => {
 exports.saveHardware = async (req, res) => {
   const data = { ...req.body };
   const company_id = req.company_id;
+
+  if (req.file && req.file.fieldname === "image") {
+    const imagePath = req.file.path;
+    const newImagePath = `images/newHardware/${path.basename(imagePath)}`;
+    const imageBuffer = await readFile(imagePath);
+    data.image = newImagePath;
+  }
   const finishes = await FinishService.findAll({ company_id: company_id });
   const generateFinishesFormat = await generateFinishes(finishes);
+
   HardwareService.create({ ...data, finishes: generateFinishesFormat })
     .then((hardware) => {
       handleResponse(res, 200, "Hardware created successfully", hardware);
@@ -114,3 +114,26 @@ exports.saveHardware = async (req, res) => {
       handleError(res, err);
     });
 };
+exports.updateHardware = async (req, res) => {
+  const { id } = req.params;
+  const data = { ...req.body };
+  const updatedData = nestedObjectsToDotNotation(data);
+
+  try {
+    const oldHardware = await HardwareService.findById(id);
+
+    if (req.file) {
+      updatedData.image = `images/newHardware/${req.file.filename}`; 
+      if (oldHardware && oldHardware.image) {
+        const oldImagePath = `public/${oldHardware.image}`;
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    const hardware = await HardwareService.update({ _id: id }, updatedData);
+    handleResponse(res, 200, "Hardware updated successfully", hardware);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
