@@ -30,6 +30,7 @@ exports.getAll = async (req, res) => {
       handleError(res, err);
     });
 };
+
 exports.getDashboardTotals = async (req, res) => {
   const company_id = req.company_id;
   try {

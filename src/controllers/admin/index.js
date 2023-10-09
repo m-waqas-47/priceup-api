@@ -1,8 +1,10 @@
 const AdminService = require("../../services/admin");
+const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 const MailgunService = require('../../services/sendMail/index'); 
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
+const CompanyService = require('../../services/company')
 exports.getAll = async (req, res) => {
   AdminService.findAll()
     .then((admins) => {
@@ -24,9 +26,25 @@ exports.loginAdmin = async (req, res) => {
     } else if (admin.comparePassword(password) && !admin.status) {
       handleError(res, { statusCode: 400, message: "User is not active" });
     } else {
-      const token = await admin.generateJwt("");
+      // const company = await CompanyService.findBy({ user_id: admin._id });
+      const token = await admin.generateJwt('');
       handleResponse(res, 200, "You are successfully logged in!", { token });
     }
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.loginAdminById = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const admin = await UserService.findById(id);
+    console.log({  id, admin})
+    const company = await CompanyService.findBy({ user_id: admin._id });
+    const token = await admin.generateJwt(company._id);
+      // const token = await admin.generateJwt("");
+      handleResponse(res, 200, "You are successfully logged in!", { token });
+    
   } catch (err) {
     handleError(res, err);
   }

@@ -13,6 +13,18 @@ class AdminService {
     });
   }
 
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      Admin.findById(id)
+        .then((admin) => {
+          resolve(admin);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Admin.findOne(data)

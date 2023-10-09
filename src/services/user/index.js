@@ -11,6 +11,17 @@ class UserService {
         });
     });
   }
+  static findById(id) {
+    return new Promise((resolve, reject) => {
+      User.findById(id)
+        .then((user) => {
+          resolve(user);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
