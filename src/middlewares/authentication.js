@@ -8,7 +8,7 @@ module.exports.verifyToken = (req, res, next) => {
       const bearerHeader = req.headers["authorization"];
       if (typeof bearerHeader !== "undefined") {
         const token = bearerHeader.split(" ")[1];
-        jwt.verify(token, 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY5NjI1NjkzMiwiaWF0IjoxNjk2MjU2OTMyfQ.SeWHcWCG2ZPR-aYmoaVe4sjv_KhiTf-Vzu4Lpd-6SNk', (err, payload) => {
+        jwt.verify(token, process.env.JWT_SECRET, (err, payload) => {
           if (err) {
             handleError(res, {
               statusCode: 400,
