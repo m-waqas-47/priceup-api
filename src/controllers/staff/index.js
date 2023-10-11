@@ -1,5 +1,6 @@
 const CompanyService = require("../../services/company");
 const StaffService = require("../../services/staff");
+const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -12,6 +13,25 @@ exports.getAll = async (req, res) => {
       handleError(res, err);
     });
 };
+exports.getAllStaff = async (req, res) => {
+  try {
+    const staffs = await StaffService.findAll();
+    const staffsWithUserInfo = await Promise.all(staffs.map(async (staff) => {
+      const company = await CompanyService.findById(staff.company_id);
+      const user_id = company.user_id;
+      const user = await UserService.findById(user_id);
+      const user_name = user.name;
+
+      return { ...staff.toObject(), user_id, user_name };
+    }));
+
+    res.status(200).json({ message: 'All Staff', data: staffsWithUserInfo });
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching staff', error: err.message });
+  }
+};
+
+
 
 exports.loginStaff = async (req, res) => {
   const { email, password } = req.body;
@@ -84,3 +104,6 @@ exports.saveStaff = async (req, res) => {
       handleError(res, err);
     });
 };
+
+
+

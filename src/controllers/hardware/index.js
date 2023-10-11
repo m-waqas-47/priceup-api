@@ -123,10 +123,18 @@ exports.updateHardware = async (req, res) => {
     const oldHardware = await HardwareService.findById(id);
 
     if (req.file) {
-      updatedData.image = `images/newHardware/${req.file.filename}`; 
+      const newImagePath = `images/newHardware/${req.file.filename}`;
+
       if (oldHardware && oldHardware.image) {
         const oldImagePath = `public/${oldHardware.image}`;
-        fs.unlinkSync(oldImagePath);
+        if (oldHardware.image.startsWith('images/newHardware')) {
+          fs.unlinkSync(oldImagePath);
+          updatedData.image = newImagePath;
+        } else {
+          updatedData.image = newImagePath;
+        }
+      } else {
+        updatedData.image = newImagePath;
       }
     }
 

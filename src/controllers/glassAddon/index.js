@@ -32,23 +32,30 @@ exports.updateGlassAddon = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   const updatedData = nestedObjectsToDotNotation(data);
-
   try {
-    const oldHardware = await GlassAddonService.findById(id);
+    const oldGlassAddon = await GlassAddonService.findById(id);
 
     if (req.file) {
-      updatedData.image = `images/adonsType/${req.file.filename}`; 
-      if (oldHardware && oldHardware.image) {
-        const oldImagePath = `public/${oldHardware.image}`;
-        fs.unlinkSync(oldImagePath);
+      const newImagePath = `images/adonsType/${req.file.filename}`;
+
+      if (oldGlassAddon && oldGlassAddon.image) {
+        const oldImagePath = `public/${oldGlassAddon.image}`;
+        if (oldGlassAddon.image.startsWith('images/adonsType')) {
+          fs.unlinkSync(oldImagePath);
+          updatedData.image = newImagePath;
+        } else {
+          updatedData.image = newImagePath;
+        }
+      } else {
+        updatedData.image = newImagePath;
       }
     }
 
-  const glassTypeAddon = await GlassAddonService.update({ _id: id }, updatedData);
-  handleResponse(res, 200, "glassTypeAddon updated successfully", glassTypeAddon);
-} catch (err) {
-  handleError(res, err);
-}
+    const glassAddon = await GlassAddonService.update({ _id: id }, updatedData);
+    handleResponse(res, 200, "glassAddon updated successfully", glassAddon);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.deleteGlassAddonOptions = async (req, res) => {

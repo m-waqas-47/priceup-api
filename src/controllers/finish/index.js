@@ -1,7 +1,10 @@
 const FinishService = require("../../services/finish");
 const HardwareService = require("../../services/hardware");
 const { handleResponse, handleError } = require("../../utils/responses");
-const fs = require("fs").promises; // Import the File System module
+const fs = require('fs');
+const util = require('util');
+const readFile = util.promisify(fs.readFile);
+const path = require('path')
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -30,9 +33,15 @@ exports.saveFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
+    
+  if (req.file && req.file.fieldname === "image") {
+    const imagePath = req.file.path;
+    const newImagePath = `images/newFinish/${path.basename(imagePath)}`;
+    const imageBuffer = await readFile(imagePath);
+    data.image = newImagePath;
+  }
     const finish = await FinishService.create({
       ...data,
-      image: `images/finishes/${req.file.filename}`
     });
 
     const hardwares = await HardwareService.findAll({ company_id: company_id });
@@ -91,27 +100,24 @@ exports.updateFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
+    const oldFinish = await FinishService.findById(id);
+
     if (req.file) {
-      const finishToUpdate = await FinishService.findById(id);
-      const newImagePath = req.file.path.replace("public/", "");
+      const newImagePath = `images/newFinish/${req.file.filename}`;
 
-      if (newImagePath.startsWith("images/newFinish/")) {
-        if (finishToUpdate && finishToUpdate.image && finishToUpdate.image.startsWith("images/newFinish/")) {
-          const oldImagePath = `public/${finishToUpdate.image}`;
-          await fs.unlink(oldImagePath);
+      if (oldFinish && oldFinish.image) {
+        const oldImagePath = `public/${oldFinish.image}`;
+        if (oldFinish.image.startsWith('images/newFinish')) {
+          fs.unlinkSync(oldImagePath);
+          data.image = newImagePath;
+        } else {
+          data.image = newImagePath;
         }
-        data.image = newImagePath;
       } else {
-        const newImagePath = `public/images/newFinish/${req.file.filename}`;
-        await fs.rename(req.file.path, newImagePath);
-        data.image = newImagePath.replace("public/", "");
-
-        if (finishToUpdate && finishToUpdate.image && finishToUpdate.image.startsWith("images/newFinish/")) {
-          const oldImagePath = `public/${finishToUpdate.image}`;
-          await fs.unlink(oldImagePath);
-        }
+        data.image = newImagePath;
       }
     }
+
     await FinishService.update({ _id: id }, data);
 
     const hardwares = await HardwareService.findAll({ company_id: company_id });

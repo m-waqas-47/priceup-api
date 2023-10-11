@@ -1,18 +1,5 @@
 const multer = require("multer");
 
-// Define the first storage configuration
-const storage1 = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, "./public/images/newHardware");
-  },
-  filename: (req, file, callback) => {
-    callback(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-// Create a multer instance using the first storage
-const uploadHardware = multer({ storage: storage1 });
-
 const storage3 = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "./public/images/glassType");
@@ -75,6 +62,5 @@ module.exports = {
   updateGlassAddonss,
   uploadGlassAddons,
   updateGlassTypes,
-  uploadHardware,
   uploadGlassType,
 };

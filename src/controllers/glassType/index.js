@@ -124,19 +124,33 @@ exports.updateGlassType = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   const updatedData = nestedObjectsToDotNotation(data);
+  
   try {
-    const oldHardware = await GlassTypeService.findById(id);
+    const oldGlassType = await GlassTypeService.findById(id);
 
     if (req.file) {
-      updatedData.image = `images/glassType/${req.file.filename}`; 
-      if (oldHardware && oldHardware.image) {
-        const oldImagePath = `public/${oldHardware.image}`;
-        fs.unlinkSync(oldImagePath);
+      const newImagePath = `images/glassType/${req.file.filename}`;
+
+      if (oldGlassType && oldGlassType.image) {
+        const oldImagePath = `public/${oldGlassType.image}`;
+        if (oldGlassType.image.startsWith('images/glassType')) {
+          fs.unlinkSync(oldImagePath);
+          updatedData.image = newImagePath;
+        } else {
+          updatedData.image = newImagePath;
+        }
+      } else {
+        updatedData.image = newImagePath;
       }
     }
-  const glassType = await GlassTypeService.update({ _id: id }, updatedData);
+
+    const glassType = await GlassTypeService.update({ _id: id }, updatedData);
     handleResponse(res, 200, "glassType updated successfully", glassType);
   } catch (err) {
     handleError(res, err);
   }
 };
+
+
+
+

@@ -1,22 +1,66 @@
 const multer = require("multer");
+
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      if (req.originalUrl === "/hardwares/save" && file.fieldname === "image") {
-        cb(null, "public/images/newHardware");
-      } else if (file.originalname.startsWith("images/newFinish/")) {
-        cb(null, "public/images/newFinish");
-      } else {
-        cb(null, "public/images/finishes");
-      }
-    },
-  
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      const originalFileExtension = file.originalname.split(".").pop();
-      const newFilename = file.fieldname + "-" + uniqueSuffix + "." + originalFileExtension;
-      cb(null, newFilename);
-    },
-  });
-  
-  const upload = multer({ storage: storage });
-module.exports = upload;
+  destination: (req, file, callback) => {
+    callback(null, "./public/images/newFinish");
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// Create a multer instance using the first storage
+const updateFinsih = multer({ storage: storage });
+
+const storage3 = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "./public/images/newHardware");
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// Create a multer instance using the first storage
+const updateHardwares = multer({ storage: storage3 });
+
+const storage2 = multer.diskStorage({
+  destination: (req, file, callback) => {
+    if (req.originalUrl === "/finishes/save" && file.fieldname === "image") {
+      callback(null, "./public/images/newFinish");
+    } else {
+      callback(null, "./public/images/finishes");
+    }
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// Create a new multer instance using the second storage
+const uploadFinish = multer({ storage: storage2 });
+
+
+const storage4 = multer.diskStorage({
+  destination: (req, file, callback) => {
+    if (req.originalUrl === "/hardwares/save" && file.fieldname === "image") {
+      callback(null, "./public/images/newHardware");
+    } else {
+      callback(null, "./public/images/hardwares");
+    }
+  },
+  filename: (req, file, callback) => {
+    callback(null, Date.now() + "-" + file.originalname);
+  },
+});
+
+// Create a new multer instance using the second storage
+const uploadHardware = multer({ storage: storage4 });
+
+module.exports = {
+  updateFinsih,
+  uploadFinish,
+  updateHardwares,
+  uploadHardware
+};
+

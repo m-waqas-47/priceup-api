@@ -8,12 +8,12 @@ const {
 } = require("../controllers/finish");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
-const upload = require("../utils/multer");
+const {updateFinsih,uploadFinish} = require("../utils/multer");
 
 router.get("/", verifyToken, getAll);
 router.get("/:id", verifyToken, getFinish);
-router.post("/save",upload.single("image"), verifyToken, saveFinish);
+router.post("/save",uploadFinish.single("image"), verifyToken, saveFinish);
 router.delete("/:id", verifyToken, deleteFinish);
-router.put("/:id",upload.single("image"), verifyToken, updateFinish);
+router.put("/:id",updateFinsih.single("image"), verifyToken, updateFinish);
 
 module.exports = router;

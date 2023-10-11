@@ -54,31 +54,36 @@ exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
 
+  // Define your Mailgun API key
+  const apiKey = '3mM44UdBCmazkj_UaZaoRJZy2gCrVYvwcLxDU';
+
+  // Create a mailgun instance with the 'https://api.eu.mailgun.net' endpoint
+  const mailgun = new Mailgun({ apiKey }, 'https://api.eu.mailgun.net');
+
   AdminService.create(data)
     .then((admin) => {
-
-      const mailgun = new Mailgun(formData);
-      const mg = mailgun.client({ username: 'api', key: '19495ba7350babfea33a6c84c5edfeed-77316142-233d9fb9',url: 'https://api.mailgun.net' });
-      mg.messages.create('sandbox7153a1700fe64377815eb11961d1c1ca.mailgun.org', {
-        from: "muhammadwaqas3447@gmail.com",
-        to: ["pak993311@gmail.com"],
-        subject: "Hello",
-        text: "Testing some Mailgun awesomeness!",
-        html: "<h1>Testing some Mailgun awesomeness!</h1>"
-      })
-      .then((msg) => {
-        console.log(msg);
-        handleResponse(res, 200, "Admin created successfully", admin);
-      })
-      .catch((err) => {
-        console.error(err);
-        handleError(res, err);
-      });
+      const mg = mailgun.client({ username: 'api', key: apiKey });
+      const messageData = {
+        from: 'muhammadwaqas3447@gmail.com',
+        to: 'pak993311@gmail.com',
+        subject: 'Hello',
+        text: 'Testing some Mailgun awesomeness!'
+      };
+      
+      mg.messages.create('noreply.priceup.glass', messageData)
+       .then((response) => {
+         console.log(response);
+       })
+       .catch((err) => {
+         console.error(err);
+       });
     })
     .catch((err) => {
       handleError(res, err);
     });
 };
+
+
 
 // exports.saveAdmin = async (req, res) => {
 //   // Your Mailgun configuration
