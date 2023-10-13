@@ -1,28 +1,19 @@
-const mailgun = require('mailgun-js');
-const apiKey = '62916a6c-e474350e';
-const domain = 'sandbox7153a1700fe64377815eb11961d1c1ca.mailgun.org'; 
-
+const Mailgun = require('mailgun.js');
+const formData = require('form-data');
+const API_KEY = process.env.APIKEY;
+const DOMAIN = process.env.DOMAINS;
+const mailgun = new Mailgun(formData);
+const client = mailgun.client({ username: 'api', key: API_KEY,  });
 class MailgunService {
-  static sendEmail(to, subject, text, html) {
-    const mg = mailgun({ apiKey, domain });
-
-    const data = {
-      from: 'pak993322@gmail.com',
-      to,
-      subject,
-      text,
-      html,
+  static sendEmail(to, subject, text) {
+    const messageData = {
+      from: 'Your App <mailgun@yourdomain.com>',
+      to: to,
+      subject: subject,
+      text: text,
     };
 
-    return new Promise((resolve, reject) => {
-      mg.messages().send(data, (error, body) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(body);
-        }
-      });
-    });
+    return client.messages().create(DOMAIN, messageData);
   }
 }
 

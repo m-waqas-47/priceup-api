@@ -1,10 +1,9 @@
 const AdminService = require("../../services/admin");
 const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
-const MailgunService = require('../../services/sendMail/index'); 
-const formData = require('form-data');
-const Mailgun = require('mailgun.js');
 const CompanyService = require('../../services/company')
+
+
 exports.getAll = async (req, res) => {
   AdminService.findAll()
     .then((admins) => {
@@ -54,60 +53,11 @@ exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
 
-  // Define your Mailgun API key
-  const apiKey = '3mM44UdBCmazkj_UaZaoRJZy2gCrVYvwcLxDU';
-
-  // Create a mailgun instance with the 'https://api.eu.mailgun.net' endpoint
-  const mailgun = new Mailgun({ apiKey }, 'https://api.eu.mailgun.net');
-
   AdminService.create(data)
     .then((admin) => {
-      const mg = mailgun.client({ username: 'api', key: apiKey });
-      const messageData = {
-        from: 'muhammadwaqas3447@gmail.com',
-        to: 'pak993311@gmail.com',
-        subject: 'Hello',
-        text: 'Testing some Mailgun awesomeness!'
-      };
-      
-      mg.messages.create('noreply.priceup.glass', messageData)
-       .then((response) => {
-         console.log(response);
-       })
-       .catch((err) => {
-         console.error(err);
-       });
+      res.status(201).json(admin); // Respond with the newly created admin data
     })
     .catch((err) => {
       handleError(res, err);
     });
 };
-
-
-
-// exports.saveAdmin = async (req, res) => {
-//   // Your Mailgun configuration
-//   const mailgun = new Mailgun(formData);
-//   const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY || 'key-yourkeyhere' });
-
-//   // Email data from the request body
-//   const emailData = {
-//     from: 'Excited User <mailgun@sandbox-123.mailgun.org>',
-//     to: ['test@example.com'],
-//     subject: 'Hello',
-//     text: 'Testing some Mailgun awesomeness!',
-//     html: '<h1>Testing some Mailgun awesomeness!</h1>',
-//   };
-
-//   // Send the email
-//   mg.messages
-//     .create('sandbox-123.mailgun.org', emailData)
-//     .then((msg) => {
-//       console.log(msg); // logs response data
-//       res.status(200).json({ message: 'Email sent successfully!' });
-//     })
-//     .catch((err) => {
-//       console.error(err);
-//       res.status(500).json({ error: 'Failed to send email.' });
-//     });
-// }

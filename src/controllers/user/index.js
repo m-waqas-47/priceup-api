@@ -9,6 +9,7 @@ const {
   hardwareCategories,
 } = require("../../seeders/hardwareCategoriesSeeder");
 const { layouts } = require("../../seeders/layoutsSeeder");
+const MailgunService = require('../../services/sendMail/index'); 
 const { glassTypes } = require("../../seeders/glassTypeSeeder");
 const { glassAddons } = require("../../seeders/glassAddonsSeeder");
 
@@ -21,6 +22,7 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
+
 exports.getAll = async (req, res) => {
   UserService.findAll()
     .then((users) => {
@@ -154,12 +156,22 @@ exports.saveUser = async (req, res) => {
       });
     });
     await seedLayouts(layouts, company?.id); // create user layouts
-    handleResponse(res, 200, "User created succefully", user);
+
+    // Sending an email to the user
+    const to = req.body.email;
+    const subject = 'Welcome to Our Service';
+    const text = `Thank you for signing up! Your password is: ${password}`;
+
+   await MailgunService.sendEmail(to, subject, text);
+
+    handleResponse(res, 200, "User created successfully", user);
   } catch (error) {
     console.log(error);
     handleError(res, error);
   }
 };
+
+
 const seedLayouts = (layouts, company_id) => {
   return new Promise((resolve, reject) => {
     try {

@@ -25,7 +25,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 2,
       transom: "fixed-wall-clamp",
@@ -69,7 +69,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 2,
       other: {
@@ -112,7 +112,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 2,
       other: {
@@ -142,7 +142,7 @@ exports.layouts = [
       mountingChannel: "u-channel-3-8",
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 1,
       other: {
@@ -172,7 +172,7 @@ exports.layouts = [
       mountingChannel: "u-channel-3-8",
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 2,
       other: {
@@ -215,7 +215,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       glassAddon: "no-treatment",
       outages: 3,
@@ -250,7 +250,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       outages: 2,
       other: {
@@ -279,7 +279,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       slidingDoorSystem: {
         type: "cardinal-skyline-60",
@@ -312,7 +312,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "3/8",
+        thickness: "",
       },
       slidingDoorSystem: {
         type: "cardinal-skyline-60",
