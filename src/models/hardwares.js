@@ -43,7 +43,7 @@ const hardware = new mongoose.Schema(
         },
         cost: {
           type: Number,
-          default: 0.0,
+          default: 0
         },
         // thickness: {
         //   type: String,

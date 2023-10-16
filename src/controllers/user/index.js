@@ -158,11 +158,11 @@ exports.saveUser = async (req, res) => {
     await seedLayouts(layouts, company?.id); // create user layouts
 
     // Sending an email to the user
-    const to = req.body.email;
-    const subject = 'Welcome to Our Service';
-    const text = `Thank you for signing up! Your password is: ${password}`;
+  //   const to = req.body.email;
+  //   const subject = 'Welcome to Our Service';
+  //   const text = `Thank you for signing up! Your password is: ${password}`;
 
-   await MailgunService.sendEmail(to, subject, text);
+  //  await MailgunService.sendEmail(to, subject, text);
 
     handleResponse(res, 200, "User created successfully", user);
   } catch (error) {
