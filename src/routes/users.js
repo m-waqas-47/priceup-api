@@ -7,10 +7,12 @@ const {
   loginUser,
   updateUserStatus,
   getDashboardTotals,
+  getQuote
 } = require("../controllers/user");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
 
+router.get("/getQuote/:id", verifyToken, getQuote);
 router.get("/", verifyToken, getAll);
 router.get("/dashboardData", verifyToken, getDashboardTotals);
 router.get("/:id", verifyToken, getUser);

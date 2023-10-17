@@ -480,3 +480,13 @@ exports.generateFinishes = (finish) => {
     }
   });
 };
+exports.getQuote = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const estimates = await EstimateService.findAll({ customer_id: id });
+    handleResponse(res, 200, "Dashboard Data", estimates );
+  } catch (error) {
+    handleError(res, error);
+  }
+
+};
