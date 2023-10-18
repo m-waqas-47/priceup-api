@@ -36,7 +36,7 @@ exports.updateLayout = async (req, res) => {
   const { id } = req.params;
   const payload = { ...req.body };
   const data = await nestedObjectsToDotNotation(payload);
-  LayoutService.update({ _id: id }, data)
+    LayoutService.update({ _id: id }, data)
     .then((layout) => {
       handleResponse(res, 200, "Layout updated successfully", layout);
     })
