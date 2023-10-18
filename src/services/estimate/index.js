@@ -3,7 +3,7 @@ const Estimate = require("../../models/estimates");
 class EstimateService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Estimate.find(data).sort({createdAt: "asc"})
+      Estimate.find(data)
         .then((estimates) => {
           resolve(estimates);
         })
@@ -12,7 +12,17 @@ class EstimateService {
         });
     });
   }
-
+  static findOne(data) {
+    return new Promise((resolve, reject) => {
+      Estimate.findOne(data)
+        .then((estimate) => {
+          resolve(estimate);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Estimate.findOne(data)

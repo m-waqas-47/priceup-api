@@ -63,7 +63,7 @@ const layoutsSchema = new mongoose.Schema(
           type: Number,
           default: 0,
         },
-      },
+              },
       heavyPivotOption: {
         heavyPivotType: {
           type: mongoose.Schema.Types.ObjectId,
