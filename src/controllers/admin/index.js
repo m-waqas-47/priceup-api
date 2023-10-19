@@ -48,6 +48,20 @@ exports.loginAdminById = async (req, res) => {
     handleError(res, err);
   }
 };
+exports.loginAdminByIdAgain = async (req, res) => {
+  const { id } = req.body;
+  try {
+    const admin = await UserService.findById(id);
+    console.log({  id, admin})
+    const company = await CompanyService.findBy({ user_id: admin._id });
+    const token = await admin.generateJwt(company._id);
+      // const token = await admin.generateJwt("");
+      handleResponse(res, 200, "You are successfully logged in!", { token });
+    
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
 exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
