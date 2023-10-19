@@ -123,7 +123,8 @@ const generateOptions = () => {
 exports.updateGlassType = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  const updatedData = nestedObjectsToDotNotation(data);
+  const parsedData = JSON.parse(data.jsonData);
+  const updatedData = nestedObjectsToDotNotation(parsedData);
   
   try {
     const oldGlassType = await GlassTypeService.findById(id);

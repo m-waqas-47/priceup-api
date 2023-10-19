@@ -15,17 +15,21 @@ exports.generateRandomString = (length) => {
   }
   return result;
 };
-// exports.nestedObjectsToDotNotation = (object) => {
+
+
+// exports.nestedObjectsToDotNotation = (object, parentKey = "") => {
 //   const updatedObject = {};
 
-//   // Process the payload to convert nested objects into dot notation
 //   for (const key in object) {
-//     if (typeof object[key] === "object") {
-//       for (const nestedKey in object[key]) {
-//         updatedObject[`${key}.${nestedKey}`] = object[key][nestedKey];
-//       }
+//     const nestedKey = parentKey ? `${parentKey}.${key}` : key;
+//     const value = object[key];
+//     // console.log(nestedKey,value,'value');
+
+//     if (typeof value === "object" && !Array.isArray(value)) {
+//       const nestedObject = exports.nestedObjectsToDotNotation(value, nestedKey);
+//       Object.assign(updatedObject, nestedObject);
 //     } else {
-//       updatedObject[key] = object[key];
+//       updatedObject[nestedKey] = value;
 //     }
 //   }
 
@@ -41,7 +45,12 @@ exports.nestedObjectsToDotNotation = (object, parentKey = "") => {
 
     if (typeof value === "object" && !Array.isArray(value)) {
       const nestedObject = exports.nestedObjectsToDotNotation(value, nestedKey);
-      Object.assign(updatedObject, nestedObject);
+      if (Object.keys(nestedObject).length === 0) {
+        // If the nestedObject is empty, set nestedKey to null
+        updatedObject[nestedKey] = null;
+      } else {
+        Object.assign(updatedObject, nestedObject);
+      }
     } else {
       updatedObject[nestedKey] = value;
     }
