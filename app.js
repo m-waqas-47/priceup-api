@@ -3,6 +3,7 @@ const cors = require("cors");
 require("dotenv").config();
 require("./src/db/connection");
 
+
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -45,7 +46,6 @@ app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
 app.use("/*", indexRouter);
-
 
 app.listen(port, () => {
   console.log(`App is listening on PORT ${port}`);

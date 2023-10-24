@@ -46,7 +46,6 @@ class EstimateService {
         });
     });
   }
-
   static delete(condition) {
     return new Promise((resolve, reject) => {
       Estimate.findOneAndDelete(condition)
@@ -58,7 +57,17 @@ class EstimateService {
         });
     });
   }
-
+  static count(data) {
+    return new Promise((resolve, reject) => {
+      Estimate.countDocuments(data)
+        .then((count) => {
+          resolve(count);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
   static create(data) {
     return new Promise((resolve, reject) => {
       Estimate.create(data)

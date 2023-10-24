@@ -12,7 +12,17 @@ class CustomerService {
         });
     });
   }
-
+  static delete(condition) {
+    return new Promise((resolve, reject) => {
+      Customer.findOneAndDelete(condition)
+        .then((customers) => {
+          resolve(customers);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Customer.findOne(data)
