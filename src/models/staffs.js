@@ -42,6 +42,10 @@ const staffSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: "Company reference is required",
     },
+    haveAccessTo:[{
+      type:mongoose.Schema.Types.ObjectId,
+      default: null
+    }],
   },
   { timestamps: true }
 );

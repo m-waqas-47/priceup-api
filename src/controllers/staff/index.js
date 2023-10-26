@@ -16,22 +16,24 @@ exports.getAll = async (req, res) => {
 exports.getAllStaff = async (req, res) => {
   try {
     const staffs = await StaffService.findAll();
-    const staffsWithUserInfo = await Promise.all(staffs.map(async (staff) => {
-      const company = await CompanyService.findById(staff.company_id);
-      const user_id = company.user_id;
-      const user = await UserService.findById(user_id);
-      const user_name = user.name;
+    const staffsWithUserInfo = await Promise.all(
+      staffs.map(async (staff) => {
+        const company = await CompanyService.findBy({_id:staff.company_id});
+        const user_id = company.user_id;
+        const user = await UserService.findBy({_id:user_id});
+        const user_name = user.name;
 
-      return { ...staff.toObject(), user_id, user_name };
-    }));
+        return { ...staff.toObject(), user_id, user_name };
+      })
+    );
 
-    res.status(200).json({ message: 'All Staff', data: staffsWithUserInfo });
+    res.status(200).json({ message: "All Staff", data: staffsWithUserInfo });
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching staff', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching staff", error: err.message });
   }
 };
-
-
 
 exports.loginStaff = async (req, res) => {
   const { email, password } = req.body;
@@ -105,5 +107,57 @@ exports.saveStaff = async (req, res) => {
     });
 };
 
+exports.giveAccessToExisting = async (req, res) => {
+  const staffs = await StaffService.findAll();
+  try {
+    await Promise.all(
+      staffs?.map(async (staff) => {
+        await StaffService.update(
+          { _id: staff._id },
+          { haveAccessTo: [staff.company_id] }
+        );
+      })
+    );
+    handleResponse(res, 200, "Staffs info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
+exports.haveAccessTo = async (req, res) => {
+  const { id } = req.params;
+  const staff = await StaffService.findBy({ _id: id });
+  try {
+    const results = await Promise.all(
+      staff?.haveAccessTo?.map(async (company_id) => {
+        const company = await CompanyService.findBy({ _id: company_id });
+        const admin = await UserService.findBy({ _id: company.user_id });
+        return {
+          id: company._id,
+          name: admin.name,
+          image: admin.image,
+          email: admin.email,
+        };
+      })
+    );
+    handleResponse(res, 200, "Locations info", results);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
+exports.switchLocation = async (req, res) => {
+  const { staffId, companyId } = req.body;
+  try {
+    const staff = await StaffService.findBy({ _id: staffId });
+    if (!staff.haveAccessTo.includes(companyId)) {
+      handleError(res, 400, "Staff is not authorized to access this location");
+    }
+
+    const company = await CompanyService.findBy({ _id: companyId });
+    const token = await staff.generateJwt(company._id);
+    handleResponse(res, 200, "New Location Access", token);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
