@@ -86,14 +86,31 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  UserService.update({ _id: id }, data)
-    .then((user) => {
-      handleResponse(res, 200, "User info updated successfully", user);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const oldUser = await UserService.findById(id);
+
+    if (req.file) {
+      const newImagePath = `images/newUsers/${req.file.filename}`;
+
+      if (oldUser && oldUser.image) {
+        const oldImagePath = `public/${oldUser.image}`;
+        if (oldUser.image.startsWith('images/newUsers')) {
+          fs.unlinkSync(oldImagePath);
+          data.image = newImagePath;
+        } else {
+          data.image = newImagePath;
+        }
+      } else {
+        data.image = newImagePath;
+      }
+    }
+    const user = await UserService.update({ _id: id }, data);
+    handleResponse(res, 200, "User info updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
+
 exports.updateUserStatus = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
