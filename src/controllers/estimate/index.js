@@ -128,7 +128,7 @@ exports.getEstimateListsData = async (req, res) => {
 
 exports.updateEstimate = async (req, res) => {
   const { id } = req.params;
-  const {customerData, estimateData} = req.body;
+  const { customerData, estimateData } = req.body;
   const data = await nestedObjectsToDotNotation(estimateData);
   EstimateService.update({ _id: id }, data)
     .then((estimate) => {
@@ -141,9 +141,43 @@ exports.updateEstimate = async (req, res) => {
 
 exports.deleteEstimate = async (req, res) => {
   const { id } = req.params;
-  EstimateService.delete({ _id: id })
+  EstimateService.findBy({ _id: id })
     .then((estimate) => {
-      handleResponse(res, 200, "Estimate deleted successfully", estimate);
+      if (!estimate) {
+        return res.status(404).json({ message: "Estimate not found" });
+      }
+
+      const customerId = estimate.customer_id;
+      EstimateService.count({ customer_id: customerId })
+        .then((count) => {
+          if (count <= 1) {
+            Promise.all([
+              EstimateService.delete({ _id: id }),
+              CustomerService.delete({ _id: customerId }),
+            ])
+              .then(() => {
+                handleResponse(
+                  res,
+                  200,
+                  "Estimate and customer deleted successfully"
+                );
+              })
+              .catch((err) => {
+                handleError(res, err);
+              });
+          } else {
+            EstimateService.delete({ _id: id })
+              .then(() => {
+                handleResponse(res, 200, "Estimate deleted successfully");
+              })
+              .catch((err) => {
+                handleError(res, err);
+              });
+          }
+        })
+        .catch((err) => {
+          handleError(res, err);
+        });
     })
     .catch((err) => {
       handleError(res, err);
