@@ -68,3 +68,23 @@ exports.saveAdmin = async (req, res) => {
       handleError(res, err);
     });
 };
+
+exports.allLocations = async (req, res) => {
+  try {
+    const companies = await CompanyService.findAll();
+    const results = await Promise.all(
+      companies?.map(async (company) => {  
+        const admin = await UserService.findBy({ _id: company.user_id });
+        return {
+          id: company._id,
+          name: admin.name,
+          image: admin.image,
+          email: admin.email,
+        };
+      })
+    );
+    handleResponse(res, 200, "All Locations", results);
+  } catch (err) {
+    handleError(res, err);
+  }
+}
