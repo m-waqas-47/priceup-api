@@ -20,6 +20,11 @@ exports.hardwareCategories = [
     status: true,
   },
   {
+    name: "Mounting Corners",
+    slug: "corners",
+    status: true,
+  },
+  {
     name: "Sliding Door System",
     slug: "sliding-door-system",
     status: true,
