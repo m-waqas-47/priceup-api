@@ -90,6 +90,11 @@ exports.getListsData = (company_id) => {
         company_id: company_id,
       });
 
+      const mountingCorners = await HardwareService.findAllBy({
+        hardware_category_slug: "corners",
+        company_id: company_id,
+      });
+
       const slidingDoorSystem = await HardwareService.findAllBy({
         hardware_category_slug: "sliding-door-system",
         company_id: company_id,
@@ -120,11 +125,16 @@ exports.getListsData = (company_id) => {
         pivotHingeOption: hinges,
         heavyDutyOption: hinges,
         heavyPivotOption: hinges,
-        channelOrClamps: ["Channel", "Clamps"],
+        channelOrClamps: ["Channel", "Clamps","Corners"],
         mountingChannel: mountingChannel,
         wallClamp: mountingClamps,
         sleeveOver: mountingClamps,
         glassToGlass: mountingClamps,
+
+
+        wallClampCorner: mountingCorners,
+        sleeveOverCorner: mountingCorners,
+        glassToGlassCorner: mountingCorners,
         glassType: glassType,
         slidingDoorSystem: slidingDoorSystem,
         transom: transom,

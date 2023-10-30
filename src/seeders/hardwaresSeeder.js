@@ -855,9 +855,9 @@ exports.hardwares = [
     ],
   },
   {
-    name: "Corner Clamp",
+    name: "Beveled Wall Clamp",
     image: "images/hardwares/default.png",
-    slug: "corner-clamp",
+    slug: "beveled-wall-clamp",
     hardware_category_slug: "mounting-clamps",
     finishes: [
       {
@@ -912,10 +912,10 @@ exports.hardwares = [
     ],
   },
   {
-    name: "Beveled Wall Clamp",
+    name: "Corner Clamp",
     image: "images/hardwares/default.png",
-    slug: "beveled-wall-clamp",
-    hardware_category_slug: "mounting-clamps",
+    slug: "corner-clamp",
+    hardware_category_slug: "corners",
     finishes: [
       {
         name: "Brushed Bronze",
