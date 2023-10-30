@@ -1,8 +1,7 @@
 const AdminService = require("../../services/admin");
 const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
-const CompanyService = require('../../services/company')
-
+const CompanyService = require("../../services/company");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -26,7 +25,7 @@ exports.loginAdmin = async (req, res) => {
       handleError(res, { statusCode: 400, message: "User is not active" });
     } else {
       // const company = await CompanyService.findBy({ user_id: admin._id });
-      const token = await admin.generateJwt('');
+      const token = await admin.generateJwt("");
       handleResponse(res, 200, "You are successfully logged in!", { token });
     }
   } catch (err) {
@@ -37,13 +36,10 @@ exports.loginAdmin = async (req, res) => {
 exports.loginAdminById = async (req, res) => {
   const { id } = req.body;
   try {
-    const admin = await UserService.findById(id);
-    console.log({  id, admin})
+    const admin = await UserService.findBy({_id:id});
     const company = await CompanyService.findBy({ user_id: admin._id });
     const token = await admin.generateJwt(company._id);
-      // const token = await admin.generateJwt("");
-      handleResponse(res, 200, "You are successfully logged in!", { token });
-    
+    handleResponse(res, 200, "You are successfully logged in!", { token });
   } catch (err) {
     handleError(res, err);
   }
@@ -51,13 +47,10 @@ exports.loginAdminById = async (req, res) => {
 exports.loginAdminByIdAgain = async (req, res) => {
   const { id } = req.body;
   try {
-    const admin = await UserService.findById(id);
-    console.log({  id, admin})
+    const admin = await UserService.findBy({_id:id});
     const company = await CompanyService.findBy({ user_id: admin._id });
     const token = await admin.generateJwt(company._id);
-      // const token = await admin.generateJwt("");
-      handleResponse(res, 200, "You are successfully logged in!", { token });
-    
+    handleResponse(res, 200, "You are successfully logged in!", { token });
   } catch (err) {
     handleError(res, err);
   }
@@ -75,3 +68,23 @@ exports.saveAdmin = async (req, res) => {
       handleError(res, err);
     });
 };
+
+exports.allLocations = async (req, res) => {
+  try {
+    const companies = await CompanyService.findAll();
+    const results = await Promise.all(
+      companies?.map(async (company) => {  
+        const admin = await UserService.findBy({ _id: company.user_id });
+        return {
+          id: company._id,
+          name: admin.name,
+          image: admin.image,
+          email: admin.email,
+        };
+      })
+    );
+    handleResponse(res, 200, "All Locations", results);
+  } catch (err) {
+    handleError(res, err);
+  }
+}
