@@ -20,8 +20,8 @@ exports.hardwareCategories = [
     status: true,
   },
   {
-    name: "Mounting Corners",
-    slug: "corners",
+    name: "Corner Clamps",
+    slug: "corner-clamps",
     status: true,
   },
   {

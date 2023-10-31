@@ -915,7 +915,7 @@ exports.hardwares = [
     name: "Corner Clamp",
     image: "images/hardwares/default.png",
     slug: "corner-clamp",
-    hardware_category_slug: "corners",
+    hardware_category_slug: "corner-clamps",
     finishes: [
       {
         name: "Brushed Bronze",

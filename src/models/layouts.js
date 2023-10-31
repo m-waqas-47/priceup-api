@@ -117,6 +117,36 @@ const layoutsSchema = new mongoose.Schema(
           default: 0,
         },
       },
+      cornerWallClamp: {
+        wallClampType: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
+      cornerSleeveOver: {
+        sleeveOverType: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
+      cornerGlassToGlass: {
+        glassToGlassType: {
+          type: mongoose.Schema.Types.ObjectId,
+          default: null,
+        },
+        count: {
+          type: Number,
+          default: 0,
+        },
+      },
       // },
       glassType: {
         type: {

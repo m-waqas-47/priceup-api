@@ -36,7 +36,7 @@ exports.updateLayout = async (req, res) => {
   const { id } = req.params;
   const payload = { ...req.body };
   const data = await nestedObjectsToDotNotation(payload);
-    LayoutService.update({ _id: id }, data)
+  LayoutService.update({ _id: id }, data)
     .then((layout) => {
       handleResponse(res, 200, "Layout updated successfully", layout);
     })
@@ -65,4 +65,30 @@ exports.saveLayout = async (req, res) => {
     .catch((err) => {
       handleError(res, err);
     });
+};
+
+exports.updateExistingLayouts = async (req, res) => {
+  const layouts = await LayoutService.findAll();
+  try {
+    await Promise.all(
+      layouts?.map(async (layout) => {
+        await LayoutService.update(
+          { _id: layout._id },
+          {
+            $set: {
+              "settings.cornerWallClamp.wallClampType": null,
+              "settings.cornerWallClamp.count": 0,
+              "settings.cornerSleeveOver.sleeveOverType": null,
+              "settings.cornerSleeveOver.count": 0,
+              "settings.cornerGlassToGlass.glassToGlassType": null,
+              "settings.cornerGlassToGlass.count": 0,
+            },
+          }
+        );
+      })
+    );
+    handleResponse(res, 200, "Layouts info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
 };

@@ -366,6 +366,48 @@ const generateLayoutSettings = (settings, companyId) => {
           },
         };
       }
+      if (settings?.cornerWallClamp && settings?.cornerWallClamp?.wallClampType) {
+        // wallClamp
+        const wallClampType = await HardwareService.findBy({
+          slug: settings?.cornerWallClamp?.wallClampType,
+          company_id: new mongoose.Types.ObjectId(companyId),
+        });
+        result = {
+          ...result,
+          cornerWallClamp: {
+            wallClampType: new mongoose.Types.ObjectId(wallClampType?.id),
+            count: settings?.cornerWallClamp?.count,
+          },
+        };
+      }
+      if (settings?.cornerSleeveOver && settings?.cornerSleeveOver?.sleeveOverType) {
+        // sleeveOver
+        const sleeveOverType = await HardwareService.findBy({
+          slug: settings?.cornerSleeveOver?.sleeveOverType,
+          company_id: new mongoose.Types.ObjectId(companyId),
+        });
+        result = {
+          ...result,
+          cornerSleeveOver: {
+            sleeveOverType: new mongoose.Types.ObjectId(sleeveOverType?.id),
+            count: settings?.cornerSleeveOver?.count,
+          },
+        };
+      }
+      if (settings?.cornerGlassToGlass && settings?.cornerGlassToGlass?.glassToGlassType) {
+        // glassToGlass
+        const glassToGlassType = await HardwareService.findBy({
+          slug: settings?.cornerGlassToGlass?.glassToGlassType,
+          company_id: new mongoose.Types.ObjectId(companyId),
+        });
+        result = {
+          ...result,
+          cornerGlassToGlass: {
+            glassToGlassType: new mongoose.Types.ObjectId(glassToGlassType?.id),
+            count: settings?.cornerGlassToGlass?.count,
+          },
+        };
+      }
       if (settings?.glassType && settings?.glassType?.type) {
         // glassType
         const glassType = await GlassTypeService.findBy({

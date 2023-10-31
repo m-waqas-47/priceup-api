@@ -89,8 +89,8 @@ const estimateSchema = new mongoose.Schema(
         },
       ],
     },
-    corner: {
-      wallClampCorner: [
+    cornerClamps: {
+      wallClamp: [
         {
           type: {
             type: mongoose.Schema.Types.ObjectId,
@@ -102,7 +102,7 @@ const estimateSchema = new mongoose.Schema(
           },
         },
       ],
-      sleeveOverCorner: [
+      sleeveOver: [
         {
           type: {
             type: mongoose.Schema.Types.ObjectId,
@@ -114,7 +114,7 @@ const estimateSchema = new mongoose.Schema(
           },
         },
       ],
-      glassToGlassCorner: [
+      glassToGlass: [
         {
           type: {
             type: mongoose.Schema.Types.ObjectId,

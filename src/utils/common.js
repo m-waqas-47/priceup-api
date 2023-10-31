@@ -90,8 +90,8 @@ exports.getListsData = (company_id) => {
         company_id: company_id,
       });
 
-      const mountingCorners = await HardwareService.findAllBy({
-        hardware_category_slug: "corners",
+      const cornerClamps = await HardwareService.findAllBy({
+        hardware_category_slug: "corner-clamps",
         company_id: company_id,
       });
 
@@ -125,16 +125,14 @@ exports.getListsData = (company_id) => {
         pivotHingeOption: hinges,
         heavyDutyOption: hinges,
         heavyPivotOption: hinges,
-        channelOrClamps: ["Channel", "Clamps","Corners"],
+        channelOrClamps: ["Channel", "Clamps","Corner Clamps"],
         mountingChannel: mountingChannel,
         wallClamp: mountingClamps,
         sleeveOver: mountingClamps,
         glassToGlass: mountingClamps,
-
-
-        wallClampCorner: mountingCorners,
-        sleeveOverCorner: mountingCorners,
-        glassToGlassCorner: mountingCorners,
+        cornerWallClamp: cornerClamps,
+        cornerSleeveOver: cornerClamps,
+        cornerGlassToGlass: cornerClamps,
         glassType: glassType,
         slidingDoorSystem: slidingDoorSystem,
         transom: transom,
