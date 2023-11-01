@@ -89,6 +89,44 @@ const estimateSchema = new mongoose.Schema(
         },
       ],
     },
+    cornerClamps: {
+      wallClamp: [
+        {
+          type: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+          },
+          count: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
+      sleeveOver: [
+        {
+          type: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+          },
+          count: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
+      glassToGlass: [
+        {
+          type: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: null,
+          },
+          count: {
+            type: Number,
+            default: 0,
+          },
+        },
+      ],
+    },
     mountingChannel: {
       type: mongoose.Schema.Types.ObjectId,
       default: null,

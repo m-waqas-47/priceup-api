@@ -25,7 +25,7 @@ exports.layouts = [
       },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 2,
       transom: "fixed-wall-clamp",
@@ -63,13 +63,13 @@ exports.layouts = [
       },
       channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
-      wallClamp: {
-        wallClampType: "beveled-wall-clamp",
-        count: 3,
-      },
+      // wallClamp: {
+      //   wallClampType: "beveled-wall-clamp",
+      //   count: 3,
+      // },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 2,
       other: {
@@ -104,15 +104,15 @@ exports.layouts = [
         threshold: 85,
         height: 100,
       },
-      channelOrClamps: "Channel",
-      mountingChannel: "u-channel-3-8",
-      wallClamp: {
-        wallClampType: "beveled-wall-clamp",
-        count: 3,
-      },
+      // channelOrClamps: "Channel",
+      // mountingChannel: "u-channel-3-8",
+      // wallClamp: {
+      //   wallClampType: "beveled-wall-clamp",
+      //   count: 3,
+      // },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 2,
       other: {
@@ -138,11 +138,11 @@ exports.layouts = [
         hingesType: "std-bevel",
         count: 2,
       },
-      channelOrClamps: "Clamps",
+      channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 1,
       other: {
@@ -168,11 +168,11 @@ exports.layouts = [
         hingesType: "std-bevel",
         count: 2,
       },
-      channelOrClamps: "Clamps",
+      channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 2,
       other: {
@@ -207,15 +207,15 @@ exports.layouts = [
         threshold: 85,
         height: 100,
       },
-      channelOrClamps: "Clamps",
+      channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
-      glassToGlass: {
+      cornerGlassToGlass: {
         glassToGlassType: "corner-clamp",
         count: 1,
       },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       glassAddon: "no-treatment",
       outages: 3,
@@ -242,15 +242,15 @@ exports.layouts = [
         hingesType: "std-bevel",
         count: 2,
       },
-      channelOrClamps: "Clamps",
+      channelOrClamps: "Channel",
       mountingChannel: "u-channel-3-8",
-      glassToGlass: {
+      cornerGlassToGlass: {
         glassToGlassType: "corner-clamp",
         count: 1,
       },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       outages: 2,
       other: {
@@ -272,14 +272,11 @@ exports.layouts = [
         handleType: "8-x-8-d-pull",
         count: 1,
       },
-      channelOrClamps: "Clamps",
-      wallClamp: {
-        wallClampType: "beveled-wall-clamp",
-        count: 2,
-      },
+      channelOrClamps: "Channel",
+      mountingChannel: "u-channel-3-8",
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       slidingDoorSystem: {
         type: "cardinal-skyline-60",
@@ -305,14 +302,14 @@ exports.layouts = [
         handleType: "8-x-8-d-pull",
         count: 1,
       },
-      channelOrClamps: "Clamps",
-      wallClamp: {
-        wallClampType: "beveled-wall-clamp",
-        count: 2,
-      },
+      // channelOrClamps: "Clamps",
+      // wallClamp: {
+      //   wallClampType: "beveled-wall-clamp",
+      //   count: 2,
+      // },
       glassType: {
         type: "clear",
-        thickness: "",
+        thickness: "3/8",
       },
       slidingDoorSystem: {
         type: "cardinal-skyline-60",

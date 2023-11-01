@@ -8,6 +8,7 @@ const {
   deleteHardware,
   deleteHardwareFinishes,
   addHardwareFinishes,
+  updateExistingHardware
 } = require("../controllers/hardware");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
@@ -15,6 +16,7 @@ const {updateHardwares,uploadHardware} = require('../utils/multer')
 
 router.get("/", verifyToken, getAll);
 router.get("/:id", verifyToken, getHardware);
+router.put("/existingHardware",updateExistingHardware);
 router.put("/:id",updateHardwares.single("image"), verifyToken, updateHardware);
 router.delete("/:id/:finishItemId", verifyToken, deleteHardwareFinishes);
 router.patch("/:id", verifyToken, addHardwareFinishes);

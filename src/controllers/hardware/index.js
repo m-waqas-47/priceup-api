@@ -3,11 +3,12 @@ const HardwareService = require("../../services/hardware");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
 const { generateFinishes } = require("../user");
-const fs = require('fs');
-const util = require('util');
+const fs = require("fs");
+const util = require("util");
 const readFile = util.promisify(fs.readFile);
-const path = require('path')
-
+const path = require("path");
+const HardwareCategoryService = require("../../services/hardwareCategory");
+const CompanyService = require("../../services/company");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -127,7 +128,7 @@ exports.updateHardware = async (req, res) => {
 
       if (oldHardware && oldHardware.image) {
         const oldImagePath = `public/${oldHardware.image}`;
-        if (oldHardware.image.startsWith('images/newHardware')) {
+        if (oldHardware.image.startsWith("images/newHardware")) {
           fs.unlinkSync(oldImagePath);
           updatedData.image = newImagePath;
         } else {
@@ -145,3 +146,27 @@ exports.updateHardware = async (req, res) => {
   }
 };
 
+exports.updateExistingHardware = async (req, res) => {
+  const hardwares = await HardwareService.findAllBy({ slug: "corner-clamp" });
+  try {
+    await Promise.all(
+      hardwares?.map(async (hardware) => {
+        await HardwareService.delete({ _id: hardware._id });
+      })
+    );
+    const hardwareCat = await HardwareCategoryService.create({
+      name: "Corner Clamps",
+      slug: "corner-clamps",
+      status: true,
+    });
+    const companies = await CompanyService.findAll();
+    await Promis.all(
+      companies?.map(async (company)=>{
+        await HardwareService.create({});
+      })
+    );
+    handleResponse(res, 200, "Hardware info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};
