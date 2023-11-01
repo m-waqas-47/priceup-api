@@ -149,22 +149,22 @@ exports.updateHardware = async (req, res) => {
 exports.updateExistingHardware = async (req, res) => {
   const hardwares = await HardwareService.findAllBy({ slug: "corner-clamp" });
   try {
-    // await Promise.all(
-    //   hardwares?.map(async (hardware) => {
-    //     await HardwareService.delete({ _id: hardware._id });
-    //   })
-    // );
-    // const hardwareCat = await HardwareCategoryService.create({
-    //   name: "Corner Clamps",
-    //   slug: "corner-clamps",
-    //   status: true,
-    // });
-    // const companies = await CompanyService.findAll();
-    // await Promis.all(
-    //   companies?.map(async (company)=>{
-    //     await HardwareService.create({});
-    //   })
-    // );
+    await Promise.all(
+      hardwares?.map(async (hardware) => {
+        await HardwareService.delete({ _id: hardware._id });
+      })
+    );
+    const hardwareCat = await HardwareCategoryService.create({
+      name: "Corner Clamps",
+      slug: "corner-clamps",
+      status: true,
+    });
+    const companies = await CompanyService.findAll();
+    await Promis.all(
+      companies?.map(async (company)=>{
+        await HardwareService.create({});
+      })
+    );
     handleResponse(res, 200, "Hardware info updated");
   } catch (err) {
     handleError(res, err);
