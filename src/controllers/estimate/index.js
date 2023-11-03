@@ -61,6 +61,7 @@ exports.getAll = async (req, res) => {
                 image: layoutData.image,
                 name: layoutData.name,
                 _id: layoutData._id,
+                variant: layoutData.settings.variant,
               }
             : null,
           creatorData: creator
