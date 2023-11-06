@@ -172,6 +172,10 @@ const layoutsSchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
+      notch: {
+        type: Number,
+        default: 0,
+      },
       transom: {
         type: mongoose.Schema.Types.ObjectId,
         default: null,

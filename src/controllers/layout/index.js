@@ -74,17 +74,21 @@ exports.updateExistingLayouts = async (req, res) => {
       layouts?.map(async (layout) => {
         await LayoutService.update(
           { _id: layout._id },
-          {
-            $set: {
-              "settings.cornerWallClamp.wallClampType": null,
-              "settings.cornerWallClamp.count": 0,
-              "settings.cornerSleeveOver.sleeveOverType": null,
-              "settings.cornerSleeveOver.count": 0,
-              "settings.cornerGlassToGlass.glassToGlassType": null,
-              "settings.cornerGlassToGlass.count": 0,
-            },
-          }
+          { notch: 0 }
         );
+        // await LayoutService.update(
+        //   { _id: layout._id },
+        //   {
+        //     $set: {
+        //       "settings.cornerWallClamp.wallClampType": null,
+        //       "settings.cornerWallClamp.count": 0,
+        //       "settings.cornerSleeveOver.sleeveOverType": null,
+        //       "settings.cornerSleeveOver.count": 0,
+        //       "settings.cornerGlassToGlass.glassToGlassType": null,
+        //       "settings.cornerGlassToGlass.count": 0,
+        //     },
+        //   }
+        // );
       })
     );
     handleResponse(res, 200, "Layouts info updated");

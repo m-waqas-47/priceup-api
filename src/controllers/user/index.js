@@ -440,6 +440,10 @@ const generateLayoutSettings = (settings, companyId) => {
         // outages
         result = { ...result, outages: settings?.outages };
       }
+      if (settings?.notch) {
+        // notch
+        result = { ...result, notch: settings?.notch };
+      }
       if (settings?.transom) {
         // transom
         const transom = await HardwareService.findBy({
