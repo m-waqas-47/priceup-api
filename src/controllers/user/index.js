@@ -9,7 +9,7 @@ const {
   hardwareCategories,
 } = require("../../seeders/hardwareCategoriesSeeder");
 const { layouts } = require("../../seeders/layoutsSeeder");
-const MailgunService = require('../../services/sendMail/index'); 
+const MailgunService = require("../../services/sendMail/index");
 const { glassTypes } = require("../../seeders/glassTypeSeeder");
 const { glassAddons } = require("../../seeders/glassAddonsSeeder");
 
@@ -24,13 +24,36 @@ const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
 
 exports.getAll = async (req, res) => {
-  UserService.findAll()
-    .then((users) => {
-      handleResponse(res, 200, "All Users", users);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const companies = await CompanyService.findAll();
+    const result = await Promise.all(
+      companies.map(async (company) => {
+        const estimates = await EstimateService.findAll({
+          company_id: company._id,
+        });
+        const customers = await CustomerService.findAll({
+          company_id: company._id,
+        });
+        const staffs = await StaffService.findAll({
+          company_id: company._id,
+        });
+        const layouts = await LayoutService.findAll({
+          company_id: company._id,
+        });
+        const user = await UserService.findBy({ _id: company.user_id });
+        return {
+          user: user,
+          estimates: estimates?.length || 0,
+          customers: customers?.length || 0,
+          staffs: staffs?.length || 0,
+          layouts: layouts?.length || 0,
+        };
+      })
+    );
+    handleResponse(res, 200, "All Locations", result);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.getDashboardTotals = async (req, res) => {
@@ -94,7 +117,7 @@ exports.updateUser = async (req, res) => {
 
       if (oldUser && oldUser.image) {
         const oldImagePath = `public/${oldUser.image}`;
-        if (oldUser.image.startsWith('images/newUsers')) {
+        if (oldUser.image.startsWith("images/newUsers")) {
           fs.unlinkSync(oldImagePath);
           data.image = newImagePath;
         } else {
@@ -175,11 +198,11 @@ exports.saveUser = async (req, res) => {
     await seedLayouts(layouts, company?.id); // create user layouts
 
     // Sending an email to the user
-  //   const to = req.body.email;
-  //   const subject = 'Welcome to Our Service';
-  //   const text = `Thank you for signing up! Your password is: ${password}`;
+    //   const to = req.body.email;
+    //   const subject = 'Welcome to Our Service';
+    //   const text = `Thank you for signing up! Your password is: ${password}`;
 
-  //  await MailgunService.sendEmail(to, subject, text);
+    //  await MailgunService.sendEmail(to, subject, text);
 
     handleResponse(res, 200, "User created successfully", user);
   } catch (error) {
@@ -187,7 +210,6 @@ exports.saveUser = async (req, res) => {
     handleError(res, error);
   }
 };
-
 
 const seedLayouts = (layouts, company_id) => {
   return new Promise((resolve, reject) => {
@@ -366,7 +388,10 @@ const generateLayoutSettings = (settings, companyId) => {
           },
         };
       }
-      if (settings?.cornerWallClamp && settings?.cornerWallClamp?.wallClampType) {
+      if (
+        settings?.cornerWallClamp &&
+        settings?.cornerWallClamp?.wallClampType
+      ) {
         // wallClamp
         const wallClampType = await HardwareService.findBy({
           slug: settings?.cornerWallClamp?.wallClampType,
@@ -380,7 +405,10 @@ const generateLayoutSettings = (settings, companyId) => {
           },
         };
       }
-      if (settings?.cornerSleeveOver && settings?.cornerSleeveOver?.sleeveOverType) {
+      if (
+        settings?.cornerSleeveOver &&
+        settings?.cornerSleeveOver?.sleeveOverType
+      ) {
         // sleeveOver
         const sleeveOverType = await HardwareService.findBy({
           slug: settings?.cornerSleeveOver?.sleeveOverType,
@@ -394,7 +422,10 @@ const generateLayoutSettings = (settings, companyId) => {
           },
         };
       }
-      if (settings?.cornerGlassToGlass && settings?.cornerGlassToGlass?.glassToGlassType) {
+      if (
+        settings?.cornerGlassToGlass &&
+        settings?.cornerGlassToGlass?.glassToGlassType
+      ) {
         // glassToGlass
         const glassToGlassType = await HardwareService.findBy({
           slug: settings?.cornerGlassToGlass?.glassToGlassType,
@@ -547,9 +578,8 @@ exports.getQuote = async (req, res) => {
   const { id } = req.params;
   try {
     const estimates = await EstimateService.findAll({ customer_id: id });
-    handleResponse(res, 200, "Dashboard Data", estimates );
+    handleResponse(res, 200, "Dashboard Data", estimates);
   } catch (error) {
     handleError(res, error);
   }
-
 };
