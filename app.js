@@ -3,7 +3,6 @@ const cors = require("cors");
 require("dotenv").config();
 require("./src/db/connection");
 
-
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
@@ -21,6 +20,8 @@ const customerRouter = require("./src/routes/customers");
 const estimateRouter = require("./src/routes/estimates");
 const adminRouter = require("./src/routes/admins");
 const indexRouter = require("./src/routes/index");
+const { handleResponse } = require("./src/utils/responses");
+const MailgunService = require("./src/services/sendMail");
 
 app.use(
   cors({
@@ -45,6 +46,14 @@ app.use("/layouts", layoutRouter);
 app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
+app.use("/sendmail", async function (req, res, next) {
+  await MailgunService.sendEmail(
+    "muhammadwaqas3447@gmail.com",
+    "Testing Mailgun",
+    "Hi."
+  );
+  handleResponse(res, 200, "Email sent");
+});
 app.use("/*", indexRouter);
 
 app.listen(port, () => {
