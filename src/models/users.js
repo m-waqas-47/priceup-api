@@ -35,15 +35,17 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
-userSchema.pre("updateOne", async function (next) {
-  // Check if the password is being modified
-  if (this._update.password && this._update.password.$set) {
-    this._update.password.$set = await bcrypt.hash(this._update.password.$set, 10);
+
+userSchema.pre("findOneAndUpdate", async function (next) {
+  if (this._update.password) {
+    // Check if the password is being modified
+    this._update.password = await bcrypt.hash(this._update.password, 10);
   }
   next();
 });

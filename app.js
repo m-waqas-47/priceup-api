@@ -22,6 +22,7 @@ const adminRouter = require("./src/routes/admins");
 const indexRouter = require("./src/routes/index");
 const { handleResponse } = require("./src/utils/responses");
 const MailgunService = require("./src/services/sendMail");
+const customUsers = require("./src/models/customUsers");
 
 app.use(
   cors({
@@ -46,13 +47,14 @@ app.use("/layouts", layoutRouter);
 app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
-app.use("/sendmail", async function (req, res, next) {
-  await MailgunService.sendEmail(
-    "muhammadwaqas3447@gmail.com",
-    "Account Created"
-  );
-  handleResponse(res, 200, "Email sent");
-});
+app.use("/customUsers", customUsers);
+// app.use("/sendmail", async function (req, res, next) {
+//   await MailgunService.sendEmail(
+//     "muhammadwaqas3447@gmail.com",
+//     "Account Created"
+//   );
+//   handleResponse(res, 200, "Email sent");
+// });
 app.use("/*", indexRouter);
 
 app.listen(port, () => {

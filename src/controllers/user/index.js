@@ -146,6 +146,7 @@ exports.updateUserStatus = async (req, res) => {
       handleError(res, err);
     });
 };
+
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
