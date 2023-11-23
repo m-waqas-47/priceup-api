@@ -1,6 +1,7 @@
 const CompanyService = require("../../services/company");
 const CustomUserService = require("../../services/customUser");
 const UserService = require("../../services/user");
+const { isEmailAlreadyUsed } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -50,13 +51,19 @@ exports.deleteUser = async (req, res) => {
 
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
-  CustomUserService.create(data)
-    .then((customUser) => {
-      handleResponse(res, 200, "User created successfully", customUser);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const check = await isEmailAlreadyUsed();
+    if (check) {
+      handleError(res, {
+        statusCode: 400,
+        message: "Email already exist in system.Please try with new one.",
+      });
+    }
+    const user = await CustomUserService.create(data);
+    handleResponse(res, 200, "User created successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.haveAccessTo = async (req, res) => {

@@ -1,7 +1,11 @@
+const AdminService = require("../services/admin");
+const CustomUserService = require("../services/customUser");
 const FinishService = require("../services/finish");
 const GlassAddonService = require("../services/glassAddon");
 const GlassTypeService = require("../services/glassType");
 const HardwareService = require("../services/hardware");
+const StaffService = require("../services/staff");
+const UserService = require("../services/user");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -16,6 +20,31 @@ exports.generateRandomString = (length) => {
   return result;
 };
 
+exports.isEmailAlreadyUsed = async (email) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const user = await UserService.findBy({ email: email });
+      if (user) {
+        resolve(true);
+      }
+      const admin = await AdminService.findBy({ email: email });
+      if (admin) {
+        resolve(true);
+      }
+      const staff = await StaffService.findBy({ email: email });
+      if (staff) {
+        resolve(true);
+      }
+      const customUser = await CustomUserService.findBy({ email: email });
+      if (customUser) {
+        resolve(true);
+      }
+      resolve(false);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 // exports.nestedObjectsToDotNotation = (object, parentKey = "") => {
 //   const updatedObject = {};
@@ -125,7 +154,7 @@ exports.getListsData = (company_id) => {
         pivotHingeOption: hinges,
         heavyDutyOption: hinges,
         heavyPivotOption: hinges,
-        channelOrClamps: ["Channel", "Clamps","Corner Clamps"],
+        channelOrClamps: ["Channel", "Clamps", "Corner Clamps"],
         mountingChannel: mountingChannel,
         wallClamp: mountingClamps,
         sleeveOver: mountingClamps,
