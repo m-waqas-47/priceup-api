@@ -34,9 +34,16 @@ const customUserSchema = new mongoose.Schema(
     },
     locationsAccess: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        default: null,
-      },
+        company_id: {
+          type: mongoose.Schema.Types.ObjectId,
+          required: "Company reference is required",
+        },
+        company_password: {
+          type: String,
+          required: "Password is required",
+          minlength: [6, "Password must be atleast 6 character long"],
+        },
+      }
     ],
   },
   { timestamps: true }
