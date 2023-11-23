@@ -23,6 +23,7 @@ const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
 const { userCreated } = require("../../templates/email");
+const CustomUserService = require("../../services/customUser");
 
 exports.getAll = async (req, res) => {
   try {
@@ -76,7 +77,7 @@ exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await UserService.findBy({ email: email });
-    if (!user) {
+        if (!user) {
       handleError(res, { statusCode: 400, message: "Incorrect Email address" });
     } else if (!user.comparePassword(password)) {
       handleError(res, { statusCode: 400, message: "Incorrect Credentials" });

@@ -20,9 +20,9 @@ const customerRouter = require("./src/routes/customers");
 const estimateRouter = require("./src/routes/estimates");
 const adminRouter = require("./src/routes/admins");
 const indexRouter = require("./src/routes/index");
-const { handleResponse } = require("./src/utils/responses");
-const MailgunService = require("./src/services/sendMail");
-const customUsers = require("./src/models/customUsers");
+const customUsers = require("./src/routes/customUsers");
+// const { handleResponse } = require("./src/utils/responses");
+// const MailgunService = require("./src/services/sendMail");
 
 app.use(
   cors({
