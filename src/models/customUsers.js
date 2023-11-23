@@ -43,7 +43,7 @@ const customUserSchema = new mongoose.Schema(
           required: "Password is required",
           minlength: [6, "Password must be atleast 6 character long"],
         },
-      }
+      },
     ],
   },
   { timestamps: true }
@@ -55,7 +55,9 @@ customUserSchema.pre("save", async function (next) {
 });
 
 customUserSchema.methods.comparePassword = function (password) {
-  return bcrypt.compareSync(password, this.password);
+  return this.locationsAccess.find((item) =>
+    bcrypt.compareSync(password, item.company_password)
+  );
 };
 
 customUserSchema.methods.generateJwt = function (companyId) {

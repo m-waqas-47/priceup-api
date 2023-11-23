@@ -76,24 +76,42 @@ exports.getDashboardTotals = async (req, res) => {
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
+    let company = null;
     const user = await UserService.findBy({ email: email });
-        if (!user) {
+    const customUser = await CustomUserService.findBy({ email: email });
+    if (!user && !customUser) {
       handleError(res, { statusCode: 400, message: "Incorrect Email address" });
-    } else if (!user.comparePassword(password)) {
-      handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
-    } else if (user.comparePassword(password) && !user.status) {
-      handleError(res, { statusCode: 400, message: "User is not active" });
-    } else {
-      const company = await CompanyService.findBy({ user_id: user._id });
-      if (!company) {
-        handleError(res, {
-          statusCode: 400,
-          message: "No Company is registered against this email!",
-        });
-      }
-      const token = await user.generateJwt(company._id);
-      handleResponse(res, 200, "You are successfully logged in!", { token });
     }
+    if (user) {
+      // for default user
+      if (!user.comparePassword(password)) {
+        handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+      }
+      if (user.comparePassword(password) && !user.status) {
+        handleError(res, { statusCode: 400, message: "User is not active" });
+      }
+      company = await CompanyService.findBy({ user_id: user._id });
+    } else {
+      // for custom added user
+      const passwordMatch = customUser.comparePassword(password);
+      if (!passwordMatch) {
+        handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+      }
+      if (passwordMatch && !customUser.status) {
+        handleError(res, { statusCode: 400, message: "User is not active" });
+      }
+      company = await CompanyService.findBy({ _id: passwordMatch.company_id });
+    }
+    if (!company) {
+      handleError(res, {
+        statusCode: 400,
+        message: "No Company is registered against this email!",
+      });
+    }
+    const token = user
+      ? await user.generateJwt(company._id)
+      : await customUser.generateJwt(company._id);
+    handleResponse(res, 200, "You are successfully logged in!", { token });
   } catch (err) {
     handleError(res, err);
   }

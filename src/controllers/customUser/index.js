@@ -1,4 +1,6 @@
+const CompanyService = require("../../services/company");
 const CustomUserService = require("../../services/customUser");
+const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -25,7 +27,8 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  CustomUserService.update({ _id: id }, data)
+  const updatedData = nestedObjectsToDotNotation(data);
+  CustomUserService.update({ _id: id }, updatedData)
     .then((customUser) => {
       handleResponse(res, 200, "User info updated successfully", customUser);
     })
@@ -46,11 +49,10 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.saveUser = async (req, res) => {
-  const password = /*generateRandomString(8)*/ "abcdef";
-  const data = { ...req.body, password: password };
-  StaffService.create(data)
-    .then((staff) => {
-      handleResponse(res, 200, "Staff created successfully", staff);
+  const data = { ...req.body };
+  CustomUserService.create(data)
+    .then((customUser) => {
+      handleResponse(res, 200, "User created successfully", customUser);
     })
     .catch((err) => {
       handleError(res, err);
@@ -59,11 +61,12 @@ exports.saveUser = async (req, res) => {
 
 exports.haveAccessTo = async (req, res) => {
   const { id } = req.params;
-  const staff = await StaffService.findBy({ _id: id });
+  const customUser = await CustomUserService.findBy({ _id: id });
   try {
-    const results = await Promise.all(
-      staff?.haveAccessTo?.map(async (company_id) => {
-        const company = await CompanyService.findBy({ _id: company_id });
+    let results = [];
+    results = await Promise.all(
+      customUser?.locationsAccess?.map(async (item) => {
+        const company = await CompanyService.findBy({ _id: item.company_id });
         const admin = await UserService.findBy({ _id: company.user_id });
         return {
           id: company._id,
@@ -80,16 +83,25 @@ exports.haveAccessTo = async (req, res) => {
 };
 
 exports.switchLocation = async (req, res) => {
-  const { staffId, companyId } = req.body;
+  const { userId, companyId } = req.body;
   try {
-    const staff = await StaffService.findBy({ _id: staffId });
-    if (!staff.haveAccessTo.includes(companyId)) {
-      handleError(res, 400, "Staff is not authorized to access this location");
+    const customUser = await CustomUserService.findBy({ _id: userId });
+    if (!customUser) {
+      handleError(res, 400, "Invalid user ID");
     }
-
     const company = await CompanyService.findBy({ _id: companyId });
-    const token = await staff.generateJwt(company._id);
-    handleResponse(res, 200, "New Location Access", token);
+    if (!company) {
+      handleError(res, 400, "Invalid company ID");
+    }
+    if (
+      !customUser.locationsAccess.find((item) =>
+        item.company_id.equals(companyId)
+      )
+    ) {
+      handleError(res, 400, "User is not authorized to access this location");
+    }
+    const token = await customUser.generateJwt(company._id);
+    handleResponse(res, 200, "New Location Accessed", token);
   } catch (err) {
     handleError(res, err);
   }
