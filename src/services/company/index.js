@@ -12,17 +12,7 @@ class CompanyService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      Company.findById(id)
-        .then((company) => {
-          resolve(company);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
+  
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Company.findOne(data)

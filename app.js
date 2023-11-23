@@ -49,8 +49,7 @@ app.use("/glassAddons", glassAddonRouter);
 app.use("/sendmail", async function (req, res, next) {
   await MailgunService.sendEmail(
     "muhammadwaqas3447@gmail.com",
-    "Testing Mailgun",
-    "Hi."
+    "Account Created"
   );
   handleResponse(res, 200, "Email sent");
 });

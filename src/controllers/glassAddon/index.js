@@ -33,7 +33,7 @@ exports.updateGlassAddon = async (req, res) => {
   const data = { ...req.body };
   const updatedData = nestedObjectsToDotNotation(data);
   try {
-    const oldGlassAddon = await GlassAddonService.findById(id);
+    const oldGlassAddon = await GlassAddonService.findBy({_id:id});
 
     if (req.file) {
       const newImagePath = `images/adonsType/${req.file.filename}`;

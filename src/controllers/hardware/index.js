@@ -121,7 +121,7 @@ exports.updateHardware = async (req, res) => {
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    const oldHardware = await HardwareService.findById(id);
+    const oldHardware = await HardwareService.findBy({_id:id});
 
     if (req.file) {
       const newImagePath = `images/newHardware/${req.file.filename}`;

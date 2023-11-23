@@ -11,34 +11,12 @@ class HardwareService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      Hardware.findById(id)
-        .then((hardwares) => {
-          resolve(hardwares);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
 
   static findAllBy(data) {
     return new Promise((resolve, reject) => {
       Hardware.find(data).sort({createdAt: "asc"})
         .then((hardwares) => {
           resolve(hardwares);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-  static findOne(data) {
-    return new Promise((resolve, reject) => {
-      Hardware.findOne(data)
-        .then((hardware) => {
-          resolve(hardware);
         })
         .catch((err) => {
           reject(err);
@@ -73,6 +51,18 @@ class HardwareService {
   static delete(condition) {
     return new Promise((resolve, reject) => {
       Hardware.findOneAndDelete(condition)
+        .then((hardware) => {
+          resolve(hardware);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Hardware.deleteMany(condition)
         .then((hardware) => {
           resolve(hardware);
         })

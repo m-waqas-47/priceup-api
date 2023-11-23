@@ -49,6 +49,18 @@ class StaffService {
     });
   }
 
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Staff.deleteMany(condition)
+        .then((staff) => {
+          resolve(staff);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       Staff.create(data)

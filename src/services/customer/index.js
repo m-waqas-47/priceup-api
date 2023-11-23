@@ -12,6 +12,7 @@ class CustomerService {
         });
     });
   }
+
   static delete(condition) {
     return new Promise((resolve, reject) => {
       Customer.findOneAndDelete(condition)
@@ -23,6 +24,19 @@ class CustomerService {
         });
     });
   }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Customer.deleteMany(condition)
+        .then((customer) => {
+          resolve(customer);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Customer.findOne(data)

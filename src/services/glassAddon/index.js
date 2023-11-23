@@ -12,18 +12,6 @@ class GlassAddonService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      GlassAddon.findById(id)
-        .then((glassAddons) => {
-          resolve(glassAddons);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
@@ -40,6 +28,18 @@ class GlassAddonService {
   static delete(condition) {
     return new Promise((resolve, reject) => {
       GlassAddon.findOneAndDelete(condition)
+        .then((glassAddon) => {
+          resolve(glassAddon);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      GlassAddon.deleteMany(condition)
         .then((glassAddon) => {
           resolve(glassAddon);
         })

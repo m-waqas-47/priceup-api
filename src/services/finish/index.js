@@ -12,17 +12,6 @@ class FinishService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      Finish.findById(id)
-        .then((finish) => {
-          resolve(finish);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
@@ -51,6 +40,18 @@ class FinishService {
   static delete(condition) {
     return new Promise((resolve, reject) => {
       Finish.findOneAndDelete(condition)
+        .then((finish) => {
+          resolve(finish);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Finish.deleteMany(condition)
         .then((finish) => {
           resolve(finish);
         })

@@ -100,7 +100,7 @@ exports.updateFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
-    const oldFinish = await FinishService.findById(id);
+    const oldFinish = await FinishService.findBy({_id:id});
 
     if (req.file) {
       const newImagePath = `images/newFinish/${req.file.filename}`;

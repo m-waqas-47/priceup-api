@@ -12,17 +12,6 @@ class GlassTypeService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      GlassType.findById(id)
-        .then((glassTypes) => {
-          resolve(glassTypes);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
@@ -51,6 +40,18 @@ class GlassTypeService {
   static delete(condition) {
     return new Promise((resolve, reject) => {
       GlassType.findOneAndDelete(condition)
+        .then((glassType) => {
+          resolve(glassType);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      GlassType.deleteMany(condition)
         .then((glassType) => {
           resolve(glassType);
         })

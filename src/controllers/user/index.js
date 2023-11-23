@@ -22,6 +22,7 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
+const { userCreated } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   try {
@@ -110,7 +111,7 @@ exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   try {
-    const oldUser = await UserService.findById(id);
+    const oldUser = await UserService.findBy({ _id: id });
 
     if (req.file) {
       const newImagePath = `images/newUsers/${req.file.filename}`;
@@ -145,8 +146,61 @@ exports.updateUserStatus = async (req, res) => {
       handleError(res, err);
     });
 };
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await UserService.findBy({ _id: id });
+    if (!user) {
+      handleError(res, { statusCode: 400, message: "Invalid user ID" });
+    }
+    const company = await CompanyService.findBy({ user_id: user._id });
+    if (!company) {
+      handleError(res, {
+        statusCode: 400,
+        message: "No Company attached to this user",
+      });
+    }
+    const allStaff = await StaffService.findAll();
+    // remove company id from haveAccessTo array of Staff members
+    await Promise.all(
+      allStaff?.map(async (staff) => {
+        const staffAccess = staff.haveAccessTo;
+        const array = staffAccess.filter((item) => !item.equals(company._id));
+        await StaffService.update(
+          { _id: staff._id },
+          { haveAccessTo: [...array] }
+        );
+      })
+    );
+
+    // Delete Staff of company
+    await StaffService.deleteAll({ company_id: company._id });
+    // Delete Estimates
+    await EstimateService.deleteAll({ company_id: company._id });
+    // Delete Customers
+    await CustomerService.deleteAll({ company_id: company._id });
+    // Delete Finishes
+    await FinishService.deleteAll({ company_id: company._id });
+    // Delete Glass Addons
+    await GlassAddonService.deleteAll({ company_id: company._id });
+    // Delete Glass Types
+    await GlassTypeService.deleteAll({ company_id: company._id });
+    // Delete Hardwares
+    await HardwareService.deleteAll({ company_id: company._id });
+    // Delete Layouts
+    await LayoutService.deleteAll({ company_id: company._id });
+    // Delete Company record
+    await CompanyService.delete({ _id: company._id });
+    // Delete Company user
+    await UserService.delete({ _id: user._id });
+
+    handleResponse(res, 200, "User deleted successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 exports.saveUser = async (req, res) => {
-  const password = /*generateRandomString(8)*/ "abcdef";
+  const password = generateRandomString(8);
   const data = { ...req.body, password: password };
 
   try {
@@ -198,11 +252,9 @@ exports.saveUser = async (req, res) => {
     await seedLayouts(layouts, company?.id); // create user layouts
 
     // Sending an email to the user
-    //   const to = req.body.email;
-    //   const subject = 'Welcome to Our Service';
-    //   const text = `Thank you for signing up! Your password is: ${password}`;
+    const html = userCreated(password);
 
-    //  await MailgunService.sendEmail(to, subject, text);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
 
     handleResponse(res, 200, "User created successfully", user);
   } catch (error) {

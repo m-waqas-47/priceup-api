@@ -127,7 +127,7 @@ exports.updateGlassType = async (req, res) => {
   const updatedData = nestedObjectsToDotNotation(parsedData);
   
   try {
-    const oldGlassType = await GlassTypeService.findById(id);
+    const oldGlassType = await GlassTypeService.findBy({_id:id});
 
     if (req.file) {
       const newImagePath = `images/glassType/${req.file.filename}`;

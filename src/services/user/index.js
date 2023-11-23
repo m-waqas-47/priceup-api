@@ -11,17 +11,6 @@ class UserService {
         });
     });
   }
-  static findById(id) {
-    return new Promise((resolve, reject) => {
-      User.findById(id)
-        .then((user) => {
-          resolve(user);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
@@ -38,6 +27,18 @@ class UserService {
   static update(condition, data) {
     return new Promise((resolve, reject) => {
       User.findOneAndUpdate(condition, data, { new: true })
+        .then((user) => {
+          resolve(user);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static delete(condition) {
+    return new Promise((resolve, reject) => {
+      User.findOneAndDelete(condition)
         .then((user) => {
           resolve(user);
         })

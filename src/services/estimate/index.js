@@ -12,6 +12,7 @@ class EstimateService {
         });
     });
   }
+
   static findOne(data) {
     return new Promise((resolve, reject) => {
       Estimate.findOne(data)
@@ -23,6 +24,7 @@ class EstimateService {
         });
     });
   }
+
   static findBy(data) {
     return new Promise((resolve, reject) => {
       Estimate.findOne(data)
@@ -46,6 +48,7 @@ class EstimateService {
         });
     });
   }
+
   static delete(condition) {
     return new Promise((resolve, reject) => {
       Estimate.findOneAndDelete(condition)
@@ -57,6 +60,19 @@ class EstimateService {
         });
     });
   }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Estimate.deleteMany(condition)
+        .then((estimate) => {
+          resolve(estimate);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static count(data) {
     return new Promise((resolve, reject) => {
       Estimate.countDocuments(data)
@@ -68,6 +84,7 @@ class EstimateService {
         });
     });
   }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       Estimate.create(data)

@@ -49,6 +49,18 @@ class LayoutService {
     });
   }
 
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      Layout.deleteMany(condition)
+        .then((layout) => {
+          resolve(layout);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       Layout.create(data)
