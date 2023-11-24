@@ -1,6 +1,7 @@
 const CompanyService = require("../../services/company");
 const CustomUserService = require("../../services/customUser");
 const UserService = require("../../services/user");
+const bcrypt = require("bcryptjs");
 const {
   isEmailAlreadyUsed,
   nestedObjectsToDotNotation,
@@ -33,11 +34,11 @@ exports.updateUser = async (req, res) => {
   let data = { ...req.body };
   if (data?.locationsAccess) {
     const user = await CustomUserService.findBy({ _id: id });
-    const resultArray = this.generateAccessArray(data.locationsAccess, user);
+    const resultArray = await this.generateAccessArray(data.locationsAccess, user);
     data = { ...data, locationsAccess: resultArray };
   }
-  const updatedData = nestedObjectsToDotNotation(data);
-  CustomUserService.update({ _id: id }, updatedData)
+  // const updatedData = nestedObjectsToDotNotation(data);
+  CustomUserService.update({ _id: id }, data)
     .then((customUser) => {
       handleResponse(res, 200, "User info updated successfully", customUser);
     })
@@ -126,10 +127,10 @@ exports.switchLocation = async (req, res) => {
   }
 };
 exports.generateAccessArray = async (accessArray, user) => {
-  return new Promise((resolve, reject) => {
+  return new Promise(async(resolve, reject) => {
     try {
       let array = [];
-      array = accessArray?.map((item) => {
+      array = await Prmomise.all( accessArray?.map(async(item) => {
         const alreadyExist = user.locationsAccess.find((locationItem) =>
           locationItem.company_id.equals(item.company_id)
         );
@@ -138,10 +139,10 @@ exports.generateAccessArray = async (accessArray, user) => {
         } else {
           return {
             ...item,
-            company_password: brypt.hash(item.company_password, 10),
+            company_password: await bcrypt.hash(item.company_password, 10),
           };
         }
-      });
+      }));
       resolve(array);
     } catch (err) {
       reject(err);
