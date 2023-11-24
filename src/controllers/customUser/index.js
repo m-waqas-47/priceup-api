@@ -1,7 +1,10 @@
 const CompanyService = require("../../services/company");
 const CustomUserService = require("../../services/customUser");
 const UserService = require("../../services/user");
-const { isEmailAlreadyUsed } = require("../../utils/common");
+const {
+  isEmailAlreadyUsed,
+  nestedObjectsToDotNotation,
+} = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -27,7 +30,12 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  const data = { ...req.body };
+  let data = { ...req.body };
+  if (data?.locationsAccess) {
+    const user = await CustomUserService.findBy({ _id: id });
+    const resultArray = this.generateAccessArray(data.locationsAccess, user);
+    data = { ...data, locationsAccess: resultArray };
+  }
   const updatedData = nestedObjectsToDotNotation(data);
   CustomUserService.update({ _id: id }, updatedData)
     .then((customUser) => {
@@ -52,9 +60,9 @@ exports.deleteUser = async (req, res) => {
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
   try {
-    const check = await isEmailAlreadyUsed();
+    const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
-      handleError(res, {
+      return handleError(res, {
         statusCode: 400,
         message: "Email already exist in system.Please try with new one.",
       });
@@ -94,22 +102,49 @@ exports.switchLocation = async (req, res) => {
   try {
     const customUser = await CustomUserService.findBy({ _id: userId });
     if (!customUser) {
-      handleError(res, 400, "Invalid user ID");
+      return handleError(res, 400, "Invalid user ID");
     }
     const company = await CompanyService.findBy({ _id: companyId });
     if (!company) {
-      handleError(res, 400, "Invalid company ID");
+      return handleError(res, 400, "Invalid company ID");
     }
     if (
       !customUser.locationsAccess.find((item) =>
         item.company_id.equals(companyId)
       )
     ) {
-      handleError(res, 400, "User is not authorized to access this location");
+      return handleError(
+        res,
+        400,
+        "User is not authorized to access this location"
+      );
     }
     const token = await customUser.generateJwt(company._id);
     handleResponse(res, 200, "New Location Accessed", token);
   } catch (err) {
     handleError(res, err);
   }
+};
+exports.generateAccessArray = async (accessArray, user) => {
+  return new Promise((resolve, reject) => {
+    try {
+      let array = [];
+      array = accessArray?.map((item) => {
+        const alreadyExist = user.locationsAccess.find((locationItem) =>
+          locationItem.company_id.equals(item.company_id)
+        );
+        if (alreadyExist) {
+          return item;
+        } else {
+          return {
+            ...item,
+            company_password: brypt.hash(item.company_password, 10),
+          };
+        }
+      });
+      resolve(array);
+    } catch (err) {
+      reject(err);
+    }
+  });
 };

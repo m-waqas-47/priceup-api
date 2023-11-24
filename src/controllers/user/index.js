@@ -22,7 +22,7 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
-const { userCreated } = require("../../templates/email");
+const { userCreatedTemplate } = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
 
 exports.getAll = async (req, res) => {
@@ -171,11 +171,11 @@ exports.deleteUser = async (req, res) => {
   try {
     const user = await UserService.findBy({ _id: id });
     if (!user) {
-      handleError(res, { statusCode: 400, message: "Invalid user ID" });
+      return handleError(res, { statusCode: 400, message: "Invalid user ID" });
     }
     const company = await CompanyService.findBy({ user_id: user._id });
     if (!company) {
-      handleError(res, {
+      return handleError(res, {
         statusCode: 400,
         message: "No Company attached to this user",
       });
@@ -272,7 +272,7 @@ exports.saveUser = async (req, res) => {
     await seedLayouts(layouts, company?.id); // create user layouts
 
     // Sending an email to the user
-    const html = userCreated(password);
+    const html = userCreatedTemplate(password);
 
     await MailgunService.sendEmail(data.email, "Account Created", html);
 
