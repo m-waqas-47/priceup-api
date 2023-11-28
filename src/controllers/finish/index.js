@@ -136,19 +136,11 @@ exports.updateFinish = async (req, res) => {
       }
     }
 
-    handleResponses(res, 200, "Finish updated successfully", data);
+    handleResponse(res, 200, "Finish updated successfully", data);
   } catch (err) {
     console.error(err);
-    handleErrors(res, err);
+    handleError(res, err);
   }
 };
-
-function handleResponses(res, status, message, data) {
-  res.status(status).json({ message, data });
-}
-function handleErrors(res, err) {
-  console.error(err);
-  res.status(500).json({ error: "An error occurred." });
-}
 
 

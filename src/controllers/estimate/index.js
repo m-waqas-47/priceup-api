@@ -190,10 +190,7 @@ exports.saveEstimate = async (req, res) => {
   const data = { ...req.body };
   const customerData = data?.customerData;
   if (!customerData) {
-    handleError(res, {
-      statusCode: 400,
-      message: "Customer Data is required!",
-    });
+    throw new Error('Customer Data is required!');
   }
   try {
     const customer = await CustomerService.findByAndUpdate(
@@ -215,8 +212,8 @@ exports.saveEstimate = async (req, res) => {
       company_id: company_id,
     });
     handleResponse(res, 200, "Estimate created successfully", estimate);
-  } catch (error) {
-    handleError(res, error);
+  } catch (err) {
+    handleError(res, err);
   }
 };
 
@@ -250,7 +247,7 @@ exports.getEstimateTotals = async (req, res) => {
       approved: approved,
       voided: voided,
     });
-  } catch (error) {
-    handleError(res, error);
+  } catch (err) {
+    handleError(res, err);
   }
 };

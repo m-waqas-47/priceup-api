@@ -1,11 +1,12 @@
 const CompanyService = require("../../services/company");
 const StaffService = require("../../services/staff");
 const UserService = require("../../services/user");
+const { isEmailAlreadyUsed } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
-  StaffService.findAll({ company_id: company_id })
+  StaffService.findAll({ company_id: company_id }) // get staff related to company
     .then((staffs) => {
       handleResponse(res, 200, "All Staff", staffs);
     })
@@ -15,23 +16,21 @@ exports.getAll = async (req, res) => {
 };
 exports.getAllStaff = async (req, res) => {
   try {
-    const staffs = await StaffService.findAll();
+    const staffs = await StaffService.findAll(); // get all staff
     const staffsWithUserInfo = await Promise.all(
       staffs.map(async (staff) => {
-        const company = await CompanyService.findBy({_id:staff.company_id});
+        const company = await CompanyService.findBy({ _id: staff.company_id });
         const user_id = company.user_id;
-        const user = await UserService.findBy({_id:user_id});
+        const user = await UserService.findBy({ _id: user_id });
         const user_name = user.name;
 
         return { ...staff.toObject(), user_id, user_name };
       })
     );
 
-    res.status(200).json({ message: "All Staff", data: staffsWithUserInfo });
+    handleResponse(res, 200, "All Staff", staffsWithUserInfo);
   } catch (err) {
-    res
-      .status(500)
-      .json({ message: "Error fetching staff", error: err.message });
+    handleError(res, err);
   }
 };
 
@@ -40,18 +39,15 @@ exports.loginStaff = async (req, res) => {
   try {
     const staff = await StaffService.findBy({ email: email });
     if (!staff) {
-      handleError(res, { statusCode: 400, message: "Incorrect Email address" });
+      throw new Error("Incorrect Email address");
     } else if (!staff.comparePassword(password)) {
-      handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+      throw new Error("Incorrect Credentials");
     } else if (staff.comparePassword(password) && !staff.status) {
-      handleError(res, { statusCode: 400, message: "Staff is not active" });
+      throw new Error("Staff is not active");
     } else {
       const company = await CompanyService.findBy({ _id: staff.company_id });
       if (!company) {
-        handleError(res, {
-          statusCode: 400,
-          message: "No Company reference found!",
-        });
+        throw new Error("No Company reference found!");
       }
       const token = await staff.generateJwt(company._id);
       handleResponse(res, 200, "You are successfully logged in!", { token });
@@ -98,13 +94,18 @@ exports.deleteStaff = async (req, res) => {
 exports.saveStaff = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
-  StaffService.create(data)
-    .then((staff) => {
-      handleResponse(res, 200, "Staff created successfully", staff);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error(
+        "Email already exist in system. Please try with new one."
+      );
+    }
+    const staff = await StaffService.create(data);
+    handleResponse(res, 200, "Staff created successfully", staff);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.giveAccessToExisting = async (req, res) => {
@@ -151,7 +152,7 @@ exports.switchLocation = async (req, res) => {
   try {
     const staff = await StaffService.findBy({ _id: staffId });
     if (!staff.haveAccessTo.includes(companyId)) {
-      handleError(res, 400, "Staff is not authorized to access this location");
+      throw new Error("Staff is not authorized to access this location");
     }
 
     const company = await CompanyService.findBy({ _id: companyId });

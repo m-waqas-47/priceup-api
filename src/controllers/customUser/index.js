@@ -4,7 +4,7 @@ const UserService = require("../../services/user");
 const bcrypt = require("bcryptjs");
 const {
   isEmailAlreadyUsed,
-  nestedObjectsToDotNotation,
+  // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 

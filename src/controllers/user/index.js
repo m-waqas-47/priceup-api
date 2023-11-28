@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const CompanyService = require("../../services/company");
 const UserService = require("../../services/user");
-const { generateRandomString } = require("../../utils/common");
+const { generateRandomString, isEmailAlreadyUsed } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
 const { finishes } = require("../../seeders/finishesSeeder");
 const { hardwares } = require("../../seeders/hardwaresSeeder");
@@ -219,6 +219,10 @@ exports.saveUser = async (req, res) => {
   const data = { ...req.body, password: password };
 
   try {
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error("Email already exist in system.Please try with new one.");
+    }
     const hardwareCat = await HardwareCategoryService.findAll();
     if (hardwareCat?.length <= 0) {
       await Promise.all(

@@ -2,6 +2,7 @@ const AdminService = require("../../services/admin");
 const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 const CompanyService = require("../../services/company");
+const { isEmailAlreadyUsed } = require("../../utils/common");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -18,11 +19,11 @@ exports.loginAdmin = async (req, res) => {
   try {
     const admin = await AdminService.findBy({ email: email });
     if (!admin) {
-      handleError(res, { statusCode: 400, message: "Incorrect Email address" });
+      throw new Error("Incorrect Email address");
     } else if (!admin.comparePassword(password)) {
-      handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+      throw new Error("Incorrect Credentials");
     } else if (admin.comparePassword(password) && !admin.status) {
-      handleError(res, { statusCode: 400, message: "User is not active" });
+      throw new Error("User is not active");
     } else {
       // const company = await CompanyService.findBy({ user_id: admin._id });
       const token = await admin.generateJwt("");
@@ -36,7 +37,7 @@ exports.loginAdmin = async (req, res) => {
 exports.loginAdminById = async (req, res) => {
   const { id } = req.body;
   try {
-    const admin = await UserService.findBy({_id:id});
+    const admin = await UserService.findBy({ _id: id });
     const company = await CompanyService.findBy({ user_id: admin._id });
     const token = await admin.generateJwt(company._id);
     handleResponse(res, 200, "You are successfully logged in!", { token });
@@ -47,7 +48,7 @@ exports.loginAdminById = async (req, res) => {
 exports.loginAdminByIdAgain = async (req, res) => {
   const { id } = req.body;
   try {
-    const admin = await UserService.findBy({_id:id});
+    const admin = await UserService.findBy({ _id: id });
     const company = await CompanyService.findBy({ user_id: admin._id });
     const token = await admin.generateJwt(company._id);
     handleResponse(res, 200, "You are successfully logged in!", { token });
@@ -59,21 +60,23 @@ exports.loginAdminByIdAgain = async (req, res) => {
 exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
-
-  AdminService.create(data)
-    .then((admin) => {
-      res.status(201).json(admin); // Respond with the newly created admin data
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error("Email already exist in system.Please try with new one.");
+    }
+    const admin = await AdminService.create(data);
+    handleResponse(res, 200, "Admin created successfully", admin);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.allLocations = async (req, res) => {
   try {
     const companies = await CompanyService.findAll();
     const results = await Promise.all(
-      companies?.map(async (company) => {  
+      companies?.map(async (company) => {
         const admin = await UserService.findBy({ _id: company.user_id });
         return {
           id: company._id,
@@ -87,4 +90,4 @@ exports.allLocations = async (req, res) => {
   } catch (err) {
     handleError(res, err);
   }
-}
+};
