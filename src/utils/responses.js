@@ -23,7 +23,7 @@ exports.handleResponse = (res, code, message, data) => {
  */
 
 exports.handleError = (res, err) => {
-  let { statusCode = 500, message, code = null } = err;
+  let { statusCode = 400, message, code = null } = err;
   if (code == 20404) {
     message = "The code has expired";
   }

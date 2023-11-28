@@ -66,10 +66,7 @@ exports.saveUser = async (req, res) => {
   try {
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
-      return handleError(res, {
-        statusCode: 400,
-        message: "Email already exist in system.Please try with new one.",
-      });
+      throw new Error("Email already exist in system.Please try with new one.");
     }
     const user = await CustomUserService.create(data);
     handleResponse(res, 200, "User created successfully", user);
@@ -106,22 +103,18 @@ exports.switchLocation = async (req, res) => {
   try {
     const customUser = await CustomUserService.findBy({ _id: userId });
     if (!customUser) {
-      return handleError(res, 400, "Invalid user ID");
+      throw new Error("Invalid user ID");
     }
     const company = await CompanyService.findBy({ _id: companyId });
     if (!company) {
-      return handleError(res, 400, "Invalid company ID");
+      throw new Error("Invalid company ID");
     }
     if (
       !customUser.locationsAccess.find((item) =>
         item.company_id.equals(companyId)
       )
     ) {
-      return handleError(
-        res,
-        400,
-        "User is not authorized to access this location"
-      );
+      throw new Error("User is not authorized to access this location");
     }
     const token = await customUser.generateJwt(company._id);
     handleResponse(res, 200, "New Location Accessed", token);

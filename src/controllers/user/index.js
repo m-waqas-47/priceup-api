@@ -44,6 +44,7 @@ exports.getAll = async (req, res) => {
         });
         const user = await UserService.findBy({ _id: company.user_id });
         return {
+          company: company,
           user: user,
           estimates: estimates?.length || 0,
           customers: customers?.length || 0,
@@ -80,33 +81,30 @@ exports.loginUser = async (req, res) => {
     const user = await UserService.findBy({ email: email });
     const customUser = await CustomUserService.findBy({ email: email });
     if (!user && !customUser) {
-      handleError(res, { statusCode: 400, message: "Incorrect Email address" });
+      throw new Error("Incorrect Email address");
     }
     if (user) {
       // for default user
       if (!user.comparePassword(password)) {
-        handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+        throw new Error("Incorrect Credentials");
       }
       if (user.comparePassword(password) && !user.status) {
-        handleError(res, { statusCode: 400, message: "User is not active" });
+        throw new Error("User is not active");
       }
       company = await CompanyService.findBy({ user_id: user._id });
     } else {
       // for custom added user
       const passwordMatch = customUser.comparePassword(password);
       if (!passwordMatch) {
-        handleError(res, { statusCode: 400, message: "Incorrect Credentials" });
+        throw new Error("Incorrect Credentials");
       }
       if (passwordMatch && !customUser.status) {
-        handleError(res, { statusCode: 400, message: "User is not active" });
+        throw new Error("User is not active");
       }
       company = await CompanyService.findBy({ _id: passwordMatch.company_id });
     }
     if (!company) {
-      handleError(res, {
-        statusCode: 400,
-        message: "No Company is registered against this email!",
-      });
+      throw new Error("No Company is registered against this email!");
     }
     const token = user
       ? await user.generateJwt(company._id)
@@ -171,14 +169,11 @@ exports.deleteUser = async (req, res) => {
   try {
     const user = await UserService.findBy({ _id: id });
     if (!user) {
-      return handleError(res, { statusCode: 400, message: "Invalid user ID" });
+      throw new Error('Invalid user ID');
     }
     const company = await CompanyService.findBy({ user_id: user._id });
     if (!company) {
-      return handleError(res, {
-        statusCode: 400,
-        message: "No Company attached to this user",
-      });
+      throw new Error('No Company attached to this user');
     }
     const allStaff = await StaffService.findAll();
     // remove company id from haveAccessTo array of Staff members
