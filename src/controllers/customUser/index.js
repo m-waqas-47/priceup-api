@@ -80,7 +80,7 @@ exports.haveAccessTo = async (req, res) => {
   try {
     const customUser = await CustomUserService.findBy({ _id: id });
     if (!customUser) {
-      throw new Error("Invalid user ID");
+      handleResponse(res, 200, "Locations info", []); // have no access
     }
     let results = [];
     results = await Promise.all(
