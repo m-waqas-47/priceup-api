@@ -77,8 +77,11 @@ exports.saveUser = async (req, res) => {
 
 exports.haveAccessTo = async (req, res) => {
   const { id } = req.params;
-  const customUser = await CustomUserService.findBy({ _id: id });
   try {
+    const customUser = await CustomUserService.findBy({ _id: id });
+    if (!customUser) {
+      throw new Error("Invalid user ID");
+    }
     let results = [];
     results = await Promise.all(
       customUser?.locationsAccess?.map(async (item) => {
