@@ -251,3 +251,20 @@ exports.getEstimateTotals = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.modifyExistingRecords = async (req, res) => {
+  const estimates = await EstimateService.findAll();
+  try {
+    await Promise.all(
+      estimates?.map(async (estimate) => {
+        await EstimateService.update(
+          { _id: estimate._id },
+          { userProfitPercentage: 0 }
+        );
+      })
+    );
+    handleResponse(res, 200, "Estimates info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};

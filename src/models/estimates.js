@@ -247,6 +247,10 @@ const estimateSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    userProfitPercentage: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

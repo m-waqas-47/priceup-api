@@ -7,6 +7,7 @@ const {
   deleteEstimate,
   getEstimateListsData,
   getEstimateTotals,
+  modifyExistingRecords,
 } = require("../controllers/estimate");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 router.get("/", verifyToken, getAll);
 router.get("/total", verifyToken, getEstimateTotals);
 router.get("/listsData", verifyToken, getEstimateListsData);
+router.put("/modifyExisting", verifyToken, modifyExistingRecords); // run only once to update existing documents
 router.get("/:id", verifyToken, getEstimate);
 router.put("/:id", verifyToken, updateEstimate);
 router.delete("/:id", verifyToken, deleteEstimate);
