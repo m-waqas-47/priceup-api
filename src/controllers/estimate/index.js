@@ -1,5 +1,6 @@
 const { userRoles, estimateStatus } = require("../../config/common");
 const CompanyService = require("../../services/company");
+const CustomUserService = require("../../services/customUser");
 const CustomerService = require("../../services/customer");
 const EstimateService = require("../../services/estimate");
 const LayoutService = require("../../services/layout");
@@ -43,6 +44,9 @@ exports.getAll = async (req, res) => {
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
             creator = await UserService.findBy({ _id: estimate.creator_id });
+            if(!creator){
+            creator = await CustomUserService.findBy({ _id: estimate.creator_id });
+            }
             break;
           case userRoles.STAFF:
             creator = await StaffService.findBy({ _id: estimate.creator_id });
