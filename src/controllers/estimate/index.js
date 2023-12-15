@@ -44,8 +44,10 @@ exports.getAll = async (req, res) => {
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
             creator = await UserService.findBy({ _id: estimate.creator_id });
-            if(!creator){
-            creator = await CustomUserService.findBy({ _id: estimate.creator_id });
+            if (!creator) {
+              creator = await CustomUserService.findBy({
+                _id: estimate.creator_id,
+              });
             }
             break;
           case userRoles.STAFF:
@@ -194,12 +196,13 @@ exports.saveEstimate = async (req, res) => {
   const data = { ...req.body };
   const customerData = data?.customerData;
   if (!customerData) {
-    throw new Error('Customer Data is required!');
+    throw new Error("Customer Data is required!");
   }
   try {
-    const customer = await CustomerService.findByAndUpdate(
+    const customer = await CustomerService.update(
       {
         email: customerData?.email,
+        phone: customerData?.phone,
         company_id: company_id,
       },
       {

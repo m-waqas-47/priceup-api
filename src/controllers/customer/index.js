@@ -37,3 +37,20 @@ exports.saveCustomer = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.modifyExistingRecords = async (req, res) => {
+  const customers = await CustomerService.findAll();
+  try {
+    await Promise.all(
+      customers?.map(async (customer) => {
+        await CustomerService.update(
+          { _id: customer._id },
+          { phone: "" }
+        );
+      })
+    );
+    handleResponse(res, 200, "Customers info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};
