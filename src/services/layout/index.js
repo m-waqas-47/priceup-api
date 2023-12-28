@@ -3,7 +3,8 @@ const Layout = require("../../models/layouts");
 class LayoutService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Layout.find(data).sort({createdAt: "asc"})
+      Layout.find(data)
+        .sort({ createdAt: "desc" })
         .then((layouts) => {
           resolve(layouts);
         })

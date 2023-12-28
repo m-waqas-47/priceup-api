@@ -3,7 +3,8 @@ const Customer = require("../../models/customers");
 class CustomerService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Customer.find(data).sort({createdAt: "asc"})
+      Customer.find(data)
+        .sort({ createdAt: "desc" })
         .then((customers) => {
           resolve(customers);
         })

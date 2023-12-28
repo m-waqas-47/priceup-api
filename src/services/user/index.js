@@ -2,7 +2,8 @@ const User = require("../../models/users");
 class UserService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      User.find(data).sort({createdAt: "asc"})
+      User.find(data)
+        .sort({ createdAt: "desc" })
         .then((users) => {
           resolve(users);
         })

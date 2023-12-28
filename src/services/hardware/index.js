@@ -2,7 +2,8 @@ const Hardware = require("../../models/hardwares");
 class HardwareService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Hardware.find(data).sort({createdAt: "asc"})
+      Hardware.find(data)
+        .sort({ createdAt: "desc" })
         .then((hardwares) => {
           resolve(hardwares);
         })
@@ -14,7 +15,8 @@ class HardwareService {
 
   static findAllBy(data) {
     return new Promise((resolve, reject) => {
-      Hardware.find(data).sort({createdAt: "asc"})
+      Hardware.find(data)
+        .sort({ createdAt: "desc" })
         .then((hardwares) => {
           resolve(hardwares);
         })

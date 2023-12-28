@@ -3,7 +3,8 @@ const GlassAddon = require("../../models/glassAddons");
 class GlassAddonService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      GlassAddon.find(data).sort({createdAt: "asc"})
+      GlassAddon.find(data)
+        .sort({ createdAt: "desc" })
         .then((glassAddons) => {
           resolve(glassAddons);
         })

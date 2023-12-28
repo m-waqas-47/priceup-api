@@ -4,6 +4,7 @@ class EstimateService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
       Estimate.find(data)
+        .sort({ createdAt: "desc" })
         .then((estimates) => {
           resolve(estimates);
         })

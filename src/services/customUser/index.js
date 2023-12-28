@@ -4,7 +4,7 @@ class CustomUserService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
       CustomUser.find(data)
-        .sort({ createdAt: "asc" })
+        .sort({ createdAt: "desc" })
         .then((customUsers) => {
           resolve(customUsers);
         })

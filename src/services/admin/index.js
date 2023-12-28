@@ -4,6 +4,7 @@ class AdminService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
       Admin.find(data)
+        .sort({ createdAt: "desc" })
         .then((admins) => {
           resolve(admins);
         })
@@ -12,7 +13,6 @@ class AdminService {
         });
     });
   }
-
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
