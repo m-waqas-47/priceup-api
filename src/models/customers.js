@@ -12,6 +12,10 @@ const customerSchema = new mongoose.Schema(
       required: "Email is required",
       match: /.+\@.+\..+/,
     },
+    phone: {
+      type: String,
+      default: "",
+    },
     image: {
       type: String,
       default: "images/staff/default.jpg",

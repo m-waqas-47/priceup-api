@@ -50,7 +50,7 @@ class CustomerService {
     });
   }
 
-  static findByAndUpdate(condition, data, options) {
+  static update(condition, data, options) {
     return new Promise((resolve, reject) => {
       Customer.findOneAndUpdate(condition, data, options)
         .then((customer) => {
