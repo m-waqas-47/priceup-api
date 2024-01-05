@@ -211,14 +211,16 @@ exports.saveEstimate = async (req, res) => {
         },
         {
           name: `${customerData?.firstName} ${customerData?.lastName}`,
-          address: customerData.address,
+          address: customerData?.address,
           lastQuotedOn: getCurrentDate(),
         },
-        { upsert: true, new: true }
+        { new: true }
       );
     } else {
       customer = await CustomerService.create({
-        ...customerData,
+        name: `${customerData?.firstName} ${customerData?.lastName}`,
+        address: customerData?.address,
+        phone: customerData?.phone,
         lastQuotedOn: getCurrentDate(),
         company_id: company_id,
       });
