@@ -199,20 +199,30 @@ exports.saveEstimate = async (req, res) => {
     throw new Error("Customer Data is required!");
   }
   try {
-    const customer = await CustomerService.update(
-      {
-        email: customerData?.email,
-        phone: customerData?.phone,
-        company_id: company_id,
-      },
-      {
+    let customer = await CustomerService.findBy({
+      email: customerData?.email,
+      phone: customerData?.phone,
+      company_id: company_id,
+    });
+    if (customer) {
+      customer = await CustomerService.update(
+        {
+          _id: customer._id,
+        },
+        {
+          name: `${customerData?.firstName} ${customerData?.lastName}`,
+          address: customerData.address,
+          lastQuotedOn: getCurrentDate(),
+        },
+        { upsert: true, new: true }
+      );
+    } else {
+      customer = await CustomerService.create({
         ...customerData,
-        name: `${customerData?.firstName} ${customerData?.lastName}`,
         lastQuotedOn: getCurrentDate(),
         company_id: company_id,
-      },
-      { upsert: true, new: true }
-    );
+      });
+    }
     const estimate = await EstimateService.create({
       ...data?.estimateData,
       customer_id: customer._id,
