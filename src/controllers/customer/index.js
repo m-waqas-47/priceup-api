@@ -1,3 +1,4 @@
+const customers = require("../../models/customers");
 const CustomerService = require("../../services/customer");
 const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
@@ -43,7 +44,7 @@ exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>
      try{
       let customer = await CustomerService.findBy({
         email: customerData?.email,
-        phone: customerData?.phone,
+        // phone: customerData?.phone,
         company_id: company_id,
       });
       
@@ -51,7 +52,7 @@ exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>
         // Check if the update would result in a duplicate key
         const isDuplicate = await CustomerService.findBy({
           email: customerData?.email,
-          phone: customerData?.phone,
+          // phone: customerData?.phone,
           company_id: company_id,
           _id: { $ne: customer._id }, // Exclude the current document from the check
         });
