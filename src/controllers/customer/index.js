@@ -1,5 +1,5 @@
 const CustomerService = require("../../services/customer");
-const { isEmailAlreadyUsed } = require("../../utils/common");
+const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -37,6 +37,56 @@ exports.saveCustomer = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>{
+  return new Promise(async(resolve,reject)=>{
+     try{
+      let customer = await CustomerService.findBy({
+        email: customerData?.email,
+        phone: customerData?.phone,
+        company_id: company_id,
+      });
+      
+      if (customer) {
+        // Check if the update would result in a duplicate key
+        const isDuplicate = await CustomerService.findBy({
+          email: customerData?.email,
+          phone: customerData?.phone,
+          company_id: company_id,
+          _id: { $ne: customer._id }, // Exclude the current document from the check
+        });
+      
+        if (isDuplicate) {
+          // Handle the duplicate key scenario (e.g., inform the user or take appropriate action)
+          // You might want to update the existing record instead of throwing an error
+          console.error('Duplicate key violation during update');
+          reject('Duplication of primary key');
+        } else {
+          customer = await CustomerService.update(
+            { _id: customer._id },
+            {
+              name: `${customerData?.firstName} ${customerData?.lastName}`,
+              address: customerData?.address,
+              lastQuotedOn: getCurrentDate(),
+            },
+            { new: true }
+          );
+        }
+      } else {
+        customer = await CustomerService.create({
+          ...customerData,
+          name: `${customerData?.firstName} ${customerData?.lastName}`,
+          lastQuotedOn: getCurrentDate(),
+          company_id: company_id,
+        });
+      }   
+      resolve(customer);   
+     }
+     catch(err){
+         reject(err);
+     }
+  });
+}
 
 exports.modifyExistingRecords = async (req, res) => {
   const customers = await CustomerService.findAll();
