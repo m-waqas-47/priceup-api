@@ -14,6 +14,7 @@ const customerSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
+      required: "Phone number is required",
       default: "",
     },
     image: {
