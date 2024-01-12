@@ -6,7 +6,8 @@ const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
-  StaffService.findAll({ company_id: company_id }) // get staff related to company
+  // get staff related to company and company he/she have added to
+  StaffService.findAll({$or:[{company_id: company_id},{haveAccessTo:{$in:[company_id]}}] })
     .then((staffs) => {
       handleResponse(res, 200, "All Staff", staffs);
     })
