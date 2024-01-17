@@ -103,7 +103,7 @@ exports.updateFinish = async (req, res) => {
     const oldFinish = await FinishService.findBy({_id:id});
 
     if (req.file) {
-    data.image = addOrUpdateOrDelete('put','finishes',req.file.filename,oldFinish.image);
+    data.image = await addOrUpdateOrDelete('put','finishes',req.file.filename,oldFinish.image);
     }
 
     await FinishService.update({ _id: id }, data);

@@ -11,6 +11,7 @@ const {
   deleteUser,
 } = require("../controllers/user");
 const { verifyToken } = require("../middlewares/authentication");
+const { upload } = require("../services/multer");
 const router = express.Router();
 
 router.get("/getQuote/:id", verifyToken, getQuote);
