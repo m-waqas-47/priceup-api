@@ -2,12 +2,15 @@ const CompanyService = require("../../services/company");
 const StaffService = require("../../services/staff");
 const UserService = require("../../services/user");
 const { isEmailAlreadyUsed } = require("../../utils/common");
+const { addOrUpdateOrDelete } = require("../../utils/multer");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
   // get staff related to company and company he/she have added to
-  StaffService.findAll({$or:[{company_id: company_id},{haveAccessTo:{$in:[company_id]}}] })
+  StaffService.findAll({
+    $or: [{ company_id: company_id }, { haveAccessTo: { $in: [company_id] } }],
+  })
     .then((staffs) => {
       handleResponse(res, 200, "All Staff", staffs);
     })
@@ -71,31 +74,49 @@ exports.getStaff = async (req, res) => {
 
 exports.updateStaff = async (req, res) => {
   const { id } = req.params;
-  const data = { ...req.body };
-  StaffService.update({ _id: id }, data)
-    .then((staff) => {
-      handleResponse(res, 200, "Staff info updated successfully", staff);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  const data = { ...req.body, company_id: req.company_id };
+  try {
+    const oldStaff = await StaffService.findBy({ _id: id });
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        "put",
+        "staffs",
+        req.file.filename,
+        oldStaff.image
+      );
+    }
+    const staff = await StaffService.update({ _id: id }, data);
+    handleResponse(res, 200, "Staff info updated successfully", staff);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.deleteStaff = async (req, res) => {
   const { id } = req.params;
-  StaffService.delete({ _id: id })
-    .then((staff) => {
-      handleResponse(res, 200, "Staff deleted successfully", staff);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const staff = await StaffService.delete({ _id: id });
+    if (
+      staff &&
+      staff.image &&
+      staff.image.startsWith("images/staff/uploads")
+    ) {
+      await addOrUpdateOrDelete("delete", "staffs", staff.image);
+    }
+    handleResponse(res, 200, "Staff deleted successfully", staff);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.saveStaff = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
-  const data = { ...req.body, password: password };
+  const company_id = req.company_id;
+  const data = { ...req.body, password: password, company_id: company_id };
   try {
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete("save", "staffs", req.file.path);
+    }
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error(

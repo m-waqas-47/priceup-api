@@ -8,6 +8,8 @@ const storage = multer.diskStorage({
       destinationPath += "finishes/uploads/";
     } else if (req.originalUrl.includes("/hardwares")) {
       destinationPath += "hardwares/uploads/";
+    } else if (req.originalUrl.includes("/staffs")) {
+        destinationPath += "staff/uploads/";
     }
 
     callback(null, destinationPath);

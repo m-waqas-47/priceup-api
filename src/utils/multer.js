@@ -98,6 +98,25 @@ exports.addOrUpdateOrDelete = async (
         case "hardwares":
           break;
         case "staffs":
+          switch (action) {
+            case "save":
+              resolve(`images/staff/uploads/${path.basename(newFilePath)}`);
+            case "put":
+              const newImagePath = `images/staff/uploads/${newFilePath}`;
+              if (oldFilePath !== '') {
+                if (oldFilePath.startsWith("images/staff/uploads")) {
+                  fs.unlinkSync(`public/${oldFilePath}`);
+                  resolve(newImagePath);
+                } else {
+                  resolve(newImagePath);
+                }
+              } else {
+                resolve(newImagePath);
+              }
+            case "delete":
+              fs.unlinkSync(`public/${newFilePath}`);
+              resolve(true);
+          }
           break;
         default:
           resolve(true);
