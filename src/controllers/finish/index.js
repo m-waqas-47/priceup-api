@@ -4,7 +4,7 @@ const { handleResponse, handleError } = require("../../utils/responses");
 const fs = require('fs');
 const util = require('util');
 const readFile = util.promisify(fs.readFile);
-const path = require('path')
+const { addOrUpdateOrDelete } = require("../../utils/multer");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -35,10 +35,7 @@ exports.saveFinish = async (req, res) => {
   try {
     
   if (req.file && req.file.fieldname === "image") {
-    const imagePath = req.file.path;
-    const newImagePath = `images/finishes/uploads/${path.basename(imagePath)}`;
-    // const imageBuffer = await readFile(imagePath);
-    data.image = newImagePath;
+    data.image = await addOrUpdateOrDelete('save','finishes',req.file.path);
   }
     const finish = await FinishService.create({
       ...data,
@@ -83,7 +80,7 @@ exports.deleteFinish = async (req, res) => {
   try {
     const finish = await FinishService.delete({ _id: id });
     if(finish && finish.image && finish.image.startsWith('images/finishes/uploads')){
-      fs.unlinkSync(`public/${finish.image}`);
+      await addOrUpdateOrDelete('delete','finishes',finish.image)
     }
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     hardwares?.map(async (hardware) => {
@@ -106,19 +103,7 @@ exports.updateFinish = async (req, res) => {
     const oldFinish = await FinishService.findBy({_id:id});
 
     if (req.file) {
-      const newImagePath = `images/finishes/uploads/${req.file.filename}`;
-
-      if (oldFinish && oldFinish.image) {
-        const oldImagePath = `public/${oldFinish.image}`;
-        if (oldFinish.image.startsWith('images/finishes/uploads')) {
-          fs.unlinkSync(oldImagePath);
-          data.image = newImagePath;
-        } else {
-          data.image = newImagePath;
-        }
-      } else {
-        data.image = newImagePath;
-      }
+    data.image = addOrUpdateOrDelete('put','finishes',req.file.filename,oldFinish.image);
     }
 
     await FinishService.update({ _id: id }, data);
