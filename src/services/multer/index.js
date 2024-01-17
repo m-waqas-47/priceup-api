@@ -13,10 +13,10 @@ const storage = multer.diskStorage({
     } else if (req.originalUrl.includes("/staffs")) {
       destinationPath += "staff/uploads/";
     }
-    const directoryPath = path.join(__dirname, destinationPath, "uploads");
-    if (!fs.existsSync(directoryPath)) {
+  
+    if (!fs.existsSync(destinationPath)) {
       // If not, create the directory
-      fs.mkdirSync(directoryPath, { recursive: true }, (err) => {
+      fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
         if (err) {
           console.error("Error creating directory:", err);
         } else {
