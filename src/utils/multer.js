@@ -80,7 +80,7 @@ exports.addOrUpdateOrDelete = async (
               resolve(`images/finishes/uploads/${path.basename(newFilePath)}`);
             case "put":
               const newImagePath = `images/finishes/uploads/${newFilePath}`;
-              if (oldFilePath?.length) {
+              if (oldFilePath !== '') {
                 if (oldFilePath.startsWith("images/finishes/uploads")) {
                   fs.unlinkSync(`public/${oldFilePath}`);
                   resolve(newImagePath);
@@ -91,7 +91,7 @@ exports.addOrUpdateOrDelete = async (
                 resolve(newImagePath);
               }
             case "delete":
-              fs.unlinkSync(`public/${finish.image}`);
+              fs.unlinkSync(`public/${newFilePath}`);
               resolve(true);
           }
           break;
@@ -100,6 +100,7 @@ exports.addOrUpdateOrDelete = async (
         case "staffs":
           break;
         default:
+          resolve(true);
           break;
       }
     } catch (error) {
