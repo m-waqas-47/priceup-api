@@ -11,9 +11,9 @@ const storage = multer.diskStorage({
     } else if (req.originalUrl.includes("/hardwares")) {
       destinationPath += "hardwares/uploads/";
     } else if (req.originalUrl.includes("/staffs")) {
-      destinationPath += "staff/uploads/";
+      destinationPath += "staffs/uploads/";
     }
-  
+
     if (!fs.existsSync(destinationPath)) {
       // If not, create the directory
       fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
@@ -43,8 +43,6 @@ const addOrUpdateOrDelete = async (
 ) => {
   return new Promise((resolve, reject) => {
     try {
-      // switch (source) {
-      // case multerSource.FINISHES:
       switch (action) {
         case multerActions.SAVE:
           resolve(`images/${source}/uploads/${path.basename(newFilePath)}`);
@@ -63,35 +61,9 @@ const addOrUpdateOrDelete = async (
         case multerActions.DELETE:
           fs.unlinkSync(`public/${newFilePath}`);
           resolve(true);
+        default:
+          resolve(true);
       }
-      // break;
-      // case multerSource.HARDWARES:
-      //   break;
-      // case multerSource.STAFFS:
-      //   switch (action) {
-      //     case multerActions.SAVE:
-      //       resolve(`images/staff/uploads/${path.basename(newFilePath)}`);
-      //     case multerActions.PUT:
-      //       const newImagePath = `images/staff/uploads/${newFilePath}`;
-      //       if (oldFilePath !== '') {
-      //         if (oldFilePath.startsWith("images/staff/uploads")) {
-      //           fs.unlinkSync(`public/${oldFilePath}`);
-      //           resolve(newImagePath);
-      //         } else {
-      //           resolve(newImagePath);
-      //         }
-      //       } else {
-      //         resolve(newImagePath);
-      //       }
-      //     case multerActions.DELETE:
-      //       fs.unlinkSync(`public/${newFilePath}`);
-      //       resolve(true);
-      //   }
-      // break;
-      // default:
-      //   resolve(true);
-      //   break;
-      // }
     } catch (error) {
       reject(error);
     }

@@ -27,6 +27,6 @@ exports.multerActions = {
 };
 exports.multerSource = {
   FINISHES: "finishes",
-  STAFFS: "staff",
+  STAFFS: "staffs",
   HARDWARES: "hardwares",
 };
