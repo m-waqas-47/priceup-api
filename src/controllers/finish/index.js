@@ -36,8 +36,8 @@ exports.saveFinish = async (req, res) => {
     
   if (req.file && req.file.fieldname === "image") {
     const imagePath = req.file.path;
-    const newImagePath = `images/newFinish/${path.basename(imagePath)}`;
-    const imageBuffer = await readFile(imagePath);
+    const newImagePath = `images/finishes/uploads/${path.basename(imagePath)}`;
+    // const imageBuffer = await readFile(imagePath);
     data.image = newImagePath;
   }
     const finish = await FinishService.create({
@@ -82,6 +82,9 @@ exports.deleteFinish = async (req, res) => {
   const company_id = req.company_id;
   try {
     const finish = await FinishService.delete({ _id: id });
+    if(finish && finish.image && finish.image.startsWith('images/finishes/uploads')){
+      fs.unlinkSync(`public/${finish.image}`);
+    }
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     hardwares?.map(async (hardware) => {
       HardwareService.update(
@@ -103,11 +106,11 @@ exports.updateFinish = async (req, res) => {
     const oldFinish = await FinishService.findBy({_id:id});
 
     if (req.file) {
-      const newImagePath = `images/newFinish/${req.file.filename}`;
+      const newImagePath = `images/finishes/uploads/${req.file.filename}`;
 
       if (oldFinish && oldFinish.image) {
         const oldImagePath = `public/${oldFinish.image}`;
-        if (oldFinish.image.startsWith('images/newFinish')) {
+        if (oldFinish.image.startsWith('images/finishes/uploads')) {
           fs.unlinkSync(oldImagePath);
           data.image = newImagePath;
         } else {
