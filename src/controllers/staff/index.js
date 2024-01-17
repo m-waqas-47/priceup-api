@@ -1,8 +1,9 @@
+const { multerActions, multerSource } = require("../../config/common");
 const CompanyService = require("../../services/company");
 const StaffService = require("../../services/staff");
 const UserService = require("../../services/user");
 const { isEmailAlreadyUsed } = require("../../utils/common");
-const { addOrUpdateOrDelete } = require("../../utils/multer");
+const { addOrUpdateOrDelete } = require("../../services/multer");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
@@ -79,8 +80,8 @@ exports.updateStaff = async (req, res) => {
     const oldStaff = await StaffService.findBy({ _id: id });
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
-        "put",
-        "staffs",
+        multerActions.PUT,
+        multerSource.STAFFS,
         req.file.filename,
         oldStaff.image
       );
@@ -101,7 +102,11 @@ exports.deleteStaff = async (req, res) => {
       staff.image &&
       staff.image.startsWith("images/staff/uploads")
     ) {
-      await addOrUpdateOrDelete("delete", "staffs", staff.image);
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.STAFFS,
+        staff.image
+      );
     }
     handleResponse(res, 200, "Staff deleted successfully", staff);
   } catch (err) {
@@ -112,10 +117,19 @@ exports.deleteStaff = async (req, res) => {
 exports.saveStaff = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const company_id = req.company_id;
-  const data = { ...req.body, password: password, company_id: company_id };
+  const data = {
+    ...req.body,
+    password: password,
+    company_id: company_id,
+    haveAccessTo: JSON.parse(req.body?.haveAccessTo),
+  };
   try {
     if (req.file && req.file.fieldname === "image") {
-      data.image = await addOrUpdateOrDelete("save", "staffs", req.file.path);
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.STAFFS,
+        req.file.path
+      );
     }
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {

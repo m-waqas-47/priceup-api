@@ -1,10 +1,8 @@
 const FinishService = require("../../services/finish");
 const HardwareService = require("../../services/hardware");
 const { handleResponse, handleError } = require("../../utils/responses");
-const fs = require('fs');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const { addOrUpdateOrDelete } = require("../../utils/multer");
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerActions, multerSource } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -35,7 +33,7 @@ exports.saveFinish = async (req, res) => {
   try {
     
   if (req.file && req.file.fieldname === "image") {
-    data.image = await addOrUpdateOrDelete('save','finishes',req.file.path);
+    data.image = await addOrUpdateOrDelete(multerActions.SAVE,multerSource.FINISHES,req.file.path);
   }
     const finish = await FinishService.create({
       ...data,
@@ -80,7 +78,7 @@ exports.deleteFinish = async (req, res) => {
   try {
     const finish = await FinishService.delete({ _id: id });
     if(finish && finish.image && finish.image.startsWith('images/finishes/uploads')){
-      await addOrUpdateOrDelete('delete','finishes',finish.image)
+      await addOrUpdateOrDelete(multerActions.DELETE,multerSource.FINISHES,finish.image)
     }
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     hardwares?.map(async (hardware) => {
@@ -103,7 +101,7 @@ exports.updateFinish = async (req, res) => {
     const oldFinish = await FinishService.findBy({_id:id});
 
     if (req.file && req.file.fieldname === "image") {
-    data.image = await addOrUpdateOrDelete('put','finishes',req.file.filename,oldFinish.image);
+    data.image = await addOrUpdateOrDelete(multerActions.PUT,multerSource.FINISHES,req.file.filename,oldFinish.image);
     }
 
     await FinishService.update({ _id: id }, data);

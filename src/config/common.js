@@ -20,3 +20,13 @@ exports.layoutVariant = {
   DOUBLEBARN: "doublebarn",
   CUSTOM: "custom",
 };
+exports.multerActions = {
+  SAVE: "save",
+  PUT: "put",
+  DELETE: "delete",
+};
+exports.multerSource = {
+  FINISHES: "finishes",
+  STAFFS: "staff",
+  HARDWARES: "hardwares",
+};
