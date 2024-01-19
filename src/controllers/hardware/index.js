@@ -9,6 +9,8 @@ const readFile = util.promisify(fs.readFile);
 const path = require("path");
 const HardwareCategoryService = require("../../services/hardwareCategory");
 const CompanyService = require("../../services/company");
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerSource, multerActions } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -70,13 +72,31 @@ exports.addHardwareFinishes = async (req, res) => {
 
 exports.deleteHardware = async (req, res) => {
   const { id } = req.params;
-  HardwareService.delete({ _id: id })
-    .then((hardware) => {
-      handleResponse(res, 200, "Hardware deleted succefully", hardware);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const Hardware = await HardwareService.delete({ _id: id });
+    if (
+      Hardware &&
+      Hardware.image &&
+      Hardware.image.startsWith("images/hardwares/uploads")
+    ) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.HARDWARES,
+        Hardware.image
+      );
+    }
+    handleResponse(res, 200, "Hardware deleted successfully", Hardware);
+  } catch (err) {
+    handleError(res, err);
+  }
+
+  // HardwareService.delete({ _id: id })
+  //   .then((hardware) => {
+  //     handleResponse(res, 200, "Hardware deleted succefully", hardware);
+  //   })
+  //   .catch((err) => {
+  //     handleError(res, err);
+  //   });
 };
 
 exports.getHardwaresByCategory = async (req, res) => {
@@ -99,10 +119,11 @@ exports.saveHardware = async (req, res) => {
   const company_id = req.company_id;
 
   if (req.file && req.file.fieldname === "image") {
-    const imagePath = req.file.path;
-    const newImagePath = `images/newHardware/${path.basename(imagePath)}`;
-    const imageBuffer = await readFile(imagePath);
-    data.image = newImagePath;
+    data.image = await addOrUpdateOrDelete(
+      multerActions.SAVE,
+      multerSource.HARDWARES,
+      req.file.path
+    );
   }
   const finishes = await FinishService.findAll({ company_id: company_id });
   const generateFinishesFormat = await generateFinishes(finishes);
@@ -121,22 +142,15 @@ exports.updateHardware = async (req, res) => {
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    const oldHardware = await HardwareService.findBy({_id:id});
+    const oldHardware = await HardwareService.findBy({ _id: id });
 
-    if (req.file) {
-      const newImagePath = `images/newHardware/${req.file.filename}`;
-
-      if (oldHardware && oldHardware.image) {
-        const oldImagePath = `public/${oldHardware.image}`;
-        if (oldHardware.image.startsWith("images/newHardware")) {
-          fs.unlinkSync(oldImagePath);
-          updatedData.image = newImagePath;
-        } else {
-          updatedData.image = newImagePath;
-        }
-      } else {
-        updatedData.image = newImagePath;
-      }
+    if (req.file && req.file.fieldname === "image") {
+      updatedData.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.HARDWARES,
+        req.file.filename,
+        oldHardware.image
+      );
     }
 
     const hardware = await HardwareService.update({ _id: id }, updatedData);

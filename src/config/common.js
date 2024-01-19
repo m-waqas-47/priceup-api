@@ -29,4 +29,7 @@ exports.multerSource = {
   FINISHES: "finishes",
   STAFFS: "staffs",
   HARDWARES: "hardwares",
+  COMPANIES: "companies",
+  GLASSADDONS: "glassAddons",
+  GLASSTYPES: "glassTypes",
 };

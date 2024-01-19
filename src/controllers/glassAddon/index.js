@@ -1,10 +1,12 @@
 const GlassAddonService = require("../../services/glassAddon");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
-const fs = require('fs');
-const util = require('util');
+const fs = require("fs");
+const util = require("util");
 const readFile = util.promisify(fs.readFile);
-const path = require('path')
+const path = require("path");
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerSource, multerActions } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -33,22 +35,15 @@ exports.updateGlassAddon = async (req, res) => {
   const data = { ...req.body };
   const updatedData = nestedObjectsToDotNotation(data);
   try {
-    const oldGlassAddon = await GlassAddonService.findBy({_id:id});
+    const oldGlassAddon = await GlassAddonService.findBy({ _id: id });
 
-    if (req.file) {
-      const newImagePath = `images/adonsType/${req.file.filename}`;
-
-      if (oldGlassAddon && oldGlassAddon.image) {
-        const oldImagePath = `public/${oldGlassAddon.image}`;
-        if (oldGlassAddon.image.startsWith('images/adonsType')) {
-          fs.unlinkSync(oldImagePath);
-          updatedData.image = newImagePath;
-        } else {
-          updatedData.image = newImagePath;
-        }
-      } else {
-        updatedData.image = newImagePath;
-      }
+    if (req.file && req.file.fieldname === "image") {
+      updatedData.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.GLASSADDONS,
+        req.file.filename,
+        oldGlassAddon.image
+      );
     }
 
     const glassAddon = await GlassAddonService.update({ _id: id }, updatedData);
@@ -96,32 +91,66 @@ exports.addGlassAddonOptions = async (req, res) => {
 
 exports.deleteGlassAddon = async (req, res) => {
   const { id } = req.params;
-  GlassAddonService.delete({ _id: id })
-    .then((glassAddon) => {
-      handleResponse(res, 200, "Glass Addon deleted successfully", glassAddon);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const GlassAddon = await GlassAddonService.delete({ _id: id });
+    if (
+      GlassAddon &&
+      GlassAddon.image &&
+      GlassAddon.image.startsWith("images/glassAddons/uploads")
+    ) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.GLASSADDONS,
+        GlassAddon.image
+      );
+    }
+    handleResponse(res, 200, "Hardware deleted successfully", GlassAddon);
+  } catch (err) {
+    handleError(res, err);
+  }
+  // GlassAddonService.delete({ _id: id })
+  //   .then((glassAddon) => {
+  //     handleResponse(res, 200, "Glass Addon deleted successfully", glassAddon);
+  //   })
+  //   .catch((err) => {
+  //     handleError(res, err);
+  //   });
 };
 
 exports.saveGlassAddon = async (req, res) => {
   const data = { ...req.body };
+  try {
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.GLASSADDONS,
+        req.file.path
+      );
+    }
 
-  if (req.file && req.file.fieldname === "image") {
-    const imagePath = req.file.path;
-    const newImagePath = `images/adonsType/${path.basename(imagePath)}`;
-    const imageBuffer = await readFile(imagePath);
-    data.image = newImagePath;
-  }
-  const glassAddonOptions = await generateOptions();
-  GlassAddonService.create({ ...data, options: glassAddonOptions })
-    .then((glassAddon) => {
-      handleResponse(res, 200, "Glass Addon created successfully", glassAddon);
-    })
-    .catch((err) => {
-      handleError(res, err);
+    const glassAddonOptions = await generateOptions();
+    const glassAddon = await GlassAddonService.create({
+      ...data,
+      options: glassAddonOptions,
     });
+    handleResponse(res, 200, "GlassAddon created successfully", glassAddon);
+  } catch (err) {
+    handleError(res, err);
+  }
+  // if (req.file && req.file.fieldname === "image") {
+  //   const imagePath = req.file.path;
+  //   const newImagePath = `images/adonsType/${path.basename(imagePath)}`;
+  //   const imageBuffer = await readFile(imagePath);
+  //   data.image = newImagePath;
+  // }
+  // const glassAddonOptions = await generateOptions();
+  // GlassAddonService.create({ ...data, options: glassAddonOptions })
+  //   .then((glassAddon) => {
+  //     handleResponse(res, 200, "Glass Addon created successfully", glassAddon);
+  //   })
+  //   .catch((err) => {
+  //     handleError(res, err);
+  //   });
 };
 
 const generateOptions = () => {

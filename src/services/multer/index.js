@@ -12,6 +12,12 @@ const storage = multer.diskStorage({
       destinationPath += "hardwares/uploads/";
     } else if (req.originalUrl.includes("/staffs")) {
       destinationPath += "staffs/uploads/";
+    } else if (req.originalUrl.includes("/companies")) {
+      destinationPath += "companies/uploads/";
+    } else if (req.originalUrl.includes("/glassAddons")) {
+      destinationPath += "glassAddons/uploads/";
+    } else if (req.originalUrl.includes("/glassTypes")) {
+      destinationPath += "glassTypes/uploads/";
     }
 
     if (!fs.existsSync(destinationPath)) {

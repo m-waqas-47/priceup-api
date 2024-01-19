@@ -75,7 +75,7 @@ exports.getStaff = async (req, res) => {
 
 exports.updateStaff = async (req, res) => {
   const { id } = req.params;
-  const data = { ...req.body, company_id: req.company_id };
+  const data = { ...req.body };
   try {
     const oldStaff = await StaffService.findBy({ _id: id });
     if (req.file && req.file.fieldname === "image") {
