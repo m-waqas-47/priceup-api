@@ -20,7 +20,7 @@ router.get("/dashboardData", verifyToken, getDashboardTotals);
 router.get("/:id", verifyToken, getUser);
 router.put("/:id", verifyToken, upload.single("image"), updateUser);
 router.delete("/:id", verifyToken, deleteUser);
-router.post("/save", verifyToken, saveUser);
+router.post("/save", verifyToken, upload.single("image"), saveUser);
 router.put("/status/:id", verifyToken, updateUserStatus);
 router.post("/login", loginUser);
 

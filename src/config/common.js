@@ -32,4 +32,6 @@ exports.multerSource = {
   COMPANIES: "companies",
   GLASSADDONS: "glassAddons",
   GLASSTYPES: "glassTypes",
+  USERS: "users",
+  CUSTOMUSERS: "customUsers",
 };

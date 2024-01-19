@@ -18,7 +18,12 @@ const storage = multer.diskStorage({
       destinationPath += "glassAddons/uploads/";
     } else if (req.originalUrl.includes("/glassTypes")) {
       destinationPath += "glassTypes/uploads/";
+    } else if (req.originalUrl.includes("/users")) {
+      destinationPath += "users/uploads/";
+    } else if (req.originalUrl.includes("/customUsers")) {
+      destinationPath += "customUsers/uploads/";
     }
+
 
     if (!fs.existsSync(destinationPath)) {
       // If not, create the directory

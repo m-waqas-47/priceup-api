@@ -7,6 +7,8 @@ const {
   // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
+const { multerSource, multerActions } = require("../../config/common");
+const { addOrUpdateOrDelete } = require("../../services/multer");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -34,11 +36,22 @@ exports.updateUser = async (req, res) => {
   let data = { ...req.body };
   if (data?.locationsAccess) {
     const user = await CustomUserService.findBy({ _id: id });
+
     const resultArray = await this.generateAccessArray(
       data.locationsAccess,
       user
     );
     data = { ...data, locationsAccess: resultArray };
+  }
+
+  if (req.file && req.file.fieldname === "image") {
+    const user = await CustomUserService.findBy({ _id: id });
+    data.image = await addOrUpdateOrDelete(
+      multerActions.PUT,
+      multerSource.CUSTOMUSERS,
+      req.file.filename,
+      user.image
+    );
   }
   // const updatedData = nestedObjectsToDotNotation(data);
   CustomUserService.update({ _id: id }, data)
@@ -52,18 +65,35 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
-  CustomUserService.delete({ _id: id })
-    .then((customUser) => {
-      handleResponse(res, 200, "User deleted successfully", customUser);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const CustomUser = await CustomUserService.delete({ _id: id });
+    if (
+      CustomUser &&
+      CustomUser.image &&
+      CustomUser.image.startsWith("images/customUsers/uploads")
+    ) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.CUSTOMUSERS,
+        CustomUser.image
+      );
+    }
+    handleResponse(res, 200, "CustomUser deleted successfully", CustomUser);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
   try {
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.CUSTOMUSERS,
+        req.file.path
+      );
+    }
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
