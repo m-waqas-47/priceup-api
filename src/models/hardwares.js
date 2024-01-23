@@ -14,6 +14,7 @@ const hardware = new mongoose.Schema(
     },
     image: {
       type: String,
+      default: "images/hardwares/default.png",
     },
     operableTransom: {
       type: Boolean,
@@ -43,7 +44,7 @@ const hardware = new mongoose.Schema(
         },
         cost: {
           type: Number,
-          default: 0
+          default: 0,
         },
         // thickness: {
         //   type: String,

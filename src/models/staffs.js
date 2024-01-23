@@ -18,7 +18,7 @@ const staffSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: "images/staff/default.jpg",
+      default: "images/staffs/default.jpg",
     },
     password: {
       type: String,

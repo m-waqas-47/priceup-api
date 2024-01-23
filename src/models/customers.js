@@ -19,7 +19,7 @@ const customerSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: "images/staff/default.jpg",
+      default: "images/others/default.png",
     },
     address: {
       type: String,
