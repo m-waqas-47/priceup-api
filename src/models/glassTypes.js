@@ -14,6 +14,7 @@ const glassTypes = new mongoose.Schema(
     },
     image: {
       type: String,
+      default: "images/glassTypes/default.png",
     },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,

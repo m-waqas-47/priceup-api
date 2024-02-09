@@ -9,15 +9,15 @@ const {
   deleteGlassType,
 } = require("../controllers/glassType");
 const { verifyToken } = require("../middlewares/authentication");
+const { upload } = require("../services/multer");
 const router = express.Router();
-const {uploadGlassType,updateGlassTypes} = require('../utils/hardwareMulter')
 
 router.get("/", verifyToken, getAll);
 router.get("/:id", verifyToken, getGlassType);
-router.put("/:id",updateGlassTypes.single("image"), verifyToken, updateGlassType);
+router.put("/:id", verifyToken, upload.single("image"), updateGlassType);
 router.delete("/:id/:optionId", verifyToken, deleteGlassTypeOptions);
 router.patch("/:id", verifyToken, addGlassTypeOptions);
 router.delete("/:id", verifyToken, deleteGlassType);
-router.post("/save",uploadGlassType.single("image"), verifyToken, saveGlassType);
+router.post("/save", verifyToken, upload.single("image"), saveGlassType);
 
 module.exports = router;

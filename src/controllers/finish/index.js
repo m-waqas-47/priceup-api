@@ -1,10 +1,8 @@
 const FinishService = require("../../services/finish");
 const HardwareService = require("../../services/hardware");
 const { handleResponse, handleError } = require("../../utils/responses");
-const fs = require('fs');
-const util = require('util');
-const readFile = util.promisify(fs.readFile);
-const path = require('path')
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerActions, multerSource } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -35,10 +33,7 @@ exports.saveFinish = async (req, res) => {
   try {
     
   if (req.file && req.file.fieldname === "image") {
-    const imagePath = req.file.path;
-    const newImagePath = `images/newFinish/${path.basename(imagePath)}`;
-    const imageBuffer = await readFile(imagePath);
-    data.image = newImagePath;
+    data.image = await addOrUpdateOrDelete(multerActions.SAVE,multerSource.FINISHES,req.file.path);
   }
     const finish = await FinishService.create({
       ...data,
@@ -82,6 +77,9 @@ exports.deleteFinish = async (req, res) => {
   const company_id = req.company_id;
   try {
     const finish = await FinishService.delete({ _id: id });
+    if(finish && finish.image && finish.image.startsWith('images/finishes/uploads')){
+      await addOrUpdateOrDelete(multerActions.DELETE,multerSource.FINISHES,finish.image)
+    }
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     hardwares?.map(async (hardware) => {
       HardwareService.update(
@@ -102,20 +100,8 @@ exports.updateFinish = async (req, res) => {
   try {
     const oldFinish = await FinishService.findBy({_id:id});
 
-    if (req.file) {
-      const newImagePath = `images/newFinish/${req.file.filename}`;
-
-      if (oldFinish && oldFinish.image) {
-        const oldImagePath = `public/${oldFinish.image}`;
-        if (oldFinish.image.startsWith('images/newFinish')) {
-          fs.unlinkSync(oldImagePath);
-          data.image = newImagePath;
-        } else {
-          data.image = newImagePath;
-        }
-      } else {
-        data.image = newImagePath;
-      }
+    if (req.file && req.file.fieldname === "image") {
+    data.image = await addOrUpdateOrDelete(multerActions.PUT,multerSource.FINISHES,req.file.filename,oldFinish.image);
     }
 
     await FinishService.update({ _id: id }, data);

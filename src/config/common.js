@@ -20,3 +20,18 @@ exports.layoutVariant = {
   DOUBLEBARN: "doublebarn",
   CUSTOM: "custom",
 };
+exports.multerActions = {
+  SAVE: "save",
+  PUT: "put",
+  DELETE: "delete",
+};
+exports.multerSource = {
+  FINISHES: "finishes",
+  STAFFS: "staffs",
+  HARDWARES: "hardwares",
+  COMPANIES: "companies",
+  GLASSADDONS: "glassAddons",
+  GLASSTYPES: "glassTypes",
+  USERS: "users",
+  CUSTOMUSERS: "customUsers",
+};

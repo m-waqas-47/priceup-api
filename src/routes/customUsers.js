@@ -9,14 +9,15 @@ const {
   switchLocation,
 } = require("../controllers/customUser");
 const { verifyToken } = require("../middlewares/authentication");
+const { upload } = require("../services/multer");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
 router.get("/haveAccess/:id", verifyToken, haveAccessTo);
 router.get("/:id", verifyToken, getUser);
-router.put("/:id", verifyToken, updateUser);
+router.put("/:id", verifyToken, upload.single("image"), updateUser);
 router.delete("/:id", verifyToken, deleteUser);
-router.post("/save", verifyToken, saveUser);
+router.post("/save", verifyToken, upload.single("image"), saveUser);
 router.post("/switchLocation", verifyToken, switchLocation);
 
 module.exports = router;

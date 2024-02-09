@@ -1,10 +1,12 @@
 const GlassTypeService = require("../../services/glassType");
 const { nestedObjectsToDotNotation } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
-const fs = require('fs');
-const util = require('util');
+const fs = require("fs");
+const util = require("util");
 const readFile = util.promisify(fs.readFile);
-const path = require('path')
+const path = require("path");
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerActions, multerSource } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -78,21 +80,32 @@ exports.deleteGlassType = async (req, res) => {
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
 
-  if (req.file && req.file.fieldname === "image") {
-    const imagePath = req.file.path;
-    const newImagePath = `images/glassType/${path.basename(imagePath)}`;
-    const imageBuffer = await readFile(imagePath);
-    data.image = newImagePath;
+  try {
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.GLASSTYPES,
+        req.file.path
+      );
+    }
+
+    const glassTypeOptions = await generateOptions();
+    const glassType = await GlassTypeService.create({
+      ...data,
+      options: glassTypeOptions,
+    });
+    handleResponse(res, 200, "GlassAddon created successfully", glassType);
+  } catch (err) {
+    handleError(res, err);
   }
 
-  const glassTypeOptions = await generateOptions();
-  GlassTypeService.create({ ...data, options: glassTypeOptions })
-    .then((glassType) => {
-      handleResponse(res, 200, "Glass Type created successfully", glassType);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  // GlassTypeService.create({ ...data, options: glassTypeOptions })
+  //   .then((glassType) => {
+  //     handleResponse(res, 200, "Glass Type created successfully", glassType);
+  //   })
+  //   .catch((err) => {
+  //     handleError(res, err);
+  //   });
 };
 
 const generateOptions = () => {
@@ -123,26 +136,18 @@ const generateOptions = () => {
 exports.updateGlassType = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  const parsedData = JSON.parse(data.jsonData);
-  const updatedData = nestedObjectsToDotNotation(parsedData);
-  
+  const updatedData = nestedObjectsToDotNotation(data);
+
   try {
-    const oldGlassType = await GlassTypeService.findBy({_id:id});
+    const oldGlassType = await GlassTypeService.findBy({ _id: id });
 
-    if (req.file) {
-      const newImagePath = `images/glassType/${req.file.filename}`;
-
-      if (oldGlassType && oldGlassType.image) {
-        const oldImagePath = `public/${oldGlassType.image}`;
-        if (oldGlassType.image.startsWith('images/glassType')) {
-          fs.unlinkSync(oldImagePath);
-          updatedData.image = newImagePath;
-        } else {
-          updatedData.image = newImagePath;
-        }
-      } else {
-        updatedData.image = newImagePath;
-      }
+    if (req.file && req.file.fieldname === "image") {
+      updatedData.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.GLASSTYPES,
+        req.file.filename,
+        oldGlassType.image
+      );
     }
 
     const glassType = await GlassTypeService.update({ _id: id }, updatedData);
@@ -151,7 +156,3 @@ exports.updateGlassType = async (req, res) => {
     handleError(res, err);
   }
 };
-
-
-
-

@@ -9,8 +9,9 @@ const customerSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: "Email is required",
-      match: /.+\@.+\..+/,
+      default: "",
+      // required: "Email is required",
+      // match: /.+\@.+\..+/,
     },
     phone: {
       type: String,
@@ -19,7 +20,7 @@ const customerSchema = new mongoose.Schema(
     },
     image: {
       type: String,
-      default: "images/staff/default.jpg",
+      default: "images/others/default.png",
     },
     address: {
       type: String,
@@ -38,6 +39,6 @@ const customerSchema = new mongoose.Schema(
 );
 
 // Create a compound index for email and company_id
-customerSchema.index({ email: 1, company_id: 1}, { unique: true });
+// customerSchema.index({ email: 1, company_id: 1}, { unique: true });
 
 module.exports = mongoose.model("customers", customerSchema);

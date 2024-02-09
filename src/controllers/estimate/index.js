@@ -201,31 +201,6 @@ exports.saveEstimate = async (req, res) => {
   }
   try {
     const customer = await addOrUpdateCustomerEstimateRelation(customerData,company_id);
-    // let customer = await CustomerService.findBy({
-    //   email: customerData?.email,
-    //   phone: customerData?.phone,
-    //   company_id: company_id,
-    // });
-    // if (customer) {
-    //   customer = await CustomerService.update(
-    //     {
-    //       _id: customer._id,
-    //     },
-    //     {
-    //       name: `${customerData?.firstName} ${customerData?.lastName}`,
-    //       address: customerData?.address,
-    //       lastQuotedOn: getCurrentDate(),
-    //     },
-    //     { new: true }
-    //   );
-    // } else {
-    //   customer = await CustomerService.create({
-    //     ...customerData,
-    //     name: `${customerData?.firstName} ${customerData?.lastName}`,
-    //     lastQuotedOn: getCurrentDate(),
-    //     company_id: company_id,
-    //   });
-    // }
     const estimate = await EstimateService.create({
       ...data?.estimateData,
       customer_id: customer._id,

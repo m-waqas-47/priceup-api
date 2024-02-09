@@ -1,7 +1,10 @@
 const mongoose = require("mongoose");
 const CompanyService = require("../../services/company");
 const UserService = require("../../services/user");
-const { generateRandomString, isEmailAlreadyUsed } = require("../../utils/common");
+const {
+  generateRandomString,
+  isEmailAlreadyUsed,
+} = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
 const { finishes } = require("../../seeders/finishesSeeder");
 const { hardwares } = require("../../seeders/hardwaresSeeder");
@@ -24,6 +27,8 @@ const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
 const { userCreatedTemplate } = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
+const { multerSource, multerActions } = require("../../config/common");
+const { addOrUpdateOrDelete } = require("../../services/multer");
 
 exports.getAll = async (req, res) => {
   try {
@@ -130,21 +135,29 @@ exports.updateUser = async (req, res) => {
   try {
     const oldUser = await UserService.findBy({ _id: id });
 
-    if (req.file) {
-      const newImagePath = `images/newUsers/${req.file.filename}`;
-
-      if (oldUser && oldUser.image) {
-        const oldImagePath = `public/${oldUser.image}`;
-        if (oldUser.image.startsWith("images/newUsers")) {
-          fs.unlinkSync(oldImagePath);
-          data.image = newImagePath;
-        } else {
-          data.image = newImagePath;
-        }
-      } else {
-        data.image = newImagePath;
-      }
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.USERS,
+        req.file.filename,
+        oldUser.image
+      );
     }
+    // if (req.file) {
+    //   const newImagePath = `images/newUsers/${req.file.filename}`;
+
+    //   if (oldUser && oldUser.image) {
+    //     const oldImagePath = `public/${oldUser.image}`;
+    //     if (oldUser.image.startsWith("images/newUsers")) {
+    //       fs.unlinkSync(oldImagePath);
+    //       data.image = newImagePath;
+    //     } else {
+    //       data.image = newImagePath;
+    //     }
+    //   } else {
+    //     data.image = newImagePath;
+    //   }
+    // }
     const user = await UserService.update({ _id: id }, data);
     handleResponse(res, 200, "User info updated successfully", user);
   } catch (err) {
@@ -168,12 +181,19 @@ exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await UserService.findBy({ _id: id });
+    if (user && user.image && user.image.startsWith("images/users/uploads")) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.USERS,
+        user.image
+      );
+    }
     if (!user) {
-      throw new Error('Invalid user ID');
+      throw new Error("Invalid user ID");
     }
     const company = await CompanyService.findBy({ user_id: user._id });
     if (!company) {
-      throw new Error('No Company attached to this user');
+      throw new Error("No Company attached to this user");
     }
     const allStaff = await StaffService.findAll();
     // remove company id from haveAccessTo array of Staff members
@@ -219,6 +239,14 @@ exports.saveUser = async (req, res) => {
   const data = { ...req.body, password: password };
 
   try {
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.USERS,
+        req.file.path
+      );
+    }
+
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
