@@ -3,6 +3,7 @@ const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 const CompanyService = require("../../services/company");
 const { isEmailAlreadyUsed } = require("../../utils/common");
+const MailgunService = require("../../services/mailgun");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -61,6 +62,16 @@ exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
   try {
+    if (!data?.email) {
+      throw new Error("Email is required.");
+    }
+
+     // validate email
+    const emailVerified = await MailgunService.verifyEmail(data?.email);
+    if(emailVerified?.result !== 'deliverable'){
+     throw new Error("Email is not valid.Please enter a correct one.")
+    }
+
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");

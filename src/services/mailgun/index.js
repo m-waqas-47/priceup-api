@@ -19,6 +19,14 @@ class MailgunService {
       console.error("Error sending email:", error);
     }
   }
+  static verifyEmail(email){
+    try{
+      return client.validate.get(email,{provider_lookup:true});
+    }
+    catch (error) {
+      console.error("Error verifying email:", error);
+    }
+  }
 }
 
 module.exports = MailgunService;

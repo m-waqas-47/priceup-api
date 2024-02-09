@@ -9,6 +9,7 @@ const {
 const { handleError, handleResponse } = require("../../utils/responses");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
+const MailgunService = require("../../services/mailgun");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -87,6 +88,21 @@ exports.deleteUser = async (req, res) => {
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
   try {
+    if (!data?.email) {
+      throw new Error("Email is required.");
+    }
+
+     // validate email
+    const emailVerified = await MailgunService.verifyEmail(data?.email);
+    if(emailVerified?.result !== 'deliverable'){
+     throw new Error("Email is not valid.Please enter a correct one.")
+    }
+
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error("Email already exist in system.Please try with new one.");
+    }
+    
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -94,10 +110,7 @@ exports.saveUser = async (req, res) => {
         req.file.path
       );
     }
-    const check = await isEmailAlreadyUsed(data?.email);
-    if (check) {
-      throw new Error("Email already exist in system.Please try with new one.");
-    }
+    
     const user = await CustomUserService.create(data);
     handleResponse(res, 200, "User created successfully", user);
   } catch (err) {

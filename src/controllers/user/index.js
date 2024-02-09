@@ -12,7 +12,7 @@ const {
   hardwareCategories,
 } = require("../../seeders/hardwareCategoriesSeeder");
 const { layouts } = require("../../seeders/layoutsSeeder");
-const MailgunService = require("../../services/sendMail/index");
+const MailgunService = require("../../services/mailgun");
 const { glassTypes } = require("../../seeders/glassTypeSeeder");
 const { glassAddons } = require("../../seeders/glassAddonsSeeder");
 
@@ -239,6 +239,21 @@ exports.saveUser = async (req, res) => {
   const data = { ...req.body, password: password };
 
   try {
+    if (!data?.email) {
+      throw new Error("Email is required.");
+    }
+    
+     // validate email
+    const emailVerified = await MailgunService.verifyEmail(data?.email);
+    if(emailVerified?.result !== 'deliverable'){
+     throw new Error("Email is not valid.Please enter a correct one.")
+    }
+
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error("Email already exist in system.Please try with new one.");
+    }
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -247,10 +262,6 @@ exports.saveUser = async (req, res) => {
       );
     }
 
-    const check = await isEmailAlreadyUsed(data?.email);
-    if (check) {
-      throw new Error("Email already exist in system.Please try with new one.");
-    }
     const hardwareCat = await HardwareCategoryService.findAll();
     if (hardwareCat?.length <= 0) {
       await Promise.all(
