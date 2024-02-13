@@ -164,6 +164,20 @@ exports.updateUser = async (req, res) => {
     handleError(res, err);
   }
 };
+exports.updateUserPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const oldUser = await UserService.findBy({ _id: id });
+    if (!oldUser) {
+      throw new Error("Invalid user ID");
+    }
+    const user = await UserService.update({ _id: id }, password);
+    handleResponse(res, 200, "User Password updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
 exports.updateUserStatus = async (req, res) => {
   const { id } = req.params;
@@ -242,11 +256,11 @@ exports.saveUser = async (req, res) => {
     if (!data?.email) {
       throw new Error("Email is required.");
     }
-    
-     // validate email
+
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid. Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);
@@ -271,7 +285,10 @@ exports.saveUser = async (req, res) => {
       );
     }
     const user = await UserService.create(data); // create user
-    const company = await CompanyService.create({ user_id: user?.id }); // create user company
+    const company = await CompanyService.create({
+      user_id: user?.id,
+      name: data?.locationName,
+    }); // create user company
     await Promise.all(
       finishes?.map(async (finish) => {
         await FinishService.create({ ...finish, company_id: company?.id }); // create company finishes
