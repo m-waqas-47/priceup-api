@@ -271,7 +271,7 @@ exports.saveUser = async (req, res) => {
       );
     }
     const user = await UserService.create(data); // create user
-    const company = await CompanyService.create({ user_id: user?.id }); // create user company
+    const company = await CompanyService.create({ user_id: user?.id, name:data?.locationName }); // create user company
     await Promise.all(
       finishes?.map(async (finish) => {
         await FinishService.create({ ...finish, company_id: company?.id }); // create company finishes
