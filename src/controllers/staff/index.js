@@ -97,7 +97,7 @@ exports.updateStaff = async (req, res) => {
   }
 };
 
-exports.updateTeamPassword = async (req, res) => {
+exports.updateStaffPassword = async (req, res) => {
   const { id } = req.params;
   const password = generateRandomString(8);
   try {

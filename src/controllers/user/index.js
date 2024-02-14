@@ -145,7 +145,7 @@ exports.updateUser = async (req, res) => {
     }
     // if (req.file) {
     //   const newImagePath = `images/newUsers/${req.file.filename}`;
-
+    Update
     //   if (oldUser && oldUser.image) {
     //     const oldImagePath = `public/${oldUser.image}`;
     //     if (oldUser.image.startsWith("images/newUsers")) {

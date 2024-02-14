@@ -10,7 +10,7 @@ const {
   giveAccessToExisting,
   haveAccessTo,
   switchLocation,
-  updateTeamPassword,
+  updateStaffPassword,
 } = require("../controllers/staff");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
@@ -24,7 +24,7 @@ router.get("/allStaff", verifyToken, getAllStaff);
 router.put("/giveAccess", verifyToken, giveAccessToExisting); // only run once to give access to existing records
 router.get("/haveAccess/:id", verifyToken, haveAccessTo);
 router.get("/:id", verifyToken, getStaff);
-router.put("/updatePassword/:id", verifyToken, updateTeamPassword);
+router.put("/updatePassword/:id", verifyToken, updateStaffPassword);
 router.put("/:id", verifyToken, upload.single("image"), updateStaff);
 router.delete("/:id", verifyToken, deleteStaff);
 router.post("/save", verifyToken, upload.single("image"), saveStaff);
