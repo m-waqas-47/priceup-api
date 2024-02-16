@@ -4,12 +4,14 @@ const UserService = require("../../services/user");
 const bcrypt = require("bcryptjs");
 const {
   isEmailAlreadyUsed,
+  generateRandomString,
   // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const MailgunService = require("../../services/mailgun");
+const { userCreatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -64,6 +66,39 @@ exports.updateUser = async (req, res) => {
     });
 };
 
+exports.updateCustomUserPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const olduser = await CustomUserService.findBy({ _id: id });
+    if (!olduser) {
+      throw new Error("Invalid user ID");
+    }
+    const customUser = await CustomUserService.update({ _id: id }, password);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(customUser.email, "Password Updated", html);
+    handleResponse(
+      res,
+      200,
+      "customUser Password updated successfully",
+      customUser
+    );
+  } catch (err) {
+    handleError(res, err);
+  }
+  // Sending an email to the user
+  // const html = userCreatedTemplate(password);
+  // await MailgunService.sendEmail(data.email, "Account Created", html);
+  // CustomUserService.update({ _id: id }, password)
+  //   .then((customUser) => {
+  //     handleResponse(res, 200, "User info updated successfully", customUser);
+  //   })
+  //   .catch((err) => {
+  //     handleError(res, err);
+  //   });
+};
+
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
@@ -87,22 +122,23 @@ exports.deleteUser = async (req, res) => {
 
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
+  const password = generateRandomString(8);
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
     }
 
-     // validate email
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid.Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
     }
-    
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -110,8 +146,11 @@ exports.saveUser = async (req, res) => {
         req.file.path
       );
     }
-    
+
     const user = await CustomUserService.create(data);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "User created successfully", user);
   } catch (err) {
     handleError(res, err);

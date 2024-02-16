@@ -173,6 +173,9 @@ exports.updateUserPassword = async (req, res) => {
       throw new Error("Invalid user ID");
     }
     const user = await UserService.update({ _id: id }, password);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(user.email, "Password Updated", html);
     handleResponse(res, 200, "User Password updated successfully", user);
   } catch (err) {
     handleError(res, err);
