@@ -49,9 +49,18 @@ const staffSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 staffSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+staffSchema.pre("findOneAndUpdate", async function (next) {
+  if (this._update.password) {
+    // Check if the password is being modified
+    this._update.password = await bcrypt.hash(this._update.password, 10);
+  }
   next();
 });
 

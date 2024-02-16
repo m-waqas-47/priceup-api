@@ -9,7 +9,7 @@ const {
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { handleError, handleResponse } = require("../../utils/responses");
 const MailgunService = require("../../services/mailgun");
-const { userCreatedTemplate } = require("../../templates/email");
+const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -106,9 +106,9 @@ exports.updateStaffPassword = async (req, res) => {
     if (!oldStaff) {
       throw new Error("Invalid user ID");
     }
-    const staff = await StaffService.update({ _id: id }, password);
+    const staff = await StaffService.update({ _id: id }, {password:password});
      // Sending an email to the user
-     const html = userCreatedTemplate(password);
+     const html = passwordUpdatedTemplate(password);
      await MailgunService.sendEmail(staff.email, "Password Updated", html);
     handleResponse(res, 200, "Staff Password updated successfully", staff);
   } catch (err) {

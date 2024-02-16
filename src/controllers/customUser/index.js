@@ -66,38 +66,6 @@ exports.updateUser = async (req, res) => {
     });
 };
 
-exports.updateCustomUserPassword = async (req, res) => {
-  const { id } = req.params;
-  const password = generateRandomString(8);
-  try {
-    const olduser = await CustomUserService.findBy({ _id: id });
-    if (!olduser) {
-      throw new Error("Invalid user ID");
-    }
-    const customUser = await CustomUserService.update({ _id: id }, password);
-    // Sending an email to the user
-    const html = userCreatedTemplate(password);
-    await MailgunService.sendEmail(customUser.email, "Password Updated", html);
-    handleResponse(
-      res,
-      200,
-      "customUser Password updated successfully",
-      customUser
-    );
-  } catch (err) {
-    handleError(res, err);
-  }
-  // Sending an email to the user
-  // const html = userCreatedTemplate(password);
-  // await MailgunService.sendEmail(data.email, "Account Created", html);
-  // CustomUserService.update({ _id: id }, password)
-  //   .then((customUser) => {
-  //     handleResponse(res, 200, "User info updated successfully", customUser);
-  //   })
-  //   .catch((err) => {
-  //     handleError(res, err);
-  //   });
-};
 
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;

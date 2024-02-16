@@ -25,7 +25,7 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
-const { userCreatedTemplate } = require("../../templates/email");
+const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
@@ -172,9 +172,9 @@ exports.updateUserPassword = async (req, res) => {
     if (!oldUser) {
       throw new Error("Invalid user ID");
     }
-    const user = await UserService.update({ _id: id }, password);
+    const user = await UserService.update({ _id: id }, {password:password});
     // Sending an email to the user
-    const html = userCreatedTemplate(password);
+    const html = passwordUpdatedTemplate(password);
     await MailgunService.sendEmail(user.email, "Password Updated", html);
     handleResponse(res, 200, "User Password updated successfully", user);
   } catch (err) {
