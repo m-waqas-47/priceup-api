@@ -31,10 +31,17 @@ exports.saveFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
-    
-  if (req.file && req.file.fieldname === "image") {
-    data.image = await addOrUpdateOrDelete(multerActions.SAVE,multerSource.FINISHES,req.file.path);
-  }
+    const oldFinish = await FinishService.findBy({ slug: data.slug,company_id:company_id });
+    if (oldFinish) {
+      throw new Error("Finish with exact name already exist. Please name it to something else.");
+    }
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.FINISHES,
+        req.file.path
+      );
+    }
     const finish = await FinishService.create({
       ...data,
     });
@@ -77,8 +84,16 @@ exports.deleteFinish = async (req, res) => {
   const company_id = req.company_id;
   try {
     const finish = await FinishService.delete({ _id: id });
-    if(finish && finish.image && finish.image.startsWith('images/finishes/uploads')){
-      await addOrUpdateOrDelete(multerActions.DELETE,multerSource.FINISHES,finish.image)
+    if (
+      finish &&
+      finish.image &&
+      finish.image?.startsWith("images/finishes/uploads")
+    ) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.FINISHES,
+        finish.image
+      );
     }
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     hardwares?.map(async (hardware) => {
@@ -98,17 +113,35 @@ exports.updateFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
-    const oldFinish = await FinishService.findBy({_id:id});
+    let foundWithSameName = false;
+    let oldFinish = null;
+    const allFinishes = await FinishService.findAll({ company_id: company_id });
+    allFinishes.forEach((finish) => {
+      if (finish.name === data.name) foundWithSameName = true;
+      if (finish._id === id) oldFinish = finish;
+    });
+
+    if (foundWithSameName) {
+      throw new Error("Finish with exact name already exist. Please name it to something else.");
+    }
+    // const oldFinish = await FinishService.findBy({ _id: id });
 
     if (req.file && req.file.fieldname === "image") {
-    data.image = await addOrUpdateOrDelete(multerActions.PUT,multerSource.FINISHES,req.file.filename,oldFinish.image);
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.FINISHES,
+        req.file.filename,
+        oldFinish.image
+      );
     }
 
     await FinishService.update({ _id: id }, data);
 
     const hardwares = await HardwareService.findAll({ company_id: company_id });
     for (const hardware of hardwares) {
-      const items = hardware?.finishes?.filter((item) => item.finish_id.toString() === id);
+      const items = hardware?.finishes?.filter(
+        (item) => item.finish_id.toString() === id
+      );
       for (const item of items) {
         await HardwareService.update(
           { _id: hardware._id, "finishes._id": item._id },
@@ -128,5 +161,3 @@ exports.updateFinish = async (req, res) => {
     handleError(res, err);
   }
 };
-
-

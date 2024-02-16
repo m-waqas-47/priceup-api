@@ -81,6 +81,16 @@ exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
 
   try {
+    const oldGlassType = await GlassTypeService.findBy({
+      slug: data.slug,
+      company_id: company_id,
+    });
+
+    if (oldGlassType) {
+      throw new Error(
+        "Glass Type with exact name already exist. Please name it to something else."
+      );
+    }
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -139,7 +149,18 @@ exports.updateGlassType = async (req, res) => {
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    const oldGlassType = await GlassTypeService.findBy({ _id: id });
+    // const oldGlassType = await GlassTypeService.findBy({ _id: id });
+    let foundWithSameName = false;
+    let oldGlassType = null;
+    const allGlassTypes = await GlassTypeService.findAll({ company_id: company_id });
+    allGlassTypes.forEach((glassType) => {
+      if (glassType.slug === data.slug) foundWithSameName = true;
+      if (glassType._id === id) oldGlassType = glassType;
+    });
+
+    if (foundWithSameName) {
+      throw new Error("Glass Type with exact name already exist. Please name it to something else.");
+    }
 
     if (req.file && req.file.fieldname === "image") {
       updatedData.image = await addOrUpdateOrDelete(

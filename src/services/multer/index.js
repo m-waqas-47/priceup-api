@@ -24,7 +24,6 @@ const storage = multer.diskStorage({
       destinationPath += "customUsers/uploads/";
     }
 
-
     if (!fs.existsSync(destinationPath)) {
       // If not, create the directory
       fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
@@ -60,8 +59,9 @@ const addOrUpdateOrDelete = async (
         case multerActions.PUT:
           const newImagePath = `images/${source}/uploads/${newFilePath}`;
           if (oldFilePath !== "") {
-            if (oldFilePath.startsWith(`images/${source}/uploads`)) {
-              fs.unlinkSync(`public/${oldFilePath}`);
+            if (oldFilePath?.startsWith(`images/${source}/uploads`)) {
+              if (fs.existsSync(`public/${oldFilePath}`))
+                fs.unlinkSync(`public/${oldFilePath}`);
               resolve(newImagePath);
             } else {
               resolve(newImagePath);
@@ -70,7 +70,8 @@ const addOrUpdateOrDelete = async (
             resolve(newImagePath);
           }
         case multerActions.DELETE:
-          fs.unlinkSync(`public/${newFilePath}`);
+          if (fs.existsSync(`public/${newFilePath}`))
+            fs.unlinkSync(`public/${newFilePath}`);
           resolve(true);
         default:
           resolve(true);

@@ -118,23 +118,36 @@ exports.saveHardware = async (req, res) => {
   const data = { ...req.body };
   const company_id = req.company_id;
 
-  if (req.file && req.file.fieldname === "image") {
-    data.image = await addOrUpdateOrDelete(
-      multerActions.SAVE,
-      multerSource.HARDWARES,
-      req.file.path
-    );
-  }
-  const finishes = await FinishService.findAll({ company_id: company_id });
-  const generateFinishesFormat = await generateFinishes(finishes);
-
-  HardwareService.create({ ...data, finishes: generateFinishesFormat })
-    .then((hardware) => {
-      handleResponse(res, 200, "Hardware created successfully", hardware);
-    })
-    .catch((err) => {
-      handleError(res, err);
+  try {
+    const oldHardware = await HardwareService.findBy({
+      slug: data.slug,
+      company_id: company_id,
     });
+
+    if (oldHardware) {
+      throw new Error(
+        "Hardware with exact name already exist. Please name it to something else."
+      );
+    }
+
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.HARDWARES,
+        req.file.path
+      );
+    }
+
+    const finishes = await FinishService.findAll({ company_id: company_id });
+    const generateFinishesFormat = await generateFinishes(finishes);
+    const hardware = await HardwareService.create({
+      ...data,
+      finishes: generateFinishesFormat,
+    });
+    handleResponse(res, 200, "Hardware created successfully", hardware);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 exports.updateHardware = async (req, res) => {
   const { id } = req.params;
@@ -142,7 +155,18 @@ exports.updateHardware = async (req, res) => {
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    const oldHardware = await HardwareService.findBy({ _id: id });
+    // const oldHardware = await HardwareService.findBy({ _id: id });
+    let foundWithSameName = false;
+    let oldHardware = null;
+    const allHardwares = await HardwareService.findAll({ company_id: company_id });
+    allHardwares.forEach((hardware) => {
+      if (hardware.slug === data.slug) foundWithSameName = true;
+      if (hardware._id === id) oldHardware = hardware;
+    });
+
+    if (foundWithSameName) {
+      throw new Error("Hardware with exact name already exist. Please name it to something else.");
+    }
 
     if (req.file && req.file.fieldname === "image") {
       updatedData.image = await addOrUpdateOrDelete(
