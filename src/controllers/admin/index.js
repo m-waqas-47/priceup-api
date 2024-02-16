@@ -58,6 +58,28 @@ exports.loginAdminByIdAgain = async (req, res) => {
   }
 };
 
+exports.updateAdmin = async (req, res) => {
+  const { id } = req.params;
+  const data = { ...req.body };
+  try {
+    // const oldUser = await UserService.findBy({ _id: id });
+
+    // if (req.file && req.file.fieldname === "image") {
+    //   data.image = await addOrUpdateOrDelete(
+    //     multerActions.PUT,
+    //     multerSource.USERS,
+    //     req.file.filename,
+    //     oldUser.image
+    //   );
+    // }
+
+    const admin = await AdminService.update({ _id: id }, data);
+    handleResponse(res, 200, "Super Admin info updated successfully", admin);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
@@ -78,6 +100,21 @@ exports.saveAdmin = async (req, res) => {
     }
     const admin = await AdminService.create(data);
     handleResponse(res, 200, "Admin created successfully", admin);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+exports.deleteAdmin = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const admin = await AdminService.findBy({ _id: id });
+    if (!admin) {
+      throw new Error("Invalid admin ID");
+    }
+    // Delete Company user
+    await AdminService.delete({ _id: admin._id });
+
+    handleResponse(res, 200, "Admin deleted successfully", admin);
   } catch (err) {
     handleError(res, err);
   }

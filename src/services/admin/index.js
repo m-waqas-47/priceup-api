@@ -26,6 +26,31 @@ class AdminService {
     });
   }
 
+
+  static update(condition, data) {
+    return new Promise((resolve, reject) => {
+      Admin.findOneAndUpdate(condition, data, { new: true })
+        .then((admin) => {
+          resolve(admin);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static delete(condition) {
+    return new Promise((resolve, reject) => {
+      Admin.findOneAndDelete(condition)
+        .then((user) => {
+          resolve(user);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       Admin.create(data)

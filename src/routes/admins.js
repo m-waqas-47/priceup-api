@@ -5,13 +5,17 @@ const {
   saveAdmin,
   loginAdminById,
   loginAdminByIdAgain,
-  allLocations
+  allLocations,
+  updateAdmin,
+  deleteAdmin,
 } = require("../controllers/admin");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
-router.get("/allLocations",verifyToken, allLocations);
+router.get("/allLocations", verifyToken, allLocations);
+router.put("/:id", verifyToken, updateAdmin);
+router.delete("/:id", verifyToken, deleteAdmin);
 router.post("/loginAdminId", verifyToken, loginAdminById);
 router.post("/loginAdminIdAgain", verifyToken, loginAdminByIdAgain);
 router.post("/login", loginAdmin);
