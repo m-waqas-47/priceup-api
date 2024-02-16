@@ -25,7 +25,7 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
-const { userCreatedTemplate } = require("../../templates/email");
+const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
@@ -145,7 +145,7 @@ exports.updateUser = async (req, res) => {
     }
     // if (req.file) {
     //   const newImagePath = `images/newUsers/${req.file.filename}`;
-
+    Update
     //   if (oldUser && oldUser.image) {
     //     const oldImagePath = `public/${oldUser.image}`;
     //     if (oldUser.image.startsWith("images/newUsers")) {
@@ -160,6 +160,23 @@ exports.updateUser = async (req, res) => {
     // }
     const user = await UserService.update({ _id: id }, data);
     handleResponse(res, 200, "User info updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+exports.updateUserPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const oldUser = await UserService.findBy({ _id: id });
+    if (!oldUser) {
+      throw new Error("Invalid user ID");
+    }
+    const user = await UserService.update({ _id: id }, {password:password});
+    // Sending an email to the user
+    const html = passwordUpdatedTemplate(password);
+    await MailgunService.sendEmail(user.email, "Password Updated", html);
+    handleResponse(res, 200, "User Password updated successfully", user);
   } catch (err) {
     handleError(res, err);
   }
@@ -242,11 +259,11 @@ exports.saveUser = async (req, res) => {
     if (!data?.email) {
       throw new Error("Email is required.");
     }
-    
-     // validate email
+
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid. Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);

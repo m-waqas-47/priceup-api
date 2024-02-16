@@ -9,6 +9,7 @@ const {
   getDashboardTotals,
   getQuote,
   deleteUser,
+  updateUserPassword,
 } = require("../controllers/user");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
@@ -18,6 +19,7 @@ router.get("/getQuote/:id", verifyToken, getQuote);
 router.get("/", verifyToken, getAll);
 router.get("/dashboardData", verifyToken, getDashboardTotals);
 router.get("/:id", verifyToken, getUser);
+router.put("/updatePassword/:id", verifyToken, updateUserPassword);
 router.put("/:id", verifyToken, upload.single("image"), updateUser);
 router.delete("/:id", verifyToken, deleteUser);
 router.post("/save", verifyToken, upload.single("image"), saveUser);

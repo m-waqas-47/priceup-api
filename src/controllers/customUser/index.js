@@ -4,12 +4,14 @@ const UserService = require("../../services/user");
 const bcrypt = require("bcryptjs");
 const {
   isEmailAlreadyUsed,
+  generateRandomString,
   // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const MailgunService = require("../../services/mailgun");
+const { userCreatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -64,6 +66,7 @@ exports.updateUser = async (req, res) => {
     });
 };
 
+
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
@@ -87,22 +90,23 @@ exports.deleteUser = async (req, res) => {
 
 exports.saveUser = async (req, res) => {
   const data = { ...req.body };
+  const password = generateRandomString(8);
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
     }
 
-     // validate email
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid.Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
     }
-    
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -110,8 +114,11 @@ exports.saveUser = async (req, res) => {
         req.file.path
       );
     }
-    
+
     const user = await CustomUserService.create(data);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "User created successfully", user);
   } catch (err) {
     handleError(res, err);

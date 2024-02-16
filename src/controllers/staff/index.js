@@ -2,10 +2,14 @@ const { multerActions, multerSource } = require("../../config/common");
 const CompanyService = require("../../services/company");
 const StaffService = require("../../services/staff");
 const UserService = require("../../services/user");
-const { isEmailAlreadyUsed } = require("../../utils/common");
+const {
+  isEmailAlreadyUsed,
+  generateRandomString,
+} = require("../../utils/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { handleError, handleResponse } = require("../../utils/responses");
 const MailgunService = require("../../services/mailgun");
+const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -94,6 +98,23 @@ exports.updateStaff = async (req, res) => {
   }
 };
 
+exports.updateStaffPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const oldStaff = await StaffService.findBy({ _id: id });
+    if (!oldStaff) {
+      throw new Error("Invalid user ID");
+    }
+    const staff = await StaffService.update({ _id: id }, {password:password});
+     // Sending an email to the user
+     const html = passwordUpdatedTemplate(password);
+     await MailgunService.sendEmail(staff.email, "Password Updated", html);
+    handleResponse(res, 200, "Staff Password updated successfully", staff);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 exports.deleteStaff = async (req, res) => {
   const { id } = req.params;
   try {
@@ -128,10 +149,10 @@ exports.saveStaff = async (req, res) => {
     if (!data?.email) {
       throw new Error("Email is required.");
     }
-     // validate email
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid.Please enter a correct one.");
     }
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
@@ -147,6 +168,9 @@ exports.saveStaff = async (req, res) => {
       );
     }
     const staff = await StaffService.create(data);
+     // Sending an email to the user
+     const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "Staff created successfully", staff);
   } catch (err) {
     handleError(res, err);
