@@ -33,6 +33,7 @@ exports.getGlassAddon = async (req, res) => {
 exports.updateGlassAddon = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
+  const company_id = req.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
   try {
     // const oldGlassAddon = await GlassAddonService.findBy({ _id: id });
@@ -130,6 +131,7 @@ exports.deleteGlassAddon = async (req, res) => {
 
 exports.saveGlassAddon = async (req, res) => {
   const data = { ...req.body };
+  const company_id = req.company_id;
   try {
     const oldGlassAddon = await GlassAddonService.findBy({
       slug: data.slug,
