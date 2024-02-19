@@ -72,6 +72,7 @@ exports.getAll = async (req, res) => {
                 variant: layoutData.settings.variant,
                 heavyDutyOption: layoutData.settings.heavyDutyOption,
                 hinges: layoutData.settings.hinges,
+                glassType: estimateObject.glassType,
               }
             : null,
           creatorData: creator
