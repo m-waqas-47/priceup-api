@@ -63,12 +63,15 @@ exports.getAll = async (req, res) => {
         const estimateObject = estimate.toObject();
         return {
           ...estimateObject,
-          layoutData: layoutData
+          settings: layoutData
             ? {
+                measurementSides: layoutData.settings.measurementSides,
                 image: layoutData.image,
                 name: layoutData.name,
                 _id: layoutData._id,
                 variant: layoutData.settings.variant,
+                heavyDutyOption: layoutData.settings.heavyDutyOption,
+                hinges: layoutData.settings.hinges,
               }
             : null,
           creatorData: creator
@@ -200,7 +203,10 @@ exports.saveEstimate = async (req, res) => {
     throw new Error("Customer Data is required!");
   }
   try {
-    const customer = await addOrUpdateCustomerEstimateRelation(customerData,company_id);
+    const customer = await addOrUpdateCustomerEstimateRelation(
+      customerData,
+      company_id
+    );
     const estimate = await EstimateService.create({
       ...data?.estimateData,
       customer_id: customer._id,
