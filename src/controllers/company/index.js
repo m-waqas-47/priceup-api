@@ -97,7 +97,7 @@ exports.cloneCompany = async (req, res) => {
   const data = { ...req.body, password: password };
   try {
     if (!data?.company_id) {
-      throw new Error("Company id is required");
+      throw new Error("Company id is required.");
     }
 
     if (!data?.email) {
@@ -117,6 +117,11 @@ exports.cloneCompany = async (req, res) => {
       );
     }
 
+    const referenceCompany = await CompanyService.findBy({_id:data.company_id});
+    if(!referenceCompany){
+      throw new Error("Invalid company id provided.");
+    }
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
@@ -128,6 +133,7 @@ exports.cloneCompany = async (req, res) => {
     const user = await UserService.create(data); // create user
 
     const company = await CompanyService.create({
+      ...referenceCompany,
       user_id: user?.id,
       name: data?.locationName,
     }); // create user company
