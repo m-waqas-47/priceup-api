@@ -83,6 +83,7 @@ exports.updateAdmin = async (req, res) => {
 exports.saveAdmin = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
   const data = { ...req.body, password: password };
+  
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
