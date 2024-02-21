@@ -2,7 +2,7 @@ const AdminService = require("../../services/admin");
 const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 const CompanyService = require("../../services/company");
-const { isEmailAlreadyUsed } = require("../../utils/common");
+const { isEmailAlreadyUsed, generateRandomString } = require("../../utils/common");
 const MailgunService = require("../../services/mailgun");
 
 exports.getAll = async (req, res) => {
@@ -81,9 +81,9 @@ exports.updateAdmin = async (req, res) => {
 };
 
 exports.saveAdmin = async (req, res) => {
-  const password = /*generateRandomString(8)*/ "abcdef";
+  const password = generateRandomString(8);
   const data = { ...req.body, password: password };
-  
+
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
@@ -100,6 +100,7 @@ exports.saveAdmin = async (req, res) => {
       throw new Error("Email already exist in system.Please try with new one.");
     }
     const admin = await AdminService.create(data);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "Admin created successfully", admin);
   } catch (err) {
     handleError(res, err);
