@@ -220,16 +220,16 @@ const estimateSchema = new mongoose.Schema(
       default: 0,
     },
     measurements: [
-      {
-        key: {
-          type: String,
-          default: "",
-        },
-        value: {
-          type: String,
-          default: "",
-        },
-      },
+      // {
+      //   key: {
+      //     type: String,
+      //     default: "",
+      //   },
+      //   value: {
+      //     type: String,
+      //     default: "",
+      //   },
+      // },
     ],
     cost: {
       type: Number,

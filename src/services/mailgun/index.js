@@ -21,7 +21,7 @@ class MailgunService {
   }
   static verifyEmail(email){
     try{
-      return client.validate.get(email,{provider_lookup:true});
+      return client.validate.get(email,{provider_lookup:false});
     }
     catch (error) {
       console.error("Error verifying email:", error);
