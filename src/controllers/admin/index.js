@@ -4,6 +4,8 @@ const { handleError, handleResponse } = require("../../utils/responses");
 const CompanyService = require("../../services/company");
 const { isEmailAlreadyUsed, generateRandomString } = require("../../utils/common");
 const MailgunService = require("../../services/mailgun");
+const { addOrUpdateOrDelete } = require("../../services/multer");
+const { multerSource, multerActions } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -66,7 +68,7 @@ exports.updateAdmin = async (req, res) => {
     if (!oldAdmin) {
       throw new Error("Invalid admin ID");
     }
-    
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.PUT,
