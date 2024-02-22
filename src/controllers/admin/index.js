@@ -6,7 +6,7 @@ const { isEmailAlreadyUsed, generateRandomString } = require("../../utils/common
 const MailgunService = require("../../services/mailgun");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { multerSource, multerActions } = require("../../config/common");
-const { passwordUpdatedTemplate } = require("../../templates/email");
+const { passwordUpdatedTemplate, userCreatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -114,6 +114,8 @@ exports.saveAdmin = async (req, res) => {
     }
 
     const admin = await AdminService.create(data);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
     await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "Admin created successfully", admin);
   } catch (err) {
