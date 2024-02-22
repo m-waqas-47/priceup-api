@@ -255,13 +255,25 @@ exports.getEstimateTotals = async (req, res) => {
 };
 
 exports.modifyExistingRecords = async (req, res) => {
-  const estimates = await EstimateService.findAll();
+  const estimates = await EstimateService.findAll({layout_id:null});
+  const measurements= [
+    {
+      count: 1,
+      width: "40",
+      height: "30"
+    },
+    {
+      count: 1,
+      width: "50",
+      height: "50"
+    }
+  ];
   try {
     await Promise.all(
       estimates?.map(async (estimate) => {
         await EstimateService.update(
-          { _id: estimate._id },
-          { userProfitPercentage: 0 }
+          { layout_id: null },
+          { measurements: measurements }
         );
       })
     );
