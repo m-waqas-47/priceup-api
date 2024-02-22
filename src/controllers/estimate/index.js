@@ -272,7 +272,7 @@ exports.modifyExistingRecords = async (req, res) => {
     await Promise.all(
       estimates?.map(async (estimate) => {
         await EstimateService.update(
-          { layout_id: null },
+          { _id: estimate._id },
           { measurements: measurements }
         );
       })
