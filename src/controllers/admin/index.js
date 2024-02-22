@@ -6,6 +6,7 @@ const { isEmailAlreadyUsed, generateRandomString } = require("../../utils/common
 const MailgunService = require("../../services/mailgun");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { multerSource, multerActions } = require("../../config/common");
+const { passwordUpdatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
