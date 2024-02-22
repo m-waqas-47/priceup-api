@@ -62,17 +62,19 @@ exports.updateAdmin = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   try {
-    // const oldUser = await UserService.findBy({ _id: id });
-
-    // if (req.file && req.file.fieldname === "image") {
-    //   data.image = await addOrUpdateOrDelete(
-    //     multerActions.PUT,
-    //     multerSource.USERS,
-    //     req.file.filename,
-    //     oldUser.image
-    //   );
-    // }
-
+    const oldAdmin = await AdminService.findBy({ _id: id });
+    if (!oldAdmin) {
+      throw new Error("Invalid admin ID");
+    }
+    
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.ADMINS,
+        req.file.filename,
+        oldAdmin.image
+      );
+    }
     const admin = await AdminService.update({ _id: id }, data);
     handleResponse(res, 200, "Super Admin info updated successfully", admin);
   } catch (err) {
@@ -99,6 +101,15 @@ exports.saveAdmin = async (req, res) => {
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
     }
+
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSource.ADMINS,
+        req.file.path
+      );
+    }
+
     const admin = await AdminService.create(data);
     await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "Admin created successfully", admin);
@@ -106,12 +117,38 @@ exports.saveAdmin = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.updateAdminPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const oldAdmin = await AdminService.findBy({ _id: id });
+    if (!oldAdmin) {
+      throw new Error("Invalid admin ID");
+    }
+    const admin = await AdminService.update({ _id: id }, {password:password});
+     // Sending an email to the user
+     const html = passwordUpdatedTemplate(password);
+     await MailgunService.sendEmail(admin.email, "Password Updated", html);
+    handleResponse(res, 200, "Admin Password updated successfully", admin);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.deleteAdmin = async (req, res) => {
   const { id } = req.params;
   try {
     const admin = await AdminService.findBy({ _id: id });
     if (!admin) {
       throw new Error("Invalid admin ID");
+    }
+    if (admin && admin.image && admin.image.startsWith("images/admins/uploads")) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.ADMINS,
+        admin.image
+      );
     }
     // Delete Company user
     await AdminService.delete({ _id: admin._id });

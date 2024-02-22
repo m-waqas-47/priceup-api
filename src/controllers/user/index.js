@@ -134,7 +134,9 @@ exports.updateUser = async (req, res) => {
   const data = { ...req.body };
   try {
     const oldUser = await UserService.findBy({ _id: id });
-
+    if (!oldUser) {
+      throw new Error("Invalid user ID");
+    }
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.PUT,
@@ -143,21 +145,7 @@ exports.updateUser = async (req, res) => {
         oldUser.image
       );
     }
-    // if (req.file) {
-    //   const newImagePath = `images/newUsers/${req.file.filename}`;
-    Update
-    //   if (oldUser && oldUser.image) {
-    //     const oldImagePath = `public/${oldUser.image}`;
-    //     if (oldUser.image.startsWith("images/newUsers")) {
-    //       fs.unlinkSync(oldImagePath);
-    //       data.image = newImagePath;
-    //     } else {
-    //       data.image = newImagePath;
-    //     }
-    //   } else {
-    //     data.image = newImagePath;
-    //   }
-    // }
+
     const user = await UserService.update({ _id: id }, data);
     handleResponse(res, 200, "User info updated successfully", user);
   } catch (err) {
@@ -198,19 +186,19 @@ exports.deleteUser = async (req, res) => {
   const { id } = req.params;
   try {
     const user = await UserService.findBy({ _id: id });
-    if (user && user.image && user.image.startsWith("images/users/uploads")) {
-      await addOrUpdateOrDelete(
-        multerActions.DELETE,
-        multerSource.USERS,
-        user.image
-      );
-    }
     if (!user) {
       throw new Error("Invalid user ID");
     }
     const company = await CompanyService.findBy({ user_id: user._id });
     if (!company) {
       throw new Error("No Company attached to this user");
+    }
+    if (user && user.image && user.image.startsWith("images/users/uploads")) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.USERS,
+        user.image
+      );
     }
     const allStaff = await StaffService.findAll();
     // remove company id from haveAccessTo array of Staff members

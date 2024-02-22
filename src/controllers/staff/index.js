@@ -83,6 +83,10 @@ exports.updateStaff = async (req, res) => {
   const data = { ...req.body };
   try {
     const oldStaff = await StaffService.findBy({ _id: id });
+    if (!oldStaff) {
+      throw new Error("Invalid staff ID");
+    }
+
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.PUT,
@@ -104,7 +108,7 @@ exports.updateStaffPassword = async (req, res) => {
   try {
     const oldStaff = await StaffService.findBy({ _id: id });
     if (!oldStaff) {
-      throw new Error("Invalid user ID");
+      throw new Error("Invalid staff ID");
     }
     const staff = await StaffService.update({ _id: id }, {password:password});
      // Sending an email to the user

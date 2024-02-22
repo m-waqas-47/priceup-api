@@ -34,4 +34,5 @@ exports.multerSource = {
   GLASSTYPES: "glassTypes",
   USERS: "users",
   CUSTOMUSERS: "customUsers",
+  ADMINS: "admins"
 };
