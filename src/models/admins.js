@@ -39,6 +39,14 @@ adminSchema.pre("save", async function (next) {
   next();
 });
 
+adminSchema.pre("findOneAndUpdate", async function (next) {
+  if (this._update.password) {
+    // Check if the password is being modified
+    this._update.password = await bcrypt.hash(this._update.password, 10);
+  }
+  next();
+});
+
 adminSchema.methods.comparePassword = function (password) {
   return bcrypt.compareSync(password, this.password);
 };
