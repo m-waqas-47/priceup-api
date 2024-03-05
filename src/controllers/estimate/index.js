@@ -18,83 +18,85 @@ exports.getAll = async (req, res) => {
   try {
     const company_id = req.company_id;
     const estimates = await EstimateService.findAll({ company_id });
-
     let total = 0;
     let pending = 0;
     let voided = 0;
     let approved = 0;
-
-    const result = await Promise.all(estimates.map(async (estimate) => {
-      total += estimate.cost;
-
-      switch (estimate.status) {
-        case estimateStatus.PENDING:
-          pending += 1;
-          break;
-        case estimateStatus.VOIDED:
-          voided += 1;
-          break;
-        case estimateStatus.APPROVED:
-          approved += 1;
-          break;
-        default:
-          break;
-      }
-
-      const layoutDataPromise = LayoutService.findBy({_id: estimate.layout_id});
-      let creatorPromise = null;
-      switch (estimate.creator_type) {
-        case userRoles.ADMIN:
-          creatorPromise = UserService.findBy({_id: estimate.creator_id});
-          if (!creatorPromise) {
-            creatorPromise = CustomUserService.findBy({_id: estimate.creator_id});
-          }
-          break;
-        case userRoles.STAFF:
-          creatorPromise = StaffService.findBy({_id: estimate.creator_id});
-          break;
-        default:
-          break;
-      }
-      const customerPromise = CustomerService.findBy({_id: estimate.customer_id});
-
-      const [layoutData, creator, customer] = await Promise.all([layoutDataPromise, creatorPromise, customerPromise]);
-
-      const estimateObject = estimate.toObject();
-      const settings = layoutData ? {
-        measurementSides: layoutData.settings.measurementSides,
-        image: layoutData.image,
-        name: layoutData.name,
-        _id: layoutData._id,
-        variant: layoutData.settings.variant,
-        heavyDutyOption: layoutData.settings.heavyDutyOption,
-        hinges: layoutData.settings.hinges,
-        glassType: estimateObject.glassType,
-      } : null;
-      const creatorData = creator ? {
-        name: creator.name,
-        image: creator.image,
-        email: creator.email,
-      } : null;
-      const customerData = customer ? {
-        name: customer.name,
-        email: customer.email,
-      } : null;
-
-      return {
-        ...estimateObject,
-        settings,
-        creatorData,
-        customerData,
-      };
-    }));
-
+    const result = await Promise.all(
+      estimates.map(async (estimate) => {
+        total += estimate.cost;
+        switch (estimate.status) {
+          case estimateStatus.PENDING:
+            pending += 1;
+            break;
+          case estimateStatus.VOIDED:
+            voided += 1;
+            break;
+          case estimateStatus.APPROVED:
+            approved += 1;
+            break;
+          default:
+            break;
+        }
+        const layoutData = await LayoutService.findBy({
+          _id: estimate.layout_id,
+        });
+        let creator = null;
+        switch (estimate.creator_type) {
+          case userRoles.ADMIN:
+            creator = await UserService.findBy({ _id: estimate.creator_id });
+            if (!creator) {
+              creator = await CustomUserService.findBy({
+                _id: estimate.creator_id,
+              });
+            }
+            break;
+          case userRoles.STAFF:
+            creator = await StaffService.findBy({ _id: estimate.creator_id });
+            break;
+          default:
+            break;
+        }
+        const customer = await CustomerService.findBy({
+          _id: estimate.customer_id,
+        });
+        const estimateObject = estimate.toObject();
+        return {
+          ...estimateObject,
+          settings: layoutData
+            ? {
+                measurementSides: layoutData.settings.measurementSides,
+                image: layoutData.image,
+                name: layoutData.name,
+                _id: layoutData._id,
+                variant: layoutData.settings.variant,
+                heavyDutyOption: layoutData.settings.heavyDutyOption,
+                hinges: layoutData.settings.hinges,
+                glassType: estimateObject.glassType,
+              }
+            : null,
+          creatorData: creator
+            ? {
+                name: creator.name,
+                image: creator.image,
+                email: creator.email,
+              }
+            : null,
+          customerData: customer
+            ? {
+                name: customer.name,
+                email: customer.email,
+              }
+            : null,
+        };
+      })
+    );
     handleResponse(res, 200, "All Estimates", {
       estimates: result,
-      total,
-      pending,
-      voided,
-      approved,
+      total: total,
+      pending: pending,
+      voided: voided,
+      approved: approved,
     });
   } catch (err) {
     handleError(res, err);
