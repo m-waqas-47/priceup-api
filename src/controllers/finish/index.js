@@ -115,7 +115,7 @@ exports.updateFinish = async (req, res) => {
     let oldFinish = null;
     const allFinishes = await FinishService.findAll({ company_id: company_id });
     allFinishes.forEach((finish) => {
-      if (finish.name === data.name && finish._id !== id)
+      if (finish.name === data.name && finish.id !== id)
         foundWithSameName = true;
       if (finish.id === id) oldFinish = finish;
     });
