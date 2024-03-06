@@ -161,8 +161,8 @@ exports.updateHardware = async (req, res) => {
     let oldHardware = null;
     const allHardwares = await HardwareService.findAll({ company_id: company_id });
     allHardwares.forEach((hardware) => {
-      if (hardware.slug === data.slug) foundWithSameName = true;
-      if (hardware._id === id) oldHardware = hardware;
+      if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
+      if (hardware.id === id) oldHardware = hardware;
     });
 
     if (foundWithSameName) {

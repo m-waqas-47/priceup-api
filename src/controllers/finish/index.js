@@ -31,9 +31,14 @@ exports.saveFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
-    const oldFinish = await FinishService.findBy({ slug: data.slug,company_id:company_id });
+    const oldFinish = await FinishService.findBy({
+      slug: data.slug,
+      company_id: company_id,
+    });
     if (oldFinish) {
-      throw new Error("Finish with exact name already exist. Please name it to something else.");
+      throw new Error(
+        "Finish with exact name already exist. Please name it to something else."
+      );
     }
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
@@ -54,7 +59,6 @@ exports.saveFinish = async (req, res) => {
           image: finish.image,
           partNumber: finish.partNumber,
           cost: finish.cost,
-          thickness: "1/2",
           status: finish.status,
           finish_id: finish._id,
         };
@@ -62,12 +66,6 @@ exports.saveFinish = async (req, res) => {
           { _id: hardware._id },
           {
             $push: { finishes: finishData },
-          }
-        );
-        await HardwareService.update(
-          { _id: hardware._id },
-          {
-            $push: { finishes: { ...finishData, thickness: "3/8" } },
           }
         );
       })
@@ -117,12 +115,15 @@ exports.updateFinish = async (req, res) => {
     let oldFinish = null;
     const allFinishes = await FinishService.findAll({ company_id: company_id });
     allFinishes.forEach((finish) => {
-      if (finish.name === data.name) foundWithSameName = true;
-      if (finish._id === id) oldFinish = finish;
+      if (finish.name === data.name && finish._id !== id)
+        foundWithSameName = true;
+      if (finish.id === id) oldFinish = finish;
     });
 
     if (foundWithSameName) {
-      throw new Error("Finish with exact name already exist. Please name it to something else.");
+      throw new Error(
+        "Finish with exact name already exist. Please name it to something else."
+      );
     }
     // const oldFinish = await FinishService.findBy({ _id: id });
 
