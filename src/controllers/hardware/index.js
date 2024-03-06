@@ -159,14 +159,18 @@ exports.updateHardware = async (req, res) => {
     // const oldHardware = await HardwareService.findBy({ _id: id });
     let foundWithSameName = false;
     let oldHardware = null;
-    const allHardwares = await HardwareService.findAll({ company_id: company_id });
+    const allHardwares = await HardwareService.findAll({
+      company_id: company_id,
+    });
     allHardwares.forEach((hardware) => {
-      if (hardware.slug === data.slug) foundWithSameName = true;
+      if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
       if (hardware._id === id) oldHardware = hardware;
     });
 
     if (foundWithSameName) {
-      throw new Error("Hardware with exact name already exist. Please name it to something else.");
+      throw new Error(
+        "Hardware with exact name already exist. Please name it to something else."
+      );
     }
 
     if (req.file && req.file.fieldname === "image") {
@@ -186,21 +190,13 @@ exports.updateHardware = async (req, res) => {
 };
 
 exports.updateExistingHardware = async (req, res) => {
-  const exist = HardwareCategoryService.findBy({ slug: "corner-clamps" });
-  if (!exist) {
-    await HardwareCategoryService.create({
-      name: "Corner Clamps",
-      slug: "corner-clamps",
-      status: true,
-    });
-  }
-  const hardwares = await HardwareService.findAllBy({ slug: "corner-clamp" });
+  const hardwares = await HardwareService.findAll();
   try {
     await Promise.all(
       hardwares?.map(async (hardware) => {
         await HardwareService.update(
           { _id: hardware._id },
-          { hardware_category_slug: "corner-clamps" }
+          { oneInchHoles: 0, hingeCut: 0, clampCut: 0, notch: 0, outages: 0 }
         );
       })
     );
