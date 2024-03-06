@@ -39,14 +39,19 @@ exports.updateGlassAddon = async (req, res) => {
     // const oldGlassAddon = await GlassAddonService.findBy({ _id: id });
     let foundWithSameName = false;
     let oldGlassAddon = null;
-    const allGlassAddons = await GlassAddonService.findAll({ company_id: company_id });
+    const allGlassAddons = await GlassAddonService.findAll({
+      company_id: company_id,
+    });
     allGlassAddons.forEach((glassAddon) => {
-      if (glassAddon.slug === data.slug) foundWithSameName = true;
-      if (glassAddon._id === id) oldGlassAddon = glassAddon;
+      if (glassAddon.slug === data.slug && glassAddon.id !== id)
+        foundWithSameName = true;
+      if (glassAddon.id === id) oldGlassAddon = glassAddon;
     });
 
     if (foundWithSameName) {
-      throw new Error("Glass Addon with exact name already exist. Please name it to something else.");
+      throw new Error(
+        "Glass Addon with exact name already exist. Please name it to something else."
+      );
     }
 
     if (req.file && req.file.fieldname === "image") {
