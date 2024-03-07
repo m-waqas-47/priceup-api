@@ -164,7 +164,7 @@ exports.updateHardware = async (req, res) => {
     });
     allHardwares.forEach((hardware) => {
       if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
-      if (hardware._id === id) oldHardware = hardware;
+      if (hardware.id === id) oldHardware = hardware;
     });
 
     if (foundWithSameName) {

@@ -125,8 +125,10 @@ exports.getEstimate = async (req, res) => {
 exports.getEstimateListsData = async (req, res) => {
   const company_id = req.company_id;
   try {
-    const listsData = await getListsData(company_id);
-    const companySettings = await CompanyService.findBy({ _id: company_id });
+    const [listsData, companySettings] = await Promise.all([
+      getListsData(company_id),
+      CompanyService.findBy({ _id: company_id })
+    ]);
 
     handleResponse(res, 200, "Success", {
       ...listsData,

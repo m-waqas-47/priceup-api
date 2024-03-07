@@ -158,8 +158,8 @@ exports.updateGlassType = async (req, res) => {
       company_id: company_id,
     });
     allGlassTypes.forEach((glassType) => {
-      if (glassType.slug === data.slug) foundWithSameName = true;
-      if (glassType._id === id) oldGlassType = glassType;
+      if (glassType.slug === data.slug && glassType.id !== id) foundWithSameName = true;
+      if (glassType.id === id) oldGlassType = glassType;
     });
 
     if (foundWithSameName) {
