@@ -127,7 +127,7 @@ exports.getEstimateListsData = async (req, res) => {
   try {
     const [listsData, companySettings] = await Promise.all([
       getListsData(company_id),
-      CompanyService.findBy({ _id: company_id })
+      CompanyService.findBy({ _id: company_id }),
     ]);
 
     handleResponse(res, 200, "Success", {
@@ -257,25 +257,14 @@ exports.getEstimateTotals = async (req, res) => {
 };
 
 exports.modifyExistingRecords = async (req, res) => {
-  const estimates = await EstimateService.findAll({layout_id:null});
-  const measurements= [
-    {
-      count: 1,
-      width: "40",
-      height: "30"
-    },
-    {
-      count: 1,
-      width: "50",
-      height: "50"
-    }
-  ];
+  const estimates = await EstimateService.findAll();
+
   try {
     await Promise.all(
       estimates?.map(async (estimate) => {
         await EstimateService.update(
           { _id: estimate._id },
-          { measurements: measurements }
+          { additionalFields: [] }
         );
       })
     );

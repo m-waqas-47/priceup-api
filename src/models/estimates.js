@@ -219,6 +219,16 @@ const estimateSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    additionalFields: [
+      {
+        label: {
+          type: String,
+        },
+        cost: {
+          type: Number,
+        }
+      }
+    ],
     measurements: [
       // {
       //   key: {
