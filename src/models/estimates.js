@@ -6,6 +6,10 @@ const estimateSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    label: {
+      type: String,
+      default: "",
+    },
     layout_id: {
       type: mongoose.Schema.Types.ObjectId,
       // required: "Layout reference is required",
@@ -226,8 +230,8 @@ const estimateSchema = new mongoose.Schema(
         },
         cost: {
           type: Number,
-        }
-      }
+        },
+      },
     ],
     measurements: [
       // {
