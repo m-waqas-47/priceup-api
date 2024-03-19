@@ -11,7 +11,7 @@ const { handleError, handleResponse } = require("../../utils/responses");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const MailgunService = require("../../services/mailgun");
-const { userCreatedTemplate } = require("../../templates/email");
+const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -36,34 +36,44 @@ exports.getUser = async (req, res) => {
 
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
-  let data = { ...req.body };
-  if (data?.locationsAccess) {
-    const user = await CustomUserService.findBy({ _id: id });
+  const data = { ...req.body };
+  try {
+    const oldUser = await CustomUserService.findBy({ _id: id });
+    if (!oldUser) {
+      throw new Error("Invalid user ID");
+    }
 
-    const resultArray = await this.generateAccessArray(
-      data.locationsAccess,
-      user
-    );
-    data = { ...data, locationsAccess: resultArray };
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.CUSTOMUSERS,
+        req.file.filename,
+        oldUser.image
+      );
+    }
+    const user = await CustomUserService.update({ _id: id }, data);
+    handleResponse(res, 200, "User info updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
   }
+};
 
-  if (req.file && req.file.fieldname === "image") {
-    const user = await CustomUserService.findBy({ _id: id });
-    data.image = await addOrUpdateOrDelete(
-      multerActions.PUT,
-      multerSource.CUSTOMUSERS,
-      req.file.filename,
-      user.image
-    );
+exports.updateUserPassword = async (req, res) => {
+  const { id } = req.params;
+  const password = generateRandomString(8);
+  try {
+    const oldUser = await CustomUserService.findBy({ _id: id });
+    if (!oldUser) {
+      throw new Error("Invalid user ID");
+    }
+    const user = await CustomUserService.update({ _id: id }, {password:password});
+     // Sending an email to the user
+     const html = passwordUpdatedTemplate(password);
+     await MailgunService.sendEmail(user.email, "Password Updated", html);
+    handleResponse(res, 200, "User Password updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
   }
-  // const updatedData = nestedObjectsToDotNotation(data);
-  CustomUserService.update({ _id: id }, data)
-    .then((customUser) => {
-      handleResponse(res, 200, "User info updated successfully", customUser);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
 };
 
 exports.deleteUser = async (req, res) => {
@@ -88,8 +98,8 @@ exports.deleteUser = async (req, res) => {
 };
 
 exports.saveUser = async (req, res) => {
-  const data = { ...req.body };
   const password = generateRandomString(8);
+  const data = { ...req.body,password:password };
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
@@ -98,12 +108,12 @@ exports.saveUser = async (req, res) => {
     // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
     if (emailVerified?.result !== "deliverable") {
-      throw new Error("Email is not valid.Please enter a correct one.");
+      throw new Error("Email is not valid. Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
-      throw new Error("Email already exist in system.Please try with new one.");
+      throw new Error("Email already exist in system. Please try with new one.");
     }
 
     if (req.file && req.file.fieldname === "image") {
@@ -161,54 +171,74 @@ exports.switchLocation = async (req, res) => {
     if (!company) {
       throw new Error("Invalid company ID");
     }
-    if (
-      !customUser.locationsAccess.find((item) =>
-        item.company_id.equals(companyId)
-      )
-    ) {
+    if (!customUser.locationsAccess.includes(companyId)) {
       throw new Error("User is not authorized to access this location");
     }
+    // if (
+    //   !customUser.locationsAccess.find((item) =>
+    //     item.company_id.equals(companyId)
+    //   )
+    // ) {
+    //   throw new Error("User is not authorized to access this location");
+    // }
     const token = await customUser.generateJwt(company._id);
     handleResponse(res, 200, "New Location Accessed", token);
   } catch (err) {
     handleError(res, err);
   }
 };
-exports.generateAccessArray = async (accessArray, user) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let array = [];
-      array = await Promise.all(
-        accessArray?.map(async (item) => {
-          const alreadyExist = user.locationsAccess.find((locationItem) =>
-            locationItem.company_id.equals(item.company_id)
-          );
-          if (alreadyExist) {
-            return item;
-          } else {
-            return {
-              ...item,
-              company_password: await bcrypt.hash(item.company_password, 10),
-            };
-          }
-        })
-      );
-      resolve(array);
-    } catch (err) {
-      reject(err);
-    }
-  });
-};
-exports.UpdateExistingAdmin = async (req, res) => {
-  const user = await CustomUserService.findAll();
+// exports.generateAccessArray = async (accessArray, user) => {
+//   return new Promise(async (resolve, reject) => {
+//     try {
+//       let array = [];
+//       array = await Promise.all(
+//         accessArray?.map(async (item) => {
+//           const alreadyExist = user.locationsAccess.find((locationItem) =>
+//             locationItem.company_id.equals(item.company_id)
+//           );
+//           if (alreadyExist) {
+//             return item;
+//           } else {
+//             return {
+//               ...item,
+//               company_password: await bcrypt.hash(item.company_password, 10),
+//             };
+//           }
+//         })
+//       );
+//       resolve(array);
+//     } catch (err) {
+//       reject(err);
+//     }
+//   });
+// };
+// exports.UpdateExistingAdmin = async (req, res) => {
+//   const user = await CustomUserService.findAll();
 
+//   try {
+//     await Promise.all(
+//       user?.map(async (users) => {
+//         await CustomUserService.update({ _id: users._id }, { password: "abcdef" });
+//       })
+//     );
+//     handleResponse(res, 200, "Custom User info updated");
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
+
+exports.giveAccessToExisting = async (req, res) => {
+  const customUsers = await CustomUserService.findAll();
   try {
     await Promise.all(
-      user?.map(async (users) => {
-        await CustomUserService.update({ _id: users._id }, { password: "abcdef" });
+      customUsers?.map(async (customUser) => {
+        await CustomUserService.update(
+          { _id: customUser._id },
+          { locationsAccess: [], password:'abcdef'}
+        );
       })
     );
-    handleResponse(res, 200, "Custom User info updated");
+    handleResponse(res, 200, "Custom Users info updated");
   } catch (err) {
     handleError(res, err);
   }
