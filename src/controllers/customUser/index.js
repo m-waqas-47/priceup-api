@@ -8,7 +8,7 @@ const {
   // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
-const { multerSource, multerActions } = require("../../config/common");
+const { multerSource, multerActions, userRoles } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const MailgunService = require("../../services/mailgun");
 const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
@@ -234,7 +234,7 @@ exports.giveAccessToExisting = async (req, res) => {
       customUsers?.map(async (customUser) => {
         await CustomUserService.update(
           { _id: customUser._id },
-          { locationsAccess: [], password:'abcdef'}
+          { locationsAccess: [], password:'abcdef',role:userRoles.CUSTOM_ADMIN}
         );
       })
     );
