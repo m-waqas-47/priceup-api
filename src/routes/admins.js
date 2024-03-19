@@ -1,7 +1,7 @@
 const express = require("express");
 const {
   getAll,
-  loginAdmin,
+  // loginAdmin,
   saveAdmin,
   loginAdminById,
   loginAdminByIdAgain,
@@ -21,6 +21,6 @@ router.put("/:id", verifyToken, upload.single("image"), updateAdmin);
 router.delete("/:id", verifyToken, deleteAdmin);
 router.post("/loginAdminId", verifyToken, loginAdminById);
 router.post("/loginAdminIdAgain", verifyToken, loginAdminByIdAgain);
-router.post("/login", loginAdmin);
+// router.post("/login", loginAdmin);
 router.post("/save",verifyToken, upload.single("image"), saveAdmin);
 module.exports = router;

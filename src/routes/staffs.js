@@ -5,7 +5,7 @@ const {
   getAll,
   updateStaff,
   deleteStaff,
-  loginStaff,
+  // loginStaff,
   getAllStaff,
   giveAccessToExisting,
   haveAccessTo,
@@ -29,5 +29,5 @@ router.put("/:id", verifyToken, upload.single("image"), updateStaff);
 router.delete("/:id", verifyToken, deleteStaff);
 router.post("/save", verifyToken, upload.single("image"), saveStaff);
 router.post("/switchLocation", verifyToken, switchLocation);
-router.post("/login", loginStaff);
+// router.post("/login", loginStaff);
 module.exports = router;

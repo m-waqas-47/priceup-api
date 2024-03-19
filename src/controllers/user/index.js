@@ -83,48 +83,48 @@ exports.getDashboardTotals = async (req, res) => {
     handleError(res, error);
   }
 };
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    let company = null;
-    const user = await UserService.findBy({ email: email });
-    const customUser = await CustomUserService.findBy({ email: email });
-    if (!user && !customUser) {
-      throw new Error("Incorrect Email address");
-    }
-    if (user) {
-      // for default user
-      if (!user.comparePassword(password)) {
-        throw new Error("Incorrect Credentials");
-      }
-      if (user.comparePassword(password) && !user.status) {
-        throw new Error("User is not active");
-      }
-      company = await CompanyService.findBy({ user_id: user._id });
-    } else {
-      // for custom added user
-      const passwordMatch = customUser.comparePassword(password);
-      if (!passwordMatch) {
-        throw new Error("Incorrect Credentials");
-      }
-      if (passwordMatch && !customUser.status) {
-        const html = userNotActiveTemplate("Admin is not active");
-        await MailgunService.sendEmail(email, "Account disabled", html);
-        throw new Error("Admin is not active");
-      }
-      company = await CompanyService.findBy({ _id: passwordMatch.company_id });
-    }
-    if (!company) {
-      throw new Error("No Company is registered against this email!");
-    }
-    const token = user
-      ? await user.generateJwt(company._id)
-      : await customUser.generateJwt(company._id);
-    handleResponse(res, 200, "You are successfully logged in!", { token });
-  } catch (err) {
-    handleError(res, err);
-  }
-};
+// exports.loginUser = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     let company = null;
+//     const user = await UserService.findBy({ email: email });
+//     const customUser = await CustomUserService.findBy({ email: email });
+//     if (!user && !customUser) {
+//       throw new Error("Incorrect Email address");
+//     }
+//     if (user) {
+//       // for default user
+//       if (!user.comparePassword(password)) {
+//         throw new Error("Incorrect Credentials");
+//       }
+//       if (user.comparePassword(password) && !user.status) {
+//         throw new Error("User is not active");
+//       }
+//       company = await CompanyService.findBy({ user_id: user._id });
+//     } else {
+//       // for custom added user
+//       const passwordMatch = customUser.comparePassword(password);
+//       if (!passwordMatch) {
+//         throw new Error("Incorrect Credentials");
+//       }
+//       if (passwordMatch && !customUser.status) {
+//         const html = userNotActiveTemplate("Admin is not active");
+//         await MailgunService.sendEmail(email, "Account disabled", html);
+//         throw new Error("Admin is not active");
+//       }
+//       company = await CompanyService.findBy({ _id: passwordMatch.company_id });
+//     }
+//     if (!company) {
+//       throw new Error("No Company is registered against this email!");
+//     }
+//     const token = user
+//       ? await user.generateJwt(company._id)
+//       : await customUser.generateJwt(company._id);
+//     handleResponse(res, 200, "You are successfully logged in!", { token });
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 exports.getUser = async (req, res) => {
   const { id } = req.params;
   UserService.findBy({ _id: id })
