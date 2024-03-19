@@ -2,6 +2,7 @@ exports.userRoles = {
   ADMIN: "admin",
   SUPER_ADMIN: "super_admin",
   STAFF: "staff",
+  CUSTOM_ADMIN: "custom_admin",
 };
 exports.estimateStatus = {
   PENDING: "pending",

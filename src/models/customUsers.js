@@ -27,7 +27,7 @@ const customUserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "admin",
+      default: userRoles.CUSTOM_ADMIN,
     },
     status: {
       type: Boolean,
@@ -80,7 +80,7 @@ customUserSchema.methods.generateJwt = function (companyId) {
       email: this.email,
       image: this.image,
       company_id: companyId,
-      role: userRoles.ADMIN,
+      role: userRoles.CUSTOM_ADMIN,
     },
     process.env.JWT_SECRET,
     { expiresIn: "24h" }
