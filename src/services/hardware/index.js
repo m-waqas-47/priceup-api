@@ -74,6 +74,18 @@ class HardwareService {
     });
   }
 
+  static count(condition) {
+    return new Promise((resolve, reject) => {
+      Hardware.countDocuments(condition)
+        .then((count) => {
+          resolve(count);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       Hardware.create(data)

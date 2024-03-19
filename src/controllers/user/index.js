@@ -39,26 +39,26 @@ exports.getAll = async (req, res) => {
     const companies = await CompanyService.findAll();
     const result = await Promise.all(
       companies.map(async (company) => {
-        const estimates = await EstimateService.findAll({
+        const estimates = await EstimateService.count({
           company_id: company._id,
         });
-        const customers = await CustomerService.findAll({
+        const customers = await CustomerService.count({
           company_id: company._id,
         });
-        const staffs = await StaffService.findAll({
+        const staffs = await StaffService.count({
           company_id: company._id,
         });
-        const layouts = await LayoutService.findAll({
+        const layouts = await LayoutService.count({
           company_id: company._id,
         });
         const user = await UserService.findBy({ _id: company.user_id });
         return {
           company: company,
           user: user,
-          estimates: estimates?.length || 0,
-          customers: customers?.length || 0,
-          staffs: staffs?.length || 0,
-          layouts: layouts?.length || 0,
+          estimates: estimates || 0,
+          customers: customers || 0,
+          staffs: staffs || 0,
+          layouts: layouts || 0,
         };
       })
     );
@@ -71,13 +71,13 @@ exports.getAll = async (req, res) => {
 exports.getDashboardTotals = async (req, res) => {
   const company_id = req.company_id;
   try {
-    const estimates = await EstimateService.findAll({ company_id: company_id });
-    const customers = await CustomerService.findAll({ company_id: company_id });
-    const staff = await StaffService.findAll({ company_id: company_id });
+    const estimates = await EstimateService.count({ company_id: company_id });
+    const customers = await CustomerService.count({ company_id: company_id });
+    const staffs = await StaffService.count({ company_id: company_id });
     handleResponse(res, 200, "Dashboard Data", {
-      estimates: estimates.length,
-      customers: customers.length,
-      staff: staff.length,
+      estimates: estimates || 0,
+      customers: customers || 0,
+      staff: staffs || 0,
     });
   } catch (error) {
     handleError(res, error);

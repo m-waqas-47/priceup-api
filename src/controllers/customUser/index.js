@@ -8,10 +8,21 @@ const {
   // nestedObjectsToDotNotation,
 } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
-const { multerSource, multerActions, userRoles } = require("../../config/common");
+const {
+  multerSource,
+  multerActions,
+  userRoles,
+} = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const MailgunService = require("../../services/mailgun");
-const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
+const {
+  userCreatedTemplate,
+  passwordUpdatedTemplate,
+} = require("../../templates/email");
+const EstimateService = require("../../services/estimate");
+const CustomerService = require("../../services/customer");
+const StaffService = require("../../services/staff");
+const LayoutService = require("../../services/layout");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -66,10 +77,13 @@ exports.updateUserPassword = async (req, res) => {
     if (!oldUser) {
       throw new Error("Invalid user ID");
     }
-    const user = await CustomUserService.update({ _id: id }, {password:password});
-     // Sending an email to the user
-     const html = passwordUpdatedTemplate(password);
-     await MailgunService.sendEmail(user.email, "Password Updated", html);
+    const user = await CustomUserService.update(
+      { _id: id },
+      { password: password }
+    );
+    // Sending an email to the user
+    const html = passwordUpdatedTemplate(password);
+    await MailgunService.sendEmail(user.email, "Password Updated", html);
     handleResponse(res, 200, "User Password updated successfully", user);
   } catch (err) {
     handleError(res, err);
@@ -99,7 +113,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.saveUser = async (req, res) => {
   const password = generateRandomString(8);
-  const data = { ...req.body,password:password };
+  const data = { ...req.body, password: password };
   try {
     if (!data?.email) {
       throw new Error("Email is required.");
@@ -113,7 +127,9 @@ exports.saveUser = async (req, res) => {
 
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
-      throw new Error("Email already exist in system. Please try with new one.");
+      throw new Error(
+        "Email already exist in system. Please try with new one."
+      );
     }
 
     if (req.file && req.file.fieldname === "image") {
@@ -145,12 +161,26 @@ exports.haveAccessTo = async (req, res) => {
     results = await Promise.all(
       customUser?.locationsAccess?.map(async (item) => {
         const company = await CompanyService.findBy({ _id: item.company_id });
-        const admin = await UserService.findBy({ _id: company.user_id });
+        const estimates = await EstimateService.count({
+          company_id: company._id,
+        });
+        const customers = await CustomerService.count({
+          company_id: company._id,
+        });
+        const staffs = await StaffService.count({
+          company_id: company._id,
+        });
+        const layouts = await LayoutService.count({
+          company_id: company._id,
+        });
+        const user = await UserService.findBy({ _id: company.user_id });
         return {
-          id: company._id,
-          name: admin.name,
-          image: admin.image,
-          email: admin.email,
+          company: company,
+          user: user,
+          estimates: estimates || 0,
+          customers: customers || 0,
+          staffs: staffs || 0,
+          layouts: layouts || 0,
         };
       })
     );
@@ -234,7 +264,11 @@ exports.giveAccessToExisting = async (req, res) => {
       customUsers?.map(async (customUser) => {
         await CustomUserService.update(
           { _id: customUser._id },
-          { locationsAccess: [], password:'abcdef',role:userRoles.CUSTOM_ADMIN}
+          {
+            locationsAccess: [],
+            password: "abcdef",
+            role: userRoles.CUSTOM_ADMIN,
+          }
         );
       })
     );
