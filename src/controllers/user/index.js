@@ -25,7 +25,11 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
-const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
+const {
+  userCreatedTemplate,
+  passwordUpdatedTemplate,
+  userNotActiveTemplate,
+} = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
@@ -104,7 +108,9 @@ exports.loginUser = async (req, res) => {
         throw new Error("Incorrect Credentials");
       }
       if (passwordMatch && !customUser.status) {
-        throw new Error("User is not active");
+        const html = userNotActiveTemplate("Admin is not active");
+        await MailgunService.sendEmail(email, "Account disabled", html);
+        throw new Error("Admin is not active");
       }
       company = await CompanyService.findBy({ _id: passwordMatch.company_id });
     }
@@ -160,7 +166,7 @@ exports.updateUserPassword = async (req, res) => {
     if (!oldUser) {
       throw new Error("Invalid user ID");
     }
-    const user = await UserService.update({ _id: id }, {password:password});
+    const user = await UserService.update({ _id: id }, { password: password });
     // Sending an email to the user
     const html = passwordUpdatedTemplate(password);
     await MailgunService.sendEmail(user.email, "Password Updated", html);
@@ -276,7 +282,10 @@ exports.saveUser = async (req, res) => {
       );
     }
     const user = await UserService.create(data); // create user
-    const company = await CompanyService.create({ user_id: user?.id, name:data?.locationName }); // create user company
+    const company = await CompanyService.create({
+      user_id: user?.id,
+      name: data?.locationName,
+    }); // create user company
     await Promise.all(
       finishes?.map(async (finish) => {
         await FinishService.create({ ...finish, company_id: company?.id }); // create company finishes

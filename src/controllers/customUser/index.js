@@ -37,8 +37,9 @@ exports.getUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
   const { id } = req.params;
   let data = { ...req.body };
-  const user = await CustomUserService.findBy({ _id: id });
   if (data?.locationsAccess) {
+    const user = await CustomUserService.findBy({ _id: id });
+
     const resultArray = await this.generateAccessArray(
       data.locationsAccess,
       user
@@ -47,16 +48,13 @@ exports.updateUser = async (req, res) => {
   }
 
   if (req.file && req.file.fieldname === "image") {
+    const user = await CustomUserService.findBy({ _id: id });
     data.image = await addOrUpdateOrDelete(
       multerActions.PUT,
       multerSource.CUSTOMUSERS,
       req.file.filename,
       user.image
     );
-  }
-  console.log(user, "user");
-  console.log(data, "data");
-  if (data.status) {
   }
   // const updatedData = nestedObjectsToDotNotation(data);
   CustomUserService.update({ _id: id }, data)
@@ -200,4 +198,18 @@ exports.generateAccessArray = async (accessArray, user) => {
       reject(err);
     }
   });
+};
+exports.UpdateExistingAdmin = async (req, res) => {
+  const user = await CustomUserService.findAll();
+
+  try {
+    await Promise.all(
+      user?.map(async (users) => {
+        await CustomUserService.update({ _id: users._id }, { password: "abcdef" });
+      })
+    );
+    handleResponse(res, 200, "Custom User info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
 };
