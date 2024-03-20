@@ -159,8 +159,8 @@ exports.haveAccessTo = async (req, res) => {
     }
     let results = [];
     results = await Promise.all(
-      customUser?.locationsAccess?.map(async (item) => {
-        const company = await CompanyService.findBy({ _id: item.company_id });
+      customUser?.locationsAccess?.map(async (company_id) => {
+        const company = await CompanyService.findBy({ _id: company_id });
         const estimates = await EstimateService.count({
           company_id: company._id,
         });

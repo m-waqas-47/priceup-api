@@ -46,7 +46,7 @@ app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
 app.use("/customUsers", customUsers);
-app.use("/*", indexRouter);
+app.use("/", indexRouter);
 
 app.listen(port, () => {
   console.log(`App is listening on PORT ${port}`);
