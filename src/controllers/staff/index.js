@@ -44,28 +44,28 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-exports.loginStaff = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const staff = await StaffService.findBy({ email: email });
-    if (!staff) {
-      throw new Error("Incorrect Email address");
-    } else if (!staff.comparePassword(password)) {
-      throw new Error("Incorrect Credentials");
-    } else if (staff.comparePassword(password) && !staff.status) {
-      throw new Error("Staff is not active");
-    } else {
-      const company = await CompanyService.findBy({ _id: staff.company_id });
-      if (!company) {
-        throw new Error("No Company reference found!");
-      }
-      const token = await staff.generateJwt(company._id);
-      handleResponse(res, 200, "You are successfully logged in!", { token });
-    }
-  } catch (err) {
-    handleError(res, err);
-  }
-};
+// exports.loginStaff = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     const staff = await StaffService.findBy({ email: email });
+//     if (!staff) {
+//       throw new Error("Incorrect Email address");
+//     } else if (!staff.comparePassword(password)) {
+//       throw new Error("Incorrect Credentials");
+//     } else if (staff.comparePassword(password) && !staff.status) {
+//       throw new Error("Staff is not active");
+//     } else {
+//       const company = await CompanyService.findBy({ _id: staff.company_id });
+//       if (!company) {
+//         throw new Error("No Company reference found!");
+//       }
+//       const token = await staff.generateJwt(company._id);
+//       handleResponse(res, 200, "You are successfully logged in!", { token });
+//     }
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 
 exports.getStaff = async (req, res) => {
   const { id } = req.params;

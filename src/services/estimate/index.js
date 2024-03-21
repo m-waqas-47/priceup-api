@@ -74,9 +74,9 @@ class EstimateService {
     });
   }
 
-  static count(data) {
+  static count(condition) {
     return new Promise((resolve, reject) => {
-      Estimate.countDocuments(data)
+      Estimate.countDocuments(condition)
         .then((count) => {
           resolve(count);
         })

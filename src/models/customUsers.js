@@ -15,13 +15,19 @@ const customUserSchema = new mongoose.Schema(
       match: /.+\@.+\..+/,
       unique: true,
     },
+    password: {
+      type: String,
+      default: "abcdef",
+      // required: "Password is required",
+      // minlength: [8, "Password must be atleast 8 character long"],
+    },
     image: {
       type: String,
       default: "images/users/default.jpg",
     },
     role: {
       type: String,
-      default: "admin",
+      default: userRoles.CUSTOM_ADMIN,
     },
     status: {
       type: Boolean,
@@ -29,31 +35,41 @@ const customUserSchema = new mongoose.Schema(
     },
     locationsAccess: [
       {
-        company_id: {
-          type: mongoose.Schema.Types.ObjectId,
-          required: "Company reference is required",
-        },
-        company_password: {
-          type: String,
-          required: "Password is required",
-          minlength: [6, "Password must be atleast 6 character long"],
-        },
-      },
+        type:mongoose.Schema.Types.ObjectId,
+        default: null
+      }
+      // {
+      //   company_id: {
+      //     type: mongoose.Schema.Types.ObjectId,
+      //     required: "Company reference is required",
+      //   },
+      //   company_password: {
+      //     type: String,
+      //     required: "Password is required",
+      //     minlength: [6, "Password must be atleast 6 character long"],
+      //   },
+      // },
     ],
   },
   { timestamps: true }
 );
 
-// customUserSchema.pre("save", async function (next) {
-//   if (!this.isModified("password")) return next();
-//   this.password = await bcrypt.hash(this.password, 10);
-//   next();
-// });
+customUserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+
+customUserSchema.pre("findOneAndUpdate", async function (next) {
+  if (this._update.password) {
+    // Check if the password is being modified
+    this._update.password = await bcrypt.hash(this._update.password, 10);
+  }
+  next();
+});
 
 customUserSchema.methods.comparePassword = function (password) {
-  return this.locationsAccess.find((item) =>
-    bcrypt.compareSync(password, item.company_password)
-  );
+  return bcrypt.compareSync(password, this.password);
 };
 
 customUserSchema.methods.generateJwt = function (companyId) {
@@ -64,7 +80,7 @@ customUserSchema.methods.generateJwt = function (companyId) {
       email: this.email,
       image: this.image,
       company_id: companyId,
-      role: userRoles.ADMIN,
+      role: userRoles.CUSTOM_ADMIN,
     },
     process.env.JWT_SECRET,
     { expiresIn: "24h" }
