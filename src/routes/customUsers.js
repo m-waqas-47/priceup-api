@@ -9,6 +9,7 @@ const {
   switchLocation,
   giveAccessToExisting,
   updateUserPassword,
+  switchBackToSuperView
 } = require("../controllers/customUser");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
@@ -23,5 +24,7 @@ router.put("/:id", verifyToken, upload.single("image"), updateUser);
 router.delete("/:id", verifyToken, deleteUser);
 router.post("/save", verifyToken, upload.single("image"), saveUser);
 router.post("/switchLocation", verifyToken, switchLocation);
+router.post("/switchBackToSuperView", verifyToken, switchBackToSuperView);
 
+ 
 module.exports = router;

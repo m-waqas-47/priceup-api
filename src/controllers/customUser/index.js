@@ -190,6 +190,17 @@ exports.haveAccessTo = async (req, res) => {
   }
 };
 
+exports.switchBackToSuperView = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const customAdmin = await CustomUserService.findBy({ _id: userId });
+    const token = await customAdmin.generateJwt("");
+    handleResponse(res, 200, "You are successfully logged in!", { token });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.switchLocation = async (req, res) => {
   const { userId, companyId } = req.body;
   try {
