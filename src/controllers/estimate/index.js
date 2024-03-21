@@ -54,6 +54,11 @@ exports.getAll = async (req, res) => {
           case userRoles.STAFF:
             creator = await StaffService.findBy({ _id: estimate.creator_id });
             break;
+          case userRoles.CUSTOM_ADMIN:
+            creator = await CustomUserService.findBy({
+              _id: estimate.creator_id,
+            });
+            break;
           default:
             break;
         }
