@@ -111,21 +111,21 @@ exports.updateFinish = async (req, res) => {
   const company_id = req.company_id;
 
   try {
-    let foundWithSameName = false;
-    let oldFinish = null;
-    const allFinishes = await FinishService.findAll({ company_id: company_id });
-    allFinishes.forEach((finish) => {
-      if (finish.name === data.name && finish.id !== id)
-        foundWithSameName = true;
-      if (finish.id === id) oldFinish = finish;
-    });
+    // let foundWithSameName = false;
+    // let oldFinish = null;
+    // const allFinishes = await FinishService.findAll({ company_id: company_id });
+    // allFinishes.forEach((finish) => {
+    //   if (finish.name === data.name && finish.id !== id)
+    //     foundWithSameName = true;
+    //   if (finish.id === id) oldFinish = finish;
+    // });
 
-    if (foundWithSameName) {
-      throw new Error(
-        "Finish with exact name already exist. Please name it to something else."
-      );
-    }
-    // const oldFinish = await FinishService.findBy({ _id: id });
+    // if (foundWithSameName) {
+    //   throw new Error(
+    //     "Finish with exact name already exist. Please name it to something else."
+    //   );
+    // }
+    const oldFinish = await FinishService.findBy({ _id: id });
 
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(

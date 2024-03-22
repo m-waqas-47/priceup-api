@@ -33,26 +33,26 @@ exports.getGlassAddon = async (req, res) => {
 exports.updateGlassAddon = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  const company_id = req.company_id;
+  // const company_id = req.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
   try {
-    // const oldGlassAddon = await GlassAddonService.findBy({ _id: id });
-    let foundWithSameName = false;
-    let oldGlassAddon = null;
-    const allGlassAddons = await GlassAddonService.findAll({
-      company_id: company_id,
-    });
-    allGlassAddons.forEach((glassAddon) => {
-      if (glassAddon.slug === data.slug && glassAddon.id !== id)
-        foundWithSameName = true;
-      if (glassAddon.id === id) oldGlassAddon = glassAddon;
-    });
+    const oldGlassAddon = await GlassAddonService.findBy({ _id: id });
+    // let foundWithSameName = false;
+    // let oldGlassAddon = null;
+    // const allGlassAddons = await GlassAddonService.findAll({
+    //   company_id: company_id,
+    // });
+    // allGlassAddons.forEach((glassAddon) => {
+    //   if (glassAddon.slug === data.slug && glassAddon.id !== id)
+    //     foundWithSameName = true;
+    //   if (glassAddon.id === id) oldGlassAddon = glassAddon;
+    // });
 
-    if (foundWithSameName) {
-      throw new Error(
-        "Glass Addon with exact name already exist. Please name it to something else."
-      );
-    }
+    // if (foundWithSameName) {
+    //   throw new Error(
+    //     "Glass Addon with exact name already exist. Please name it to something else."
+    //   );
+    // }
 
     if (req.file && req.file.fieldname === "image") {
       updatedData.image = await addOrUpdateOrDelete(
