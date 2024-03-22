@@ -152,26 +152,26 @@ exports.saveHardware = async (req, res) => {
 exports.updateHardware = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  const company_id = req.company_id;
+  // const company_id = req.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    // const oldHardware = await HardwareService.findBy({ _id: id });
-    let foundWithSameName = false;
-    let oldHardware = null;
-    const allHardwares = await HardwareService.findAll({
-      company_id: company_id,
-    });
-    allHardwares.forEach((hardware) => {
-      if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
-      if (hardware.id === id) oldHardware = hardware;
-    });
+    const oldHardware = await HardwareService.findBy({ _id: id });
+    // let foundWithSameName = false;
+    // let oldHardware = null;
+    // const allHardwares = await HardwareService.findAll({
+    //   company_id: company_id,
+    // });
+    // allHardwares.forEach((hardware) => {
+    //   if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
+    //   if (hardware.id === id) oldHardware = hardware;
+    // });
 
-    if (foundWithSameName) {
-      throw new Error(
-        "Hardware with exact name already exist. Please name it to something else."
-      );
-    }
+    // if (foundWithSameName) {
+    //   throw new Error(
+    //     "Hardware with exact name already exist. Please name it to something else."
+    //   );
+    // }
 
     if (req.file && req.file.fieldname === "image") {
       updatedData.image = await addOrUpdateOrDelete(
