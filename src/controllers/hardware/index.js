@@ -163,8 +163,7 @@ exports.updateHardware = async (req, res) => {
       company_id: company_id,
     });
     allHardwares.forEach((hardware) => {
-      if (hardware.slug === data.slug && hardware.id !== id)
-        foundWithSameName = true;
+      if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
       if (hardware.id === id) oldHardware = hardware;
     });
 
@@ -182,17 +181,7 @@ exports.updateHardware = async (req, res) => {
         oldHardware.image
       );
     }
-    // didn't modify mounting channel hardware slug for keeping safe identifier to find suitable mounting channel for active glass thickness while creating estimate
-    const hardware = await HardwareService.update(
-      { _id: id },
-      {
-        ...updatedData,
-        slug:
-          oldHardware.hardware_category_slug === "mounting-channels"
-            ? oldHardware.slug
-            : updatedData.slug,
-      }
-    );
+    const hardware = await HardwareService.update({ _id: id }, updatedData);
     handleResponse(res, 200, "Hardware updated successfully", hardware);
   } catch (err) {
     handleError(res, err);
