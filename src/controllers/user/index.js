@@ -179,6 +179,13 @@ exports.updateUserPassword = async (req, res) => {
 exports.updateUserStatus = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
+  const oldUser = await UserService.findBy({ _id: id });
+
+  if (!data?.status) {
+    const html = userNotActiveTemplate("Your Location is Not Active now");
+    await MailgunService.sendEmail(oldUser.email, "Account Disabled", html);
+  }
+
   UserService.update({ _id: id }, { status: data?.status })
     .then((user) => {
       handleResponse(res, 200, "User status updated successfully", user);
