@@ -197,8 +197,11 @@ exports.switchLocation = async (req, res) => {
 exports.switchBackToSuperView = async (req, res) => {
   const { userId } = req.body;
   try {
-    const user = await AdminService.findBy({ _id: userId });
-    const token = await user.generateJwt("");
+    const admin = await AdminService.findBy({ _id: userId });
+    if (!admin) {
+      throw new Error("Invalid user ID");
+    }
+    const token = await admin.generateJwt("");
     handleResponse(res, 200, "You are successfully logged out!", { token });
   } catch (err) {
     handleError(res, err);
