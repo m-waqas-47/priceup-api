@@ -152,27 +152,26 @@ exports.saveHardware = async (req, res) => {
 exports.updateHardware = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  const company_id = req.company_id;
+  // const company_id = req.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
-    // const oldHardware = await HardwareService.findBy({ _id: id });
-    let foundWithSameName = false;
-    let oldHardware = null;
-    const allHardwares = await HardwareService.findAll({
-      company_id: company_id,
-    });
-    allHardwares.forEach((hardware) => {
-      if (hardware.slug === data.slug && hardware.id !== id)
-        foundWithSameName = true;
-      if (hardware.id === id) oldHardware = hardware;
-    });
+    const oldHardware = await HardwareService.findBy({ _id: id });
+    // let foundWithSameName = false;
+    // let oldHardware = null;
+    // const allHardwares = await HardwareService.findAll({
+    //   company_id: company_id,
+    // });
+    // allHardwares.forEach((hardware) => {
+    //   if (hardware.slug === data.slug && hardware.id !== id) foundWithSameName = true;
+    //   if (hardware.id === id) oldHardware = hardware;
+    // });
 
-    if (foundWithSameName) {
-      throw new Error(
-        "Hardware with exact name already exist. Please name it to something else."
-      );
-    }
+    // if (foundWithSameName) {
+    //   throw new Error(
+    //     "Hardware with exact name already exist. Please name it to something else."
+    //   );
+    // }
 
     if (req.file && req.file.fieldname === "image") {
       updatedData.image = await addOrUpdateOrDelete(
@@ -182,17 +181,7 @@ exports.updateHardware = async (req, res) => {
         oldHardware.image
       );
     }
-    // didn't modify mounting channel hardware slug for keeping safe identifier to find suitable mounting channel for active glass thickness while creating estimate
-    const hardware = await HardwareService.update(
-      { _id: id },
-      {
-        ...updatedData,
-        slug:
-          oldHardware.hardware_category_slug === "mounting-channels"
-            ? oldHardware.slug
-            : updatedData.slug,
-      }
-    );
+    const hardware = await HardwareService.update({ _id: id }, updatedData);
     handleResponse(res, 200, "Hardware updated successfully", hardware);
   } catch (err) {
     handleError(res, err);
