@@ -54,8 +54,8 @@ exports.loginUser = async (req, res) => {
       if (staff.comparePassword(password) && !staff.status) {
         throw new Error("User is not active");
       }
-      const company = await CompanyService.findBy({ _id: staff.company_id });
-      const token = await staff.generateJwt(company._id);
+      // const company = await CompanyService.findBy({ _id: staff.company_id });
+      const token = await staff.generateJwt("");
       handleResponse(res, 200, "You are successfully logged in!", { token });
     }
     if (!user && !customUser && !admin && !staff) {
