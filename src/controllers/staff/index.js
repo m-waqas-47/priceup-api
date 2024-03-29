@@ -9,7 +9,13 @@ const {
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { handleError, handleResponse } = require("../../utils/responses");
 const MailgunService = require("../../services/mailgun");
-const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
+const {
+  userCreatedTemplate,
+  passwordUpdatedTemplate,
+} = require("../../templates/email");
+const EstimateService = require("../../services/estimate");
+const CustomerService = require("../../services/customer");
+const LayoutService = require("../../services/layout");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -44,28 +50,28 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-exports.loginStaff = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const staff = await StaffService.findBy({ email: email });
-    if (!staff) {
-      throw new Error("Incorrect Email address");
-    } else if (!staff.comparePassword(password)) {
-      throw new Error("Incorrect Credentials");
-    } else if (staff.comparePassword(password) && !staff.status) {
-      throw new Error("Staff is not active");
-    } else {
-      const company = await CompanyService.findBy({ _id: staff.company_id });
-      if (!company) {
-        throw new Error("No Company reference found!");
-      }
-      const token = await staff.generateJwt(company._id);
-      handleResponse(res, 200, "You are successfully logged in!", { token });
-    }
-  } catch (err) {
-    handleError(res, err);
-  }
-};
+// exports.loginStaff = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     const staff = await StaffService.findBy({ email: email });
+//     if (!staff) {
+//       throw new Error("Incorrect Email address");
+//     } else if (!staff.comparePassword(password)) {
+//       throw new Error("Incorrect Credentials");
+//     } else if (staff.comparePassword(password) && !staff.status) {
+//       throw new Error("Staff is not active");
+//     } else {
+//       const company = await CompanyService.findBy({ _id: staff.company_id });
+//       if (!company) {
+//         throw new Error("No Company reference found!");
+//       }
+//       const token = await staff.generateJwt(company._id);
+//       handleResponse(res, 200, "You are successfully logged in!", { token });
+//     }
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 
 exports.getStaff = async (req, res) => {
   const { id } = req.params;
@@ -110,10 +116,13 @@ exports.updateStaffPassword = async (req, res) => {
     if (!oldStaff) {
       throw new Error("Invalid staff ID");
     }
-    const staff = await StaffService.update({ _id: id }, {password:password});
-     // Sending an email to the user
-     const html = passwordUpdatedTemplate(password);
-     await MailgunService.sendEmail(staff.email, "Password Updated", html);
+    const staff = await StaffService.update(
+      { _id: id },
+      { password: password }
+    );
+    // Sending an email to the user
+    const html = passwordUpdatedTemplate(password);
+    await MailgunService.sendEmail(staff.email, "Password Updated", html);
     handleResponse(res, 200, "Staff Password updated successfully", staff);
   } catch (err) {
     handleError(res, err);
@@ -172,8 +181,8 @@ exports.saveStaff = async (req, res) => {
       );
     }
     const staff = await StaffService.create(data);
-     // Sending an email to the user
-     const html = userCreatedTemplate(password);
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
     await MailgunService.sendEmail(data.email, "Account Created", html);
     handleResponse(res, 200, "Staff created successfully", staff);
   } catch (err) {
@@ -202,15 +211,42 @@ exports.haveAccessTo = async (req, res) => {
   const { id } = req.params;
   const staff = await StaffService.findBy({ _id: id });
   try {
-    const results = await Promise.all(
+    // const results = await Promise.all(
+    //   staff?.haveAccessTo?.map(async (company_id) => {
+    //     const company = await CompanyService.findBy({ _id: company_id });
+    //     const admin = await UserService.findBy({ _id: company.user_id });
+    //     return {
+    //       id: company._id,
+    //       name: admin.name,
+    //       image: admin.image,
+    //       email: admin.email,
+    //     };
+    //   })
+    // );
+    let results = [];
+    results = await Promise.all(
       staff?.haveAccessTo?.map(async (company_id) => {
         const company = await CompanyService.findBy({ _id: company_id });
-        const admin = await UserService.findBy({ _id: company.user_id });
+        const estimates = await EstimateService.count({
+          company_id: company._id,
+        });
+        const customers = await CustomerService.count({
+          company_id: company._id,
+        });
+        const staffs = await StaffService.count({
+          company_id: company._id,
+        });
+        const layouts = await LayoutService.count({
+          company_id: company._id,
+        });
+        const user = await UserService.findBy({ _id: company.user_id });
         return {
-          id: company._id,
-          name: admin.name,
-          image: admin.image,
-          email: admin.email,
+          company: company,
+          user: user,
+          estimates: estimates || 0,
+          customers: customers || 0,
+          staffs: staffs || 0,
+          layouts: layouts || 0,
         };
       })
     );
@@ -231,6 +267,17 @@ exports.switchLocation = async (req, res) => {
     const company = await CompanyService.findBy({ _id: companyId });
     const token = await staff.generateJwt(company._id);
     handleResponse(res, 200, "New Location Access", token);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.switchBackToSuperView = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const staff = await StaffService.findBy({ _id: userId });
+    const token = await staff.generateJwt("");
+    handleResponse(res, 200, "You are successfully logged in!", { token });
   } catch (err) {
     handleError(res, err);
   }

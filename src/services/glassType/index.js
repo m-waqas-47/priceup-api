@@ -62,6 +62,18 @@ class GlassTypeService {
     });
   }
 
+  static count(condition) {
+    return new Promise((resolve, reject) => {
+      GlassType.countDocuments(condition)
+        .then((count) => {
+          resolve(count);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       GlassType.create(data)

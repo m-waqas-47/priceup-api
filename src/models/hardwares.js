@@ -24,6 +24,26 @@ const hardware = new mongoose.Schema(
       type: String,
       required: "Hardware Category slug is required",
     },
+    oneInchHoles: {
+      type: Number,
+      default: 0,
+    },
+    hingeCut: {
+      type: Number,
+      default: 0,
+    },
+    clampCut: {
+      type: Number,
+      default: 0,
+    },
+    notch: {
+      type: Number,
+      default: 0,
+    },
+    outages: {
+      type: Number,
+      default: 0,
+    },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Company reference is required",

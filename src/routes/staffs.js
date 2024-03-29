@@ -5,19 +5,17 @@ const {
   getAll,
   updateStaff,
   deleteStaff,
-  loginStaff,
+  // loginStaff,
   getAllStaff,
   giveAccessToExisting,
   haveAccessTo,
   switchLocation,
   updateStaffPassword,
+  switchBackToSuperView,
 } = require("../controllers/staff");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
 const router = express.Router();
-
-
-
 
 router.get("/", verifyToken, getAll);
 router.get("/allStaff", verifyToken, getAllStaff);
@@ -29,5 +27,6 @@ router.put("/:id", verifyToken, upload.single("image"), updateStaff);
 router.delete("/:id", verifyToken, deleteStaff);
 router.post("/save", verifyToken, upload.single("image"), saveStaff);
 router.post("/switchLocation", verifyToken, switchLocation);
-router.post("/login", loginStaff);
+router.post("/switchBackToSuperView", verifyToken, switchBackToSuperView);
+// router.post("/login", loginStaff);
 module.exports = router;

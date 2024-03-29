@@ -25,7 +25,11 @@ const GlassAddonService = require("../../services/glassAddon");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
-const { userCreatedTemplate, passwordUpdatedTemplate } = require("../../templates/email");
+const {
+  userCreatedTemplate,
+  passwordUpdatedTemplate,
+  userNotActiveTemplate,
+} = require("../../templates/email");
 const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
@@ -35,26 +39,26 @@ exports.getAll = async (req, res) => {
     const companies = await CompanyService.findAll();
     const result = await Promise.all(
       companies.map(async (company) => {
-        const estimates = await EstimateService.findAll({
+        const estimates = await EstimateService.count({
           company_id: company._id,
         });
-        const customers = await CustomerService.findAll({
+        const customers = await CustomerService.count({
           company_id: company._id,
         });
-        const staffs = await StaffService.findAll({
+        const staffs = await StaffService.count({
           company_id: company._id,
         });
-        const layouts = await LayoutService.findAll({
+        const layouts = await LayoutService.count({
           company_id: company._id,
         });
         const user = await UserService.findBy({ _id: company.user_id });
         return {
           company: company,
           user: user,
-          estimates: estimates?.length || 0,
-          customers: customers?.length || 0,
-          staffs: staffs?.length || 0,
-          layouts: layouts?.length || 0,
+          estimates: estimates || 0,
+          customers: customers || 0,
+          staffs: staffs || 0,
+          layouts: layouts || 0,
         };
       })
     );
@@ -67,58 +71,60 @@ exports.getAll = async (req, res) => {
 exports.getDashboardTotals = async (req, res) => {
   const company_id = req.company_id;
   try {
-    const estimates = await EstimateService.findAll({ company_id: company_id });
-    const customers = await CustomerService.findAll({ company_id: company_id });
-    const staff = await StaffService.findAll({ company_id: company_id });
+    const estimates = await EstimateService.count({ company_id: company_id });
+    const customers = await CustomerService.count({ company_id: company_id });
+    const staffs = await StaffService.count({ company_id: company_id });
     handleResponse(res, 200, "Dashboard Data", {
-      estimates: estimates.length,
-      customers: customers.length,
-      staff: staff.length,
+      estimates: estimates || 0,
+      customers: customers || 0,
+      staff: staffs || 0,
     });
   } catch (error) {
     handleError(res, error);
   }
 };
-exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    let company = null;
-    const user = await UserService.findBy({ email: email });
-    const customUser = await CustomUserService.findBy({ email: email });
-    if (!user && !customUser) {
-      throw new Error("Incorrect Email address");
-    }
-    if (user) {
-      // for default user
-      if (!user.comparePassword(password)) {
-        throw new Error("Incorrect Credentials");
-      }
-      if (user.comparePassword(password) && !user.status) {
-        throw new Error("User is not active");
-      }
-      company = await CompanyService.findBy({ user_id: user._id });
-    } else {
-      // for custom added user
-      const passwordMatch = customUser.comparePassword(password);
-      if (!passwordMatch) {
-        throw new Error("Incorrect Credentials");
-      }
-      if (passwordMatch && !customUser.status) {
-        throw new Error("User is not active");
-      }
-      company = await CompanyService.findBy({ _id: passwordMatch.company_id });
-    }
-    if (!company) {
-      throw new Error("No Company is registered against this email!");
-    }
-    const token = user
-      ? await user.generateJwt(company._id)
-      : await customUser.generateJwt(company._id);
-    handleResponse(res, 200, "You are successfully logged in!", { token });
-  } catch (err) {
-    handleError(res, err);
-  }
-};
+// exports.loginUser = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     let company = null;
+//     const user = await UserService.findBy({ email: email });
+//     const customUser = await CustomUserService.findBy({ email: email });
+//     if (!user && !customUser) {
+//       throw new Error("Incorrect Email address");
+//     }
+//     if (user) {
+//       // for default user
+//       if (!user.comparePassword(password)) {
+//         throw new Error("Incorrect Credentials");
+//       }
+//       if (user.comparePassword(password) && !user.status) {
+//         throw new Error("User is not active");
+//       }
+//       company = await CompanyService.findBy({ user_id: user._id });
+//     } else {
+//       // for custom added user
+//       const passwordMatch = customUser.comparePassword(password);
+//       if (!passwordMatch) {
+//         throw new Error("Incorrect Credentials");
+//       }
+//       if (passwordMatch && !customUser.status) {
+//         const html = userNotActiveTemplate("Admin is not active");
+//         await MailgunService.sendEmail(email, "Account disabled", html);
+//         throw new Error("Admin is not active");
+//       }
+//       company = await CompanyService.findBy({ _id: passwordMatch.company_id });
+//     }
+//     if (!company) {
+//       throw new Error("No Company is registered against this email!");
+//     }
+//     const token = user
+//       ? await user.generateJwt(company._id)
+//       : await customUser.generateJwt(company._id);
+//     handleResponse(res, 200, "You are successfully logged in!", { token });
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 exports.getUser = async (req, res) => {
   const { id } = req.params;
   UserService.findBy({ _id: id })
@@ -160,7 +166,7 @@ exports.updateUserPassword = async (req, res) => {
     if (!oldUser) {
       throw new Error("Invalid user ID");
     }
-    const user = await UserService.update({ _id: id }, {password:password});
+    const user = await UserService.update({ _id: id }, { password: password });
     // Sending an email to the user
     const html = passwordUpdatedTemplate(password);
     await MailgunService.sendEmail(user.email, "Password Updated", html);
@@ -173,6 +179,13 @@ exports.updateUserPassword = async (req, res) => {
 exports.updateUserStatus = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
+  const oldUser = await UserService.findBy({ _id: id });
+
+  if (!data?.status) {
+    const html = userNotActiveTemplate("Your Location is Not Active now");
+    await MailgunService.sendEmail(oldUser.email, "Account Disabled", html);
+  }
+
   UserService.update({ _id: id }, { status: data?.status })
     .then((user) => {
       handleResponse(res, 200, "User status updated successfully", user);
@@ -276,7 +289,10 @@ exports.saveUser = async (req, res) => {
       );
     }
     const user = await UserService.create(data); // create user
-    const company = await CompanyService.create({ user_id: user?.id, name:data?.locationName }); // create user company
+    const company = await CompanyService.create({
+      user_id: user?.id,
+      name: data?.locationName,
+    }); // create user company
     await Promise.all(
       finishes?.map(async (finish) => {
         await FinishService.create({ ...finish, company_id: company?.id }); // create company finishes

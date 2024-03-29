@@ -2,11 +2,17 @@ const AdminService = require("../../services/admin");
 const UserService = require("../../services/user");
 const { handleError, handleResponse } = require("../../utils/responses");
 const CompanyService = require("../../services/company");
-const { isEmailAlreadyUsed, generateRandomString } = require("../../utils/common");
+const {
+  isEmailAlreadyUsed,
+  generateRandomString,
+} = require("../../utils/common");
 const MailgunService = require("../../services/mailgun");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 const { multerSource, multerActions } = require("../../config/common");
-const { passwordUpdatedTemplate, userCreatedTemplate } = require("../../templates/email");
+const {
+  passwordUpdatedTemplate,
+  userCreatedTemplate,
+} = require("../../templates/email");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -18,48 +24,25 @@ exports.getAll = async (req, res) => {
     });
 };
 
-exports.loginAdmin = async (req, res) => {
-  const { email, password } = req.body;
-  try {
-    const admin = await AdminService.findBy({ email: email });
-    if (!admin) {
-      throw new Error("Incorrect Email address");
-    } else if (!admin.comparePassword(password)) {
-      throw new Error("Incorrect Credentials");
-    } else if (admin.comparePassword(password) && !admin.status) {
-      throw new Error("User is not active");
-    } else {
-      // const company = await CompanyService.findBy({ user_id: admin._id });
-      const token = await admin.generateJwt("");
-      handleResponse(res, 200, "You are successfully logged in!", { token });
-    }
-  } catch (err) {
-    handleError(res, err);
-  }
-};
-
-exports.loginAdminById = async (req, res) => {
-  const { id } = req.body;
-  try {
-    const admin = await UserService.findBy({ _id: id });
-    const company = await CompanyService.findBy({ user_id: admin._id });
-    const token = await admin.generateJwt(company._id);
-    handleResponse(res, 200, "You are successfully logged in!", { token });
-  } catch (err) {
-    handleError(res, err);
-  }
-};
-exports.loginAdminByIdAgain = async (req, res) => {
-  const { id } = req.body;
-  try {
-    const admin = await UserService.findBy({ _id: id });
-    const company = await CompanyService.findBy({ user_id: admin._id });
-    const token = await admin.generateJwt(company._id);
-    handleResponse(res, 200, "You are successfully logged in!", { token });
-  } catch (err) {
-    handleError(res, err);
-  }
-};
+// exports.loginAdmin = async (req, res) => {
+//   const { email, password } = req.body;
+//   try {
+//     const admin = await AdminService.findBy({ email: email });
+//     if (!admin) {
+//       throw new Error("Incorrect Email address");
+//     } else if (!admin.comparePassword(password)) {
+//       throw new Error("Incorrect Credentials");
+//     } else if (admin.comparePassword(password) && !admin.status) {
+//       throw new Error("User is not active");
+//     } else {
+//       // const company = await CompanyService.findBy({ user_id: admin._id });
+//       const token = await admin.generateJwt("");
+//       handleResponse(res, 200, "You are successfully logged in!", { token });
+//     }
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 
 exports.updateAdmin = async (req, res) => {
   const { id } = req.params;
@@ -94,10 +77,10 @@ exports.saveAdmin = async (req, res) => {
       throw new Error("Email is required.");
     }
 
-     // validate email
+    // validate email
     const emailVerified = await MailgunService.verifyEmail(data?.email);
-    if(emailVerified?.result !== 'deliverable'){
-     throw new Error("Email is not valid.Please enter a correct one.")
+    if (emailVerified?.result !== "deliverable") {
+      throw new Error("Email is not valid.Please enter a correct one.");
     }
 
     const check = await isEmailAlreadyUsed(data?.email);
@@ -131,10 +114,13 @@ exports.updateAdminPassword = async (req, res) => {
     if (!oldAdmin) {
       throw new Error("Invalid admin ID");
     }
-    const admin = await AdminService.update({ _id: id }, {password:password});
-     // Sending an email to the user
-     const html = passwordUpdatedTemplate(password);
-     await MailgunService.sendEmail(admin.email, "Password Updated", html);
+    const admin = await AdminService.update(
+      { _id: id },
+      { password: password }
+    );
+    // Sending an email to the user
+    const html = passwordUpdatedTemplate(password);
+    await MailgunService.sendEmail(admin.email, "Password Updated", html);
     handleResponse(res, 200, "Admin Password updated successfully", admin);
   } catch (err) {
     handleError(res, err);
@@ -148,7 +134,11 @@ exports.deleteAdmin = async (req, res) => {
     if (!admin) {
       throw new Error("Invalid admin ID");
     }
-    if (admin && admin.image && admin.image.startsWith("images/admins/uploads")) {
+    if (
+      admin &&
+      admin.image &&
+      admin.image.startsWith("images/admins/uploads")
+    ) {
       await addOrUpdateOrDelete(
         multerActions.DELETE,
         multerSource.ADMINS,
@@ -179,6 +169,40 @@ exports.allLocations = async (req, res) => {
       })
     );
     handleResponse(res, 200, "All Locations", results);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.switchLocation = async (req, res) => {
+  const { userId, companyId } = req.body;
+  try {
+    const user = await UserService.findBy({ _id: userId });
+
+    if (!user) {
+      throw new Error("Invalid user ID");
+    }
+    const userCompany = await CompanyService.findBy({ _id: companyId });
+    if (!userCompany) {
+      throw new Error("Invalid company ID");
+    }
+
+    const token = await user.generateJwt(userCompany._id);
+    handleResponse(res, 200, "New Location Accessed", token);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.switchBackToSuperView = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const admin = await AdminService.findBy({ _id: userId });
+    if (!admin) {
+      throw new Error("Invalid user ID");
+    }
+    const token = await admin.generateJwt("");
+    handleResponse(res, 200, "You are successfully logged out!", { token });
   } catch (err) {
     handleError(res, err);
   }

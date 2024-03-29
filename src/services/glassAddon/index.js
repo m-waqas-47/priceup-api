@@ -62,6 +62,18 @@ class GlassAddonService {
     });
   }
 
+  static count(condition) {
+    return new Promise((resolve, reject) => {
+      GlassAddon.countDocuments(condition)
+        .then((count) => {
+          resolve(count);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
   static create(data) {
     return new Promise((resolve, reject) => {
       GlassAddon.create(data)

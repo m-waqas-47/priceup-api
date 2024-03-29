@@ -4,7 +4,7 @@ const {
   getUser,
   getAll,
   updateUser,
-  loginUser,
+  // loginUser,
   updateUserStatus,
   getDashboardTotals,
   getQuote,
@@ -24,6 +24,6 @@ router.put("/:id", verifyToken, upload.single("image"), updateUser);
 router.delete("/:id", verifyToken, deleteUser);
 router.post("/save", verifyToken, upload.single("image"), saveUser);
 router.put("/status/:id", verifyToken, updateUserStatus);
-router.post("/login", loginUser);
+// router.post("/login", loginUser);
 
 module.exports = router;
