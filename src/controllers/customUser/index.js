@@ -18,6 +18,7 @@ const MailgunService = require("../../services/mailgun");
 const {
   userCreatedTemplate,
   passwordUpdatedTemplate,
+  userNotActiveTemplate,
 } = require("../../templates/email");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
@@ -52,6 +53,18 @@ exports.updateUser = async (req, res) => {
     const oldUser = await CustomUserService.findBy({ _id: id });
     if (!oldUser) {
       throw new Error("Invalid user ID");
+    }
+    if (data?.status !== undefined) {
+      const html = userNotActiveTemplate(
+        `"${oldUser.name}" is ${data?.status ? "Active" : "Disabled"} now.You ${
+          data?.status ? "can" : "can not"
+        } able to login now`
+      );
+      await MailgunService.sendEmail(
+        oldUser.email,
+        `Account ${data?.status ? "Active" : "Disabled"}`,
+        html
+      );
     }
 
     if (req.file && req.file.fieldname === "image") {
