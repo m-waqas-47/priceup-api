@@ -13,7 +13,7 @@ exports.passwordUpdatedTemplate = (data) => {
 };
 exports.userNotActiveTemplate = (err) => {
   return `<div><h1 style="color:#8477ad;text-align:center">Price Up</h1>
-  <p style="color:#100d24l;font-size:22px">${err}.You cannot able to login.</p>
+  <p style="color:#100d24l;font-size:22px">${err}</p>
   <p style="font-size:22px">PriceUp dashboard link : <a href="http://app.priceup.glass/login">Click here</a></p>
   </div>`;
 };
