@@ -6,6 +6,14 @@ const estimateSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    isCustomizedDoorWidth: {
+      type: Boolean,
+      default: false,
+    },
+    doorWidth: {
+      type: String,
+      default: 0,
+    },
     label: {
       type: String,
       default: "",
