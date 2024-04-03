@@ -50,28 +50,6 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-// exports.loginStaff = async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const staff = await StaffService.findBy({ email: email });
-//     if (!staff) {
-//       throw new Error("Incorrect Email address");
-//     } else if (!staff.comparePassword(password)) {
-//       throw new Error("Incorrect Credentials");
-//     } else if (staff.comparePassword(password) && !staff.status) {
-//       throw new Error("Staff is not active");
-//     } else {
-//       const company = await CompanyService.findBy({ _id: staff.company_id });
-//       if (!company) {
-//         throw new Error("No Company reference found!");
-//       }
-//       const token = await staff.generateJwt(company._id);
-//       handleResponse(res, 200, "You are successfully logged in!", { token });
-//     }
-//   } catch (err) {
-//     handleError(res, err);
-//   }
-// };
 
 exports.getStaff = async (req, res) => {
   const { id } = req.params;
@@ -211,18 +189,6 @@ exports.haveAccessTo = async (req, res) => {
   const { id } = req.params;
   const staff = await StaffService.findBy({ _id: id });
   try {
-    // const results = await Promise.all(
-    //   staff?.haveAccessTo?.map(async (company_id) => {
-    //     const company = await CompanyService.findBy({ _id: company_id });
-    //     const admin = await UserService.findBy({ _id: company.user_id });
-    //     return {
-    //       id: company._id,
-    //       name: admin.name,
-    //       image: admin.image,
-    //       email: admin.email,
-    //     };
-    //   })
-    // );
     let results = [];
     results = await Promise.all(
       staff?.haveAccessTo?.map(async (company_id) => {
