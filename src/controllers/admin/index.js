@@ -24,25 +24,6 @@ exports.getAll = async (req, res) => {
     });
 };
 
-// exports.loginAdmin = async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     const admin = await AdminService.findBy({ email: email });
-//     if (!admin) {
-//       throw new Error("Incorrect Email address");
-//     } else if (!admin.comparePassword(password)) {
-//       throw new Error("Incorrect Credentials");
-//     } else if (admin.comparePassword(password) && !admin.status) {
-//       throw new Error("User is not active");
-//     } else {
-//       // const company = await CompanyService.findBy({ user_id: admin._id });
-//       const token = await admin.generateJwt("");
-//       handleResponse(res, 200, "You are successfully logged in!", { token });
-//     }
-//   } catch (err) {
-//     handleError(res, err);
-//   }
-// };
 
 exports.updateAdmin = async (req, res) => {
   const { id } = req.params;
@@ -157,9 +138,10 @@ exports.deleteAdmin = async (req, res) => {
 exports.allLocations = async (req, res) => {
   try {
     const companies = await CompanyService.findAll();
+    const admins = await UserService.findAll();
     const results = await Promise.all(
       companies?.map(async (company) => {
-        const admin = await UserService.findBy({ _id: company.user_id });
+        const admin = admins.find(item => item._id === company.user_id)
         return {
           id: company._id,
           name: admin.name,

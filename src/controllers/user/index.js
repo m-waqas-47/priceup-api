@@ -30,39 +30,37 @@ const {
   passwordUpdatedTemplate,
   userNotActiveTemplate,
 } = require("../../templates/email");
-const CustomUserService = require("../../services/customUser");
+// const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
 
 exports.getAll = async (req, res) => {
   try {
     const companies = await CompanyService.findAll();
-    const result = await Promise.all(
-      companies.map(async (company) => {
-        const estimates = await EstimateService.count({
-          company_id: company._id,
-        });
-        const customers = await CustomerService.count({
-          company_id: company._id,
-        });
-        const staffs = await StaffService.count({
-          company_id: company._id,
-        });
-        const layouts = await LayoutService.count({
-          company_id: company._id,
-        });
-        const user = await UserService.findBy({ _id: company.user_id });
+    const estimates = await EstimateService.findAll();
+    const customers = await CustomerService.findAll();
+    const staffs = await StaffService.findAll();
+    const layouts = await LayoutService.findAll();
+    const users = await UserService.findAll();
+    let results = [];
+    results = await Promise.all(
+      companies?.map(async(company) => {
+        const companyEstimates = await estimates?.filter(item => item.company_id.toString() === company.id);
+        const companyCustomers = await customers?.filter(item => item.company_id.toString() === company.id );
+        const companyStaffs = await staffs?.filter(item => item.company_id.toString() === company.id);
+        const companyLayouts = await layouts?.filter(item => item.company_id.toString() === company.id);
+        const user = await users?.find( item => item.id === company.user_id.toString());
         return {
           company: company,
           user: user,
-          estimates: estimates || 0,
-          customers: customers || 0,
-          staffs: staffs || 0,
-          layouts: layouts || 0,
+          estimates: companyEstimates?.length || 0,
+          customers: companyCustomers?.length || 0,
+          staffs: companyStaffs?.length || 0,
+          layouts: companyLayouts?.length || 0,
         };
       })
     );
-    handleResponse(res, 200, "All Locations", result);
+    handleResponse(res, 200, "All Locations", results);
   } catch (err) {
     handleError(res, err);
   }
@@ -83,48 +81,7 @@ exports.getDashboardTotals = async (req, res) => {
     handleError(res, error);
   }
 };
-// exports.loginUser = async (req, res) => {
-//   const { email, password } = req.body;
-//   try {
-//     let company = null;
-//     const user = await UserService.findBy({ email: email });
-//     const customUser = await CustomUserService.findBy({ email: email });
-//     if (!user && !customUser) {
-//       throw new Error("Incorrect Email address");
-//     }
-//     if (user) {
-//       // for default user
-//       if (!user.comparePassword(password)) {
-//         throw new Error("Incorrect Credentials");
-//       }
-//       if (user.comparePassword(password) && !user.status) {
-//         throw new Error("User is not active");
-//       }
-//       company = await CompanyService.findBy({ user_id: user._id });
-//     } else {
-//       // for custom added user
-//       const passwordMatch = customUser.comparePassword(password);
-//       if (!passwordMatch) {
-//         throw new Error("Incorrect Credentials");
-//       }
-//       if (passwordMatch && !customUser.status) {
-//         const html = userNotActiveTemplate("Admin is not active");
-//         await MailgunService.sendEmail(email, "Account disabled", html);
-//         throw new Error("Admin is not active");
-//       }
-//       company = await CompanyService.findBy({ _id: passwordMatch.company_id });
-//     }
-//     if (!company) {
-//       throw new Error("No Company is registered against this email!");
-//     }
-//     const token = user
-//       ? await user.generateJwt(company._id)
-//       : await customUser.generateJwt(company._id);
-//     handleResponse(res, 200, "You are successfully logged in!", { token });
-//   } catch (err) {
-//     handleError(res, err);
-//   }
-// };
+
 exports.getUser = async (req, res) => {
   const { id } = req.params;
   UserService.findBy({ _id: id })

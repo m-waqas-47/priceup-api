@@ -61,13 +61,6 @@ exports.updateCompany = async (req, res) => {
   } catch (err) {
     handleError(res, err);
   }
-  // CompanyService.update({ _id: id }, data)
-  //   .then((company) => {
-  //     handleResponse(res, 200, "Company updated successfully", company);
-  //   })
-  //   .catch((err) => {
-  //     handleError(res, err);
-  //   });
 };
 
 exports.deleteCompany = async (req, res) => {

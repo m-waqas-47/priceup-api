@@ -1,4 +1,4 @@
-const customers = require("../../models/customers");
+// const customers = require("../../models/customers");
 const CustomerService = require("../../services/customer");
 const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");

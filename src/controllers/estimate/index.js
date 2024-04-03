@@ -18,6 +18,11 @@ exports.getAll = async (req, res) => {
   try {
     const company_id = req.company_id;
     const estimates = await EstimateService.findAll({ company_id });
+    const layouts = await LayoutService.findAll({ company_id });
+    const customers = await CustomerService.findAll({ company_id });
+    const users = await UserService.findAll({ company_id });
+    const customUsers = await CustomUserService.findAll({ company_id });
+    const staffs = await StaffService.findAll({ company_id });
     let total = 0;
     let pending = 0;
     let voided = 0;
@@ -38,33 +43,25 @@ exports.getAll = async (req, res) => {
           default:
             break;
         }
-        const layoutData = await LayoutService.findBy({
-          _id: estimate.layout_id,
-        });
+        const layoutData = layouts.find(item => item._id === estimate.layout_id);
         let creator = null;
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
-            creator = await UserService.findBy({ _id: estimate.creator_id });
+            creator = users.find(item => item._id === estimate.creator_id);
             if (!creator) {
-              creator = await CustomUserService.findBy({
-                _id: estimate.creator_id,
-              });
+              creator = customUsers.find(item => item._id === estimate.creator_id);
             }
             break;
           case userRoles.STAFF:
-            creator = await StaffService.findBy({ _id: estimate.creator_id });
+            creator = staffs.find( item => item._id === estimate.creator_id);
             break;
           case userRoles.CUSTOM_ADMIN:
-            creator = await CustomUserService.findBy({
-              _id: estimate.creator_id,
-            });
+            creator = customUsers.find(item => item._id === estimate.creator_id);
             break;
           default:
             break;
         }
-        const customer = await CustomerService.findBy({
-          _id: estimate.customer_id,
-        });
+        const customer = customers.find(item => item._id === estimate.customer_id);
         const estimateObject = estimate.toObject();
         return {
           ...estimateObject,
