@@ -276,5 +276,6 @@ const estimateSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add the index to the company field
+estimateSchema.index({ company_id: 1 });
 module.exports = mongoose.model("estimates", estimateSchema);

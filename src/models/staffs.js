@@ -82,5 +82,6 @@ staffSchema.methods.generateJwt = function (companyId) {
     { expiresIn: "24h" }
   );
 };
-
+// Add the index to the company field
+staffSchema.index({ company_id: 1 });
 module.exports = mongoose.model("staffs", staffSchema);

@@ -218,5 +218,6 @@ const layoutsSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add the index to the company field
+layoutsSchema.index({ company_id: 1 });
 module.exports = mongoose.model("layouts", layoutsSchema);

@@ -83,5 +83,6 @@ const hardware = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add the index to the company field
+hardware.index({ company_id: 1 });
 module.exports = mongoose.model("hardwares", hardware);

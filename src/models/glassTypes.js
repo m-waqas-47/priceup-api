@@ -47,5 +47,6 @@ const glassTypes = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add the index to the company field
+glassTypes.index({ company_id: 1 });
 module.exports = mongoose.model("glassTypes", glassTypes);

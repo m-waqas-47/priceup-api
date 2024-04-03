@@ -38,5 +38,6 @@ const finishSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// Add the index to the company field
+finishSchema.index({ company_id: 1 });
 module.exports = mongoose.model("finishes", finishSchema);
