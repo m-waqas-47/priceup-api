@@ -162,7 +162,7 @@ exports.allLocations = async (req, res) => {
         const admin = await UserService.findBy({ _id: company.user_id });
         return {
           id: company._id,
-          name: admin.name,
+          name: company.name,
           image: admin.image,
           email: admin.email,
         };
