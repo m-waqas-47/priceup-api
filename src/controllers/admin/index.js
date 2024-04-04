@@ -141,7 +141,7 @@ exports.allLocations = async (req, res) => {
     const admins = await UserService.findAll();
     const results = await Promise.all(
       companies?.map(async (company) => {
-        const admin = admins.find(item => item._id === company.user_id)
+        const admin = admins.find(item => item.id === company.user_id.toString());
         return {
           id: company._id,
           name: admin.name,
