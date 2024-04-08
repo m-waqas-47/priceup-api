@@ -47,7 +47,7 @@ exports.getAll = async (req, res) => {
       companies?.map(async(company) => {
         const companyEstimates = await estimates?.filter(item => item.company_id.toString() === company.id);
         const companyCustomers = await customers?.filter(item => item.company_id.toString() === company.id );
-        const companyStaffs = await staffs?.filter(item => item.company_id.toString() === company.id);
+        const companyStaffs = await staffs?.filter(item => item.company_id.toString() === company.id || item?.haveAccessTo?.includes(company.id));
         const companyLayouts = await layouts?.filter(item => item.company_id.toString() === company.id);
         const user = await users?.find( item => item.id === company.user_id.toString());
         return {
@@ -71,7 +71,9 @@ exports.getDashboardTotals = async (req, res) => {
   try {
     const estimates = await EstimateService.count({ company_id: company_id });
     const customers = await CustomerService.count({ company_id: company_id });
-    const staffs = await StaffService.count({ company_id: company_id });
+    const staffs = await StaffService.count({
+      $or: [{ company_id: company_id }, { haveAccessTo: { $in: [company_id] } }],
+    });
     handleResponse(res, 200, "Dashboard Data", {
       estimates: estimates || 0,
       customers: customers || 0,
