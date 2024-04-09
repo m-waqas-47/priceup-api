@@ -208,6 +208,9 @@ exports.saveEstimate = async (req, res) => {
     throw new Error("Customer Data is required!");
   }
   try {
+    if(data?.estimateData?.creator_type === userRoles.STAFF){
+    StaffService.update({_id:data?.estimateData?.creator_id},{$inc: { totalQuoted: data?.estimateData?.cost },lastQuoted:new Date()});
+    }
     const customer = await addOrUpdateCustomerEstimateRelation(
       customerData,
       company_id
