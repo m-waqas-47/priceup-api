@@ -264,7 +264,7 @@ exports.modifyExistingRecords = async (req, res) => {
   try {
     await Promise.all(
       estimates?.map(async (estimate) => {
-        await EstimateService.update({ _id: estimate._id }, { label: "" });
+        await EstimateService.update({ _id: estimate._id }, { isCustomizedDoorWidth: false, doorWidth: 0 });
       })
     );
     handleResponse(res, 200, "Estimates info updated");
