@@ -1,5 +1,7 @@
 // const customers = require("../../models/customers");
+const { multerActions, multerSource } = require("../../config/common");
 const CustomerService = require("../../services/customer");
+const { addOrUpdateOrDelete } = require("../../services/multer");
 const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
@@ -24,6 +26,34 @@ exports.getCustomer = async (req, res) => {
       handleError(res, err);
     });
 };
+
+exports.updateCustomer = async (req, res) => {
+  const { id } = req.params;
+  const data = { ...req.body };
+  try {
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check) {
+      throw new Error("Email already exist in system.Please try with new one.");
+    }
+    const oldCustomer = await CustomerService.findBy({ _id: id });
+    if (!oldCustomer) {
+      throw new Error("Invalid customer ID");
+    }
+
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSource.CUSTOMERS,
+        req.file.filename,
+        oldCustomer.image
+      );
+    }
+    const customer = await CustomerService.update({ _id: id }, data);
+    handleResponse(res, 200, "Customer info updated successfully", customer);
+  } catch (err) {
+    handleError(res, err);
+  }
+}
 
 exports.saveCustomer = async (req, res) => {
   const data = req.body;
