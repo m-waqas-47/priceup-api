@@ -144,7 +144,7 @@ exports.allLocations = async (req, res) => {
         const admin = admins.find(item => item.id === company.user_id.toString());
         return {
           id: company._id,
-          name: admin.name,
+          name: company.name,
           image: admin.image,
           email: admin.email,
         };
