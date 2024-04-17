@@ -31,13 +31,13 @@ exports.updateCustomer = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
   try {
-    const check = await isEmailAlreadyUsed(data?.email);
-    if (check) {
-      throw new Error("Email already exist in system.Please try with new one.");
-    }
     const oldCustomer = await CustomerService.findBy({ _id: id });
     if (!oldCustomer) {
       throw new Error("Invalid customer ID");
+    }
+    const check = await isEmailAlreadyUsed(data?.email);
+    if (check && oldCustomer?.email !== data?.email) {
+      throw new Error("Email already exist in system.Please try with new one.");
     }
 
     if (req.file && req.file.fieldname === "image") {
