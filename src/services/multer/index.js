@@ -24,6 +24,8 @@ const storage = multer.diskStorage({
       destinationPath += "customUsers/uploads/";
     } else if (req.originalUrl.includes("/admins")) {
       destinationPath += "admins/uploads/";
+    } else if (req.originalUrl.includes("/customers")) {
+      destinationPath += "customers/uploads/";
     }
 
     if (!fs.existsSync(destinationPath)) {
