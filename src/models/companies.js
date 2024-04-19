@@ -14,6 +14,10 @@ const companySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    doorWidth: {
+      type: Number,
+      default: 36,
+    },
     miscPricing: {
       pricingFactor: {
         type: Number,
