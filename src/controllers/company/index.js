@@ -1,5 +1,5 @@
 const { default: mongoose } = require("mongoose");
-const { multerSource, multerActions } = require("../../config/common");
+const { multerSource, multerActions, minDoorWidthStandard, maxDoorWidthStandard } = require("../../config/common");
 const CompanyService = require("../../services/company");
 const FinishService = require("../../services/finish");
 const GlassAddonService = require("../../services/glassAddon");
@@ -44,7 +44,9 @@ exports.updateCompany = async (req, res) => {
 
   try {
     const oldcompany = await CompanyService.findBy({ _id: id });
-
+    if (data?.doorWidth && (data?.doorWidth < minDoorWidthStandard || data?.doorWidth > maxDoorWidthStandard)) {
+      throw new Error(`Max door width is not in range of ${minDoorWidthStandard}-${maxDoorWidthStandard}.`);
+    }
     if (req.file && req.file.fieldname === "image") {
       console.log(data, "payload");
       const newImage = await addOrUpdateOrDelete(
@@ -110,8 +112,10 @@ exports.cloneCompany = async (req, res) => {
       );
     }
 
-    const referenceCompany = await CompanyService.findBy({_id:data.company_id});
-    if(!referenceCompany){
+    const referenceCompany = await CompanyService.findBy({
+      _id: data.company_id,
+    });
+    if (!referenceCompany) {
       throw new Error("Invalid company id provided.");
     }
 
@@ -211,12 +215,15 @@ exports.cloneCompany = async (req, res) => {
 
     await Promise.all(
       layouts?.map(async (layout) => {
-        const settings = await generateLayoutSettingsForClone(layout.settings,company?.id);
+        const settings = await generateLayoutSettingsForClone(
+          layout.settings,
+          company?.id
+        );
         await LayoutService.create({
           ...layout,
           company_id: company._id,
           name: layout.name,
-          image:layout.image,
+          image: layout.image,
           settings: settings,
         });
       })
@@ -228,7 +235,6 @@ exports.cloneCompany = async (req, res) => {
   }
 };
 
-
 const generateLayoutSettingsForClone = (settings, companyId) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -236,10 +242,13 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
       if (settings?.hardwareFinishes) {
         // finishes
         const oldFinish = await FinishService.findBy({
-          _id:settings?.hardwareFinishes
+          _id: settings?.hardwareFinishes,
         });
 
-        const newFinish = await FinishService.findBy({slug:oldFinish.slug,company_id: companyId})
+        const newFinish = await FinishService.findBy({
+          slug: oldFinish.slug,
+          company_id: companyId,
+        });
 
         result = {
           ...result,
@@ -251,7 +260,10 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         const oldHandle = await HardwareService.findBy({
           _id: settings?.handles?.handleType,
         });
-        const newHandle = await HardwareService.findBy({slug:oldHandle.slug,company_id:companyId});
+        const newHandle = await HardwareService.findBy({
+          slug: oldHandle.slug,
+          company_id: companyId,
+        });
         result = {
           ...result,
           handles: {
@@ -265,9 +277,10 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         const oldHinge = await HardwareService.findBy({
           _id: settings?.hinges?.hingesType,
         });
-    
+
         const newHinge = await HardwareService.findBy({
-          slug:oldHinge?.slug,company_id:companyId
+          slug: oldHinge?.slug,
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -283,12 +296,12 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
       ) {
         // pivotHingeOption
         const oldPivotHinge = await HardwareService.findBy({
-          _id:  settings?.pivotHingeOption?.pivotHingeType,
+          _id: settings?.pivotHingeOption?.pivotHingeType,
         });
         const newPivotHinge = await HardwareService.findBy({
           slug: oldPivotHinge?.slug,
-          company_id:companyId
-        });  // crash happens here on slug
+          company_id: companyId,
+        }); // crash happens here on slug
         result = {
           ...result,
           pivotHingeOption: {
@@ -308,7 +321,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
 
         const newHeavyDutyType = await HardwareService.findBy({
           slug: oldHeavyDutyType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
 
         result = {
@@ -331,7 +344,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
 
         const newHeavyPivotType = await HardwareService.findBy({
           slug: oldHeavyPivotType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -353,7 +366,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newMountingChannel = await HardwareService.findBy({
           slug: oldMountingChannel?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -367,7 +380,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newWallClampType = await HardwareService.findBy({
           slug: oldWallClampType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -400,7 +413,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newGlassToGlassType = await HardwareService.findBy({
           slug: oldGlassToGlassType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -420,7 +433,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newWallClampType = await HardwareService.findBy({
           slug: oldWallClampType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -440,7 +453,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newSleeveOverType = await HardwareService.findBy({
           slug: oldSleeveOverType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -460,7 +473,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newGlassToGlassType = await HardwareService.findBy({
           slug: oldGlassToGlassType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -477,7 +490,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newGlassType = await GlassTypeService.findBy({
           slug: oldGlassType?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -494,7 +507,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newSlidingDoorSystem = await HardwareService.findBy({
           slug: oldSlidingDoorSystem?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -519,7 +532,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newTransom = await HardwareService.findBy({
           slug: oldTransom?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -533,7 +546,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newHeader = await HardwareService.findBy({
           slug: oldHeader?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -547,7 +560,7 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
         });
         const newGlassAddon = await GlassAddonService.findBy({
           slug: oldGlassAddon?.slug,
-          company_id:companyId
+          company_id: companyId,
         });
         result = {
           ...result,
@@ -597,4 +610,19 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
       reject(error);
     }
   });
+};
+
+exports.modifyExistingRecords = async (req, res) => {
+  const companies = await CompanyService.findAll();
+
+  try {
+    await Promise.all(
+      companies?.map(async (company) => {
+        await CompanyService.update({ _id: company._id }, { doorWidth: 36 });
+      })
+    );
+    handleResponse(res, 200, "Locations info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
 };
