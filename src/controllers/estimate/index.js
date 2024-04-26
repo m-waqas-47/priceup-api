@@ -17,32 +17,21 @@ const { addOrUpdateCustomerEstimateRelation } = require("../customer");
 exports.getAll = async (req, res) => {
   try {
     const company_id = req.company_id;
-    const estimates = await EstimateService.findAll({ company_id });
-    const layouts = await LayoutService.findAll({ company_id });
-    const customers = await CustomerService.findAll({ company_id });
-    const users = await UserService.findAll();
-    const customUsers = await CustomUserService.findAll();
-    const staffs = await StaffService.findAll();
-    let total = 0;
-    let pending = 0;
-    let voided = 0;
-    let approved = 0;
+    const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
+    const skip = (page - 1) * limit;
+
+    const [estimatesCount, estimates, layouts, customers, users, customUsers, staffs] = await Promise.all([
+      EstimateService.count({company_id}),
+      EstimateService.findAll({ company_id},{ skip, limit }),
+      LayoutService.findAll({ company_id }),
+      CustomerService.findAll({ company_id }),
+      UserService.findAll(),
+      CustomUserService.findAll(),
+      StaffService.findAll(),
+    ]);
+
     const result = await Promise.all(
       estimates.map(async (estimate) => {
-        total += estimate.cost;
-        switch (estimate.status) {
-          case estimateStatus.PENDING:
-            pending += 1;
-            break;
-          case estimateStatus.VOIDED:
-            voided += 1;
-            break;
-          case estimateStatus.APPROVED:
-            approved += 1;
-            break;
-          default:
-            break;
-        }
         const layoutData = layouts.find(item => item.id === estimate?.layout_id?.toString());
         let creator = null;
         switch (estimate.creator_type) {
@@ -93,12 +82,10 @@ exports.getAll = async (req, res) => {
         };
       })
     );
+
     handleResponse(res, 200, "All Estimates", {
+      totalRecords: estimatesCount,
       estimates: result,
-      total: total,
-      pending: pending,
-      voided: voided,
-      approved: approved,
     });
   } catch (err) {
     handleError(res, err);
@@ -227,7 +214,7 @@ exports.saveEstimate = async (req, res) => {
   }
 };
 
-exports.getEstimateTotals = async (req, res) => {
+exports.getAllStats = async (req, res) => {
   const company_id = req.company_id;
   try {
     const estimates = await EstimateService.findAll({ company_id: company_id });
@@ -235,7 +222,7 @@ exports.getEstimateTotals = async (req, res) => {
     let pending = 0;
     let voided = 0;
     let approved = 0;
-    estimates.map((estimate) => {
+    estimates.forEach(estimate => {
       total += estimate.cost;
       switch (estimate.status) {
         case estimateStatus.PENDING:
@@ -251,7 +238,7 @@ exports.getEstimateTotals = async (req, res) => {
           break;
       }
     });
-    handleResponse(res, 200, "Estimates Data", {
+    handleResponse(res, 200, "Estimates Stats", {
       total: total,
       pending: pending,
       approved: approved,

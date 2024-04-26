@@ -6,14 +6,14 @@ const {
   updateEstimate,
   deleteEstimate,
   getEstimateListsData,
-  getEstimateTotals,
   modifyExistingRecords,
+  getAllStats
 } = require("../controllers/estimate");
 const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
-router.get("/total", verifyToken, getEstimateTotals);
+router.get("/allStats", verifyToken, getAllStats);
 router.get("/listsData", verifyToken, getEstimateListsData);
 router.put("/modifyExisting", verifyToken, modifyExistingRecords); // run only once to update existing documents
 router.get("/:id", verifyToken, getEstimate);
