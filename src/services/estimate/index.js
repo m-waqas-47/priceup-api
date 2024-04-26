@@ -1,9 +1,11 @@
 const Estimate = require("../../models/estimates");
 
 class EstimateService {
-  static findAll(data) {
+  static findAll(query, options) {
     return new Promise((resolve, reject) => {
-      Estimate.find(data)
+      Estimate.find(query)
+        .skip(options?.skip ?? 0)
+        .limit(options?.limit ?? 0)
         .sort({ createdAt: "desc" })
         .then((estimates) => {
           resolve(estimates);
