@@ -12,6 +12,7 @@ const MailgunService = require("../../services/mailgun");
 const {
   userCreatedTemplate,
   passwordUpdatedTemplate,
+  userNotActiveTemplate,
 } = require("../../templates/email");
 const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
@@ -50,7 +51,6 @@ exports.getAllStaff = async (req, res) => {
   }
 };
 
-
 exports.getStaff = async (req, res) => {
   const { id } = req.params;
   StaffService.findBy({ _id: id })
@@ -77,6 +77,19 @@ exports.updateStaff = async (req, res) => {
         multerSource.STAFFS,
         req.file.filename,
         oldStaff.image
+      );
+    }
+
+    if (data?.status !== undefined) {
+      const html = userNotActiveTemplate(
+        `"${oldStaff.name}" is ${
+          data?.status ? "Active" : "Disabled"
+        } now.You ${data?.status ? "can" : "can not"} able to login now`
+      );
+      await MailgunService.sendEmail(
+        oldStaff.email,
+        `Account ${data?.status ? "Active" : "Disabled"}`,
+        html
       );
     }
     const staff = await StaffService.update({ _id: id }, data);
