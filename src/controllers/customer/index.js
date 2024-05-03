@@ -1,7 +1,12 @@
 // const customers = require("../../models/customers");
-const { multerActions, multerSource } = require("../../config/common");
+const { multerActions, multerSource, userRoles } = require("../../config/common");
+const CustomUserService = require("../../services/customUser");
 const CustomerService = require("../../services/customer");
+const EstimateService = require("../../services/estimate");
+const LayoutService = require("../../services/layout");
 const { addOrUpdateOrDelete } = require("../../services/multer");
+const StaffService = require("../../services/staff");
+const UserService = require("../../services/user");
 const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
@@ -64,6 +69,85 @@ exports.saveCustomer = async (req, res) => {
     }
     const customer = await CustomerService.create(data);
     handleResponse(res, 200, "Customer created successfully", customer);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getCustomerEstimates = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const company_id = req.company_id;
+    const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
+    const skip = (page - 1) * limit;
+
+    const [estimatesCount, estimates, layouts, customers, users, customUsers, staffs] = await Promise.all([
+      EstimateService.count({customer_id: id}),
+      EstimateService.findAll({ customer_id: id },{ skip, limit }),
+      LayoutService.findAll({ company_id }),
+      CustomerService.findAll({ company_id }),
+      UserService.findAll(),
+      CustomUserService.findAll(),
+      StaffService.findAll(),
+    ]);
+
+    const result = await Promise.all(
+      estimates.map(async (estimate) => {
+        const layoutData = layouts.find(item => item.id === estimate?.layout_id?.toString());
+        let creator = null;
+        switch (estimate.creator_type) {
+          case userRoles.ADMIN:
+            creator = users.find(item => item.id === estimate?.creator_id?.toString());
+            if (!creator) {
+              creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+            }
+            break;
+          case userRoles.STAFF:
+            creator = staffs.find( item => item.id === estimate?.creator_id?.toString());
+            break;
+          case userRoles.CUSTOM_ADMIN:
+            creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+            break;
+          default:
+            break;
+        }
+        const customer = customers.find(item => item.id === estimate?.customer_id?.toString());
+        const estimateObject = estimate.toObject();
+        return {
+          ...estimateObject,
+          settings: layoutData
+            ? {
+                measurementSides: layoutData.settings.measurementSides,
+                image: layoutData.image,
+                name: layoutData.name,
+                _id: layoutData._id,
+                variant: layoutData.settings.variant,
+                heavyDutyOption: layoutData.settings.heavyDutyOption,
+                hinges: layoutData.settings.hinges,
+                glassType: estimateObject.glassType,
+              }
+            : null,
+          creatorData: creator
+            ? {
+                name: creator.name,
+                image: creator.image,
+                email: creator.email,
+              }
+            : null,
+          customerData: customer
+            ? {
+                name: customer.name,
+                email: customer.email,
+              }
+            : null,
+        };
+      })
+    );
+
+    handleResponse(res, 200, "All Estimates", {
+      totalRecords: estimatesCount,
+      estimates: result,
+    });
   } catch (err) {
     handleError(res, err);
   }
