@@ -123,6 +123,7 @@ exports.getEstimateListsData = async (req, res) => {
       ...listsData,
       miscPricing: companySettings?.miscPricing,
       fabricatingPricing: companySettings?.fabricatingPricing,
+      doorWidth: companySettings?.doorWidth
     });
   } catch (err) {
     handleError(res, err);

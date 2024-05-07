@@ -38,3 +38,7 @@ exports.multerSource = {
   ADMINS: "admins",
   CUSTOMERS: "customers"
 };
+
+exports.minDoorWidthStandard = 1;
+
+exports.maxDoorWidthStandard = 39;
