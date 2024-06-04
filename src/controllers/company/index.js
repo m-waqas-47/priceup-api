@@ -1,5 +1,10 @@
 const { default: mongoose } = require("mongoose");
-const { multerSource, multerActions, minDoorWidthStandard, maxDoorWidthStandard } = require("../../config/common");
+const {
+  multerSource,
+  multerActions,
+  minDoorWidthStandard,
+  maxDoorWidthStandard,
+} = require("../../config/common");
 const CompanyService = require("../../services/company");
 const FinishService = require("../../services/finish");
 const GlassAddonService = require("../../services/glassAddon");
@@ -44,9 +49,9 @@ exports.updateCompany = async (req, res) => {
 
   try {
     const oldcompany = await CompanyService.findBy({ _id: id });
-    if (data?.doorWidth && (data?.doorWidth < minDoorWidthStandard || data?.doorWidth > maxDoorWidthStandard)) {
-      throw new Error(`Max door width is not in range of ${minDoorWidthStandard}-${maxDoorWidthStandard}.`);
-    }
+    // if (data?.doorWidth && (data?.doorWidth < minDoorWidthStandard || data?.doorWidth > maxDoorWidthStandard)) {
+    //   throw new Error(`Max door width is not in range of ${minDoorWidthStandard}-${maxDoorWidthStandard}.`);
+    // }
     if (req.file && req.file.fieldname === "image") {
       console.log(data, "payload");
       const newImage = await addOrUpdateOrDelete(
@@ -618,7 +623,48 @@ exports.modifyExistingRecords = async (req, res) => {
   try {
     await Promise.all(
       companies?.map(async (company) => {
-        await CompanyService.update({ _id: company._id }, { doorWidth: 36 });
+        // Move existing pricing data to 'showers'
+        company.showers = {
+          doorWidth: company.doorWidth,
+          miscPricing: {
+            pricingFactor: company.miscPricing.pricingFactor,
+            hourlyRate: company.miscPricing.hourlyRate,
+            pricingFactorStatus: company.miscPricing.pricingFactorStatus,
+          },
+          fabricatingPricing: company.fabricatingPricing,
+        };
+
+        // Remove old fields
+        company.doorWidth = undefined;
+        company.miscPricing = undefined;
+        company.fabricatingPricing = undefined;
+
+        // Initialize 'mirrors' with default values if not already present
+        if (!company.mirrors) {
+          company.mirrors = {
+            pricingFactor: 3.1,
+            hourlyRate: 75,
+            pricingFactorStatus: true,
+            floatingSmall: 75,
+            floatingMedium: 125,
+            floatingLarge: 175,
+            sandBlastingMultiplier: 9,
+            bevelStrip: 0.90,
+            safetyBacking:2,
+            holeMultiplier: 6,
+            outletMultiplier: 12.5,
+            lightHoleMultiplier: 15,
+            notchMultiplier: 0,
+            singleDecoraMultiplier: 6.5,
+            doubleDecoraMultiplier: 0,
+            tripleDecoraMultiplier: 0,
+            quadDecoraMultiplier: 20,
+            singleDuplexMultiplier: 4.6,
+            doubleDuplexMultiplier: 8.25,
+            tripleDuplexMultiplier: 10,
+          };
+        }
+        return company.save();
       })
     );
     handleResponse(res, 200, "Locations info updated");

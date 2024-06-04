@@ -1,12 +1,18 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { multerActions } = require("../../config/common");
+const { multerActions } = require("@config/common");
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
     let destinationPath = "./public/images/";
-    if (req.originalUrl.includes("/finishes")) {
+    if (req.originalUrl.includes("/mirrors")) {
+      if (req.originalUrl.includes("/glassTypes")) {
+        destinationPath += "mirrorGlassTypes/uploads/";
+      } else if (req.originalUrl.includes("/edgeWorks")) {
+        destinationPath += "mirrorEdgeWorks/uploads/";
+      }
+    } else if (req.originalUrl.includes("/finishes")) {
       destinationPath += "finishes/uploads/";
     } else if (req.originalUrl.includes("/hardwares")) {
       destinationPath += "hardwares/uploads/";
@@ -43,7 +49,10 @@ const storage = multer.diskStorage({
     callback(null, destinationPath);
   },
   filename: (req, file, callback) => {
-    callback(null, Date.now() + "-" + file.originalname);
+    // Replace spaces with hyphens in the original filename
+    const modifiedFilename =
+      Date.now() + "-" + file.originalname.replace(/\s+/g, "-");
+    callback(null, modifiedFilename);
   },
 });
 

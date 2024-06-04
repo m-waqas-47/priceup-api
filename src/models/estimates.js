@@ -6,22 +6,13 @@ const estimateSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    isCustomizedDoorWidth: {
-      type: Boolean,
-      default: false,
-    },
-    doorWidth: {
-      type: String,
-      default: 0,
-    },
     label: {
       type: String,
       default: "",
     },
-    layout_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      // required: "Layout reference is required",
-      default: null,
+    category: {
+      type: String,
+      required: "Estimate category is required",
     },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -39,9 +30,34 @@ const estimateSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: "Customer reference is required",
     },
+    status: {
+      type: String,
+      default: "pending",
+    },
+    cost: {
+      type: Number,
+      default: 0,
+    },
+    config: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    layout_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      // required: "Layout reference is required",
+      default: null,
+    },
+    isCustomizedDoorWidth: {
+      type: Boolean,
+      default: false,
+    },
+    doorWidth: {
+      type: String,
+      default: 0,
+    },
     hardwareFinishes: {
       type: mongoose.Schema.Types.ObjectId,
-      required: "Hardware reference is required",
+      default: null,
     },
     handles: {
       type: {
@@ -219,10 +235,6 @@ const estimateSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // transom: {
-    //   type: mongoose.Schema.Types.ObjectId,
-    //   default: null,
-    // },
     people: {
       type: Number,
       default: 0,
@@ -241,26 +253,7 @@ const estimateSchema = new mongoose.Schema(
         },
       },
     ],
-    measurements: [
-      // {
-      //   key: {
-      //     type: String,
-      //     default: "",
-      //   },
-      //   value: {
-      //     type: String,
-      //     default: "",
-      //   },
-      // },
-    ],
-    cost: {
-      type: Number,
-      required: "Total Cost is required",
-    },
-    status: {
-      type: String,
-      default: "pending",
-    },
+    measurements: [],
     perimeter: {
       type: Number,
       default: 0,
