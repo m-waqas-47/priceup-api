@@ -32,7 +32,7 @@ exports.getAll = async (req, res) => {
 
     const result = await Promise.all(
       estimates.map(async (estimate) => {
-        const layoutData = layouts.find(item => item.id === estimate?.layout_id?.toString());
+        const layoutData = layouts.find(item => item.id === estimate?.config?.layout_id?.toString());
         let creator = null;
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
@@ -63,7 +63,7 @@ exports.getAll = async (req, res) => {
                 variant: layoutData.settings.variant,
                 heavyDutyOption: layoutData.settings.heavyDutyOption,
                 hinges: layoutData.settings.hinges,
-                glassType: estimateObject.glassType,
+                glassType: estimateObject.config.glassType,
               }
             : null,
           creatorData: creator
@@ -255,7 +255,68 @@ exports.modifyExistingRecords = async (req, res) => {
   try {
     await Promise.all(
       estimates?.map(async (estimate) => {
-        await EstimateService.update({ _id: estimate._id }, { isCustomizedDoorWidth: false, doorWidth: 0 });
+        estimate.category = 'showers',
+        estimate.config = {
+          layout_id: estimate.layout_id,
+          isCustomizedDoorWidth: estimate.isCustomizedDoorWidth,
+          doorWidth: estimate.doorWidth,
+          hardwareFinishes:estimate.hardwareFinishes,
+          handles:{...estimate.handles},
+          hinges:{...estimate.hinges},
+          mountingClamps:{...estimate.mountingClamps},
+          cornerClamps:{...estimate.cornerClamps},
+          mountingChannel:estimate.mountingChannel,
+          glassType:{...estimate.glassType},
+          slidingDoorSystem:{...estimate.slidingDoorSystem}, 
+          header:{...estimate.header},
+          glassAddons:estimate.glassAddons,
+          hardwareAddons:estimate.hardwareAddons,
+          oneInchHoles:estimate.oneInchHoles,
+          hingeCut:estimate.hingeCut,
+          clampCut:estimate.clampCut,
+          notch:estimate.notch,
+          outages:estimate.outages,
+          mitre:estimate.mitre,
+          polish:estimate.polish,
+          people:estimate.people,
+          hours:estimate.hours,
+          additionalFields:estimate.additionalFields,
+          measurements:estimate.measurements,
+          perimeter:estimate.perimeter,
+          sqftArea:estimate.sqftArea,
+          userProfitPercentage:estimate.userProfitPercentage
+        };
+
+        // Remove old fields
+        estimate.layout_id = undefined;
+        estimate.isCustomizedDoorWidth = undefined;
+        estimate.doorWidth = undefined;
+        estimate.hardwareFinishes = undefined;
+        estimate.handles = undefined;
+        estimate.hinges = undefined;
+        estimate.mountingClamps = undefined;
+        estimate.cornerClamps = undefined;
+        estimate.mountingChannel = undefined;
+        estimate.glassType = undefined;
+        estimate.slidingDoorSystem = undefined;
+        estimate.header = undefined;
+        estimate.glassAddons = undefined;
+        estimate.hardwareAddons = undefined;
+        estimate.oneInchHoles = undefined;
+        estimate.hingeCut = undefined;
+        estimate.clampCut = undefined;
+        estimate.notch = undefined;
+        estimate.outages = undefined;
+        estimate.mitre = undefined;
+        estimate.polish = undefined;
+        estimate.people = undefined;
+        estimate.hours = undefined;
+        estimate.additionalFields = undefined;
+        estimate.measurements = undefined;
+        estimate.perimeter = undefined;
+        estimate.sqftArea = undefined;
+        estimate.userProfitPercentage = undefined;
+        return estimate.save();
       })
     );
     handleResponse(res, 200, "Estimates info updated");

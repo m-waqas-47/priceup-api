@@ -1,26 +1,28 @@
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
-require("./src/db/connection");
+require("module-alias/register");
+require("@db/connection");
 
 const app = express();
 const bodyParser = require("body-parser");
 const path = require("path");
 const port = process.env.PORT || 5000;
-const hardwareCategoryRouter = require("./src/routes/hardwareCategory");
-const userRouter = require("./src/routes/users");
-const companyRouter = require("./src/routes/companies");
-const finishRouter = require("./src/routes/finishes");
-const hardwareRouter = require("./src/routes/hardwares");
-const layoutRouter = require("./src/routes/layouts");
-const glassTypeRouter = require("./src/routes/glassTypes");
-const glassAddonRouter = require("./src/routes/glassAddons");
-const staffRouter = require("./src/routes/staffs");
-const customerRouter = require("./src/routes/customers");
-const estimateRouter = require("./src/routes/estimates");
-const adminRouter = require("./src/routes/admins");
-const indexRouter = require("./src/routes/index");
-const customUsers = require("./src/routes/customUsers");
+const hardwareCategoryRouter = require("@routes/hardwareCategory");
+const userRouter = require("@routes/users");
+const companyRouter = require("@routes/companies");
+const finishRouter = require("@routes/finishes");
+const hardwareRouter = require("@routes/hardwares");
+const layoutRouter = require("@routes/layouts");
+const glassTypeRouter = require("@routes/glassTypes");
+const glassAddonRouter = require("@routes/glassAddons");
+const staffRouter = require("@routes/staffs");
+const customerRouter = require("@routes/customers");
+const estimateRouter = require("@routes/estimates");
+const adminRouter = require("@routes/admins");
+const indexRouter = require("@routes/index");
+const customUsers = require("@routes/customUsers");
+const mirrorsRouter = require("@routes/mirror");
 
 app.use(
   cors({
@@ -46,6 +48,7 @@ app.use("/estimates", estimateRouter);
 app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
 app.use("/customUsers", customUsers);
+app.use("/mirrors", mirrorsRouter);
 app.use("/", indexRouter);
 
 app.listen(port, () => {

@@ -33,6 +33,10 @@ const {
 // const CustomUserService = require("../../services/customUser");
 const { multerSource, multerActions } = require("../../config/common");
 const { addOrUpdateOrDelete } = require("../../services/multer");
+const { mirrorGlassTypes } = require("@seeders/mirrorGlassTypeSeeder");
+const MirrorGlassTypeService = require("@services/mirror/glassType");
+const { mirrorEdgeWork } = require("@seeders/mirrorEdgeWorkSeeder");
+const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
 
 exports.getAll = async (req, res) => {
   try {
@@ -275,6 +279,14 @@ exports.saveUser = async (req, res) => {
         company_id: company?.id,
         finishes: finishes,
       });
+    });
+    mirrorGlassTypes?.map(async (glassType) => {
+      // create user glass types for mirror layouts
+      await MirrorGlassTypeService.create({ ...glassType, company_id: company?.id });
+    });
+    mirrorEdgeWork?.map(async (edgeWork) => {
+      // create user edge works for mirror layouts
+      await MirrorEdgeWorkService.create({ ...edgeWork, company_id: company?.id });
     });
     glassTypes?.map(async (glassType) => {
       // create user glass types

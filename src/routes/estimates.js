@@ -15,7 +15,7 @@ const router = express.Router();
 router.get("/", verifyToken, getAll);
 router.get("/allStats", verifyToken, getAllStats);
 router.get("/listsData", verifyToken, getEstimateListsData);
-router.put("/modifyExisting", verifyToken, modifyExistingRecords); // run only once to update existing documents
+router.put("/modifyExisting", modifyExistingRecords); // run only once to update existing documents
 router.get("/:id", verifyToken, getEstimate);
 router.put("/:id", verifyToken, updateEstimate);
 router.delete("/:id", verifyToken, deleteEstimate);
