@@ -1,3 +1,4 @@
+const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
 const AdminService = require("../services/admin");
 const CustomUserService = require("../services/customUser");
 const FinishService = require("../services/finish");
@@ -6,6 +7,7 @@ const GlassTypeService = require("../services/glassType");
 const HardwareService = require("../services/hardware");
 const StaffService = require("../services/staff");
 const UserService = require("../services/user");
+const MirrorGlassTypeService = require("@services/mirror/glassType");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -97,21 +99,61 @@ exports.getCurrentDate = () => {
   return `${day}-${month}-${year}`;
 };
 
-exports.getListsData = async (company_id) => {
+exports.getShowersHardwareList = async (company_id) => {
   try {
-    const [finishes, handles, hinges, mountingChannel, mountingClamps, cornerClamps, slidingDoorSystem, transom, header, hardwareAddons, glassType, glassAddons] = await Promise.all([
+    const [
+      finishes,
+      handles,
+      hinges,
+      mountingChannel,
+      mountingClamps,
+      cornerClamps,
+      slidingDoorSystem,
+      transom,
+      header,
+      hardwareAddons,
+      glassType,
+      glassAddons,
+    ] = await Promise.all([
       FinishService.findAll({ company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "handles", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "hinges", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "mounting-channels", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "mounting-clamps", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "corner-clamps", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "sliding-door-system", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "transom", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "header", company_id }),
-      HardwareService.findAllBy({ hardware_category_slug: "add-ons", company_id }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "handles",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "hinges",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "mounting-channels",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "mounting-clamps",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "corner-clamps",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "sliding-door-system",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "transom",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "header",
+        company_id,
+      }),
+      HardwareService.findAllBy({
+        hardware_category_slug: "add-ons",
+        company_id,
+      }),
       GlassTypeService.findAll({ company_id }),
-      GlassAddonService.findAll({ company_id })
+      GlassAddonService.findAll({ company_id }),
     ]);
 
     const listData = {
@@ -135,6 +177,24 @@ exports.getListsData = async (company_id) => {
       header,
       glassAddons,
       hardwareAddons,
+    };
+
+    return listData;
+  } catch (error) {
+    throw error;
+  }
+};
+
+exports.getMirrorsHardwareList = async (company_id) => {
+  try {
+    const [edgeWorks, glassTypes] = await Promise.all([
+      MirrorEdgeWorkService.findAll({ company_id }),
+      MirrorGlassTypeService.findAll({ company_id }),
+    ]);
+
+    const listData = {
+      edgeWorks,
+      glassTypes,
     };
 
     return listData;

@@ -1,16 +1,16 @@
-const FinishService = require("../../services/finish");
-const HardwareService = require("../../services/hardware");
-const { nestedObjectsToDotNotation } = require("../../utils/common");
-const { handleResponse, handleError } = require("../../utils/responses");
+const FinishService = require("@services/finish");
+const HardwareService = require("@services/hardware");
+const { nestedObjectsToDotNotation, getShowersHardwareList, getMirrorsHardwareList } = require("@utils/common");
+const { handleResponse, handleError } = require("@utils/responses");
 const { generateFinishes } = require("../user");
 const fs = require("fs");
 const util = require("util");
 const readFile = util.promisify(fs.readFile);
 const path = require("path");
-const HardwareCategoryService = require("../../services/hardwareCategory");
-const CompanyService = require("../../services/company");
-const { addOrUpdateOrDelete } = require("../../services/multer");
-const { multerSource, multerActions } = require("../../config/common");
+const HardwareCategoryService = require("@services/hardwareCategory");
+const CompanyService = require("@services/company");
+const { addOrUpdateOrDelete } = require("@services/multer");
+const { multerSource, multerActions } = require("@config/common");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -183,6 +183,26 @@ exports.updateHardware = async (req, res) => {
     }
     const hardware = await HardwareService.update({ _id: id }, updatedData);
     handleResponse(res, 200, "Hardware updated successfully", hardware);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getShowersHardware = async (req, res) => {
+  const company_id = req.company_id;
+  try {
+    const list = await getShowersHardwareList(company_id);
+    handleResponse(res, 200, "Showers Hardwares List", list);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getMirrorsHardware = async (req, res) => {
+  const company_id = req.company_id;
+  try {
+    const list = await getMirrorsHardwareList(company_id);
+    handleResponse(res, 200, "Showers Hardwares List", list);
   } catch (err) {
     handleError(res, err);
   }

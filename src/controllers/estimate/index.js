@@ -1,17 +1,13 @@
-const { userRoles, estimateStatus } = require("../../config/common");
-const CompanyService = require("../../services/company");
-const CustomUserService = require("../../services/customUser");
-const CustomerService = require("../../services/customer");
-const EstimateService = require("../../services/estimate");
-const LayoutService = require("../../services/layout");
-const StaffService = require("../../services/staff");
-const UserService = require("../../services/user");
-const {
-  nestedObjectsToDotNotation,
-  getCurrentDate,
-  getListsData,
-} = require("../../utils/common");
-const { handleResponse, handleError } = require("../../utils/responses");
+const { userRoles, estimateStatus } = require("@config/common");
+const CompanyService = require("@services/company");
+const CustomUserService = require("@services/customUser");
+const CustomerService = require("@services/customer");
+const EstimateService = require("@services/estimate");
+const LayoutService = require("@services/layout");
+const StaffService = require("@services/staff");
+const UserService = require("@services/user");
+const { nestedObjectsToDotNotation } = require("@utils/common");
+const { handleResponse, handleError } = require("@utils/responses");
 const { addOrUpdateCustomerEstimateRelation } = require("../customer");
 
 exports.getAll = async (req, res) => {
@@ -20,9 +16,17 @@ exports.getAll = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
     const skip = (page - 1) * limit;
 
-    const [estimatesCount, estimates, layouts, customers, users, customUsers, staffs] = await Promise.all([
-      EstimateService.count({company_id}),
-      EstimateService.findAll({ company_id},{ skip, limit }),
+    const [
+      estimatesCount,
+      estimates,
+      layouts,
+      customers,
+      users,
+      customUsers,
+      staffs,
+    ] = await Promise.all([
+      EstimateService.count({ company_id }),
+      EstimateService.findAll({ company_id }, { skip, limit }),
       LayoutService.findAll({ company_id }),
       CustomerService.findAll({ company_id }),
       UserService.findAll(),
@@ -32,25 +36,37 @@ exports.getAll = async (req, res) => {
 
     const result = await Promise.all(
       estimates.map(async (estimate) => {
-        const layoutData = layouts.find(item => item.id === estimate?.config?.layout_id?.toString());
+        const layoutData = layouts.find(
+          (item) => item.id === estimate?.config?.layout_id?.toString()
+        );
         let creator = null;
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
-            creator = users.find(item => item.id === estimate?.creator_id?.toString());
+            creator = users.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             if (!creator) {
-              creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+              creator = customUsers.find(
+                (item) => item.id === estimate?.creator_id?.toString()
+              );
             }
             break;
           case userRoles.STAFF:
-            creator = staffs.find( item => item.id === estimate?.creator_id?.toString());
+            creator = staffs.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             break;
           case userRoles.CUSTOM_ADMIN:
-            creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+            creator = customUsers.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             break;
           default:
             break;
         }
-        const customer = customers.find(item => item.id === estimate?.customer_id?.toString());
+        const customer = customers.find(
+          (item) => item.id === estimate?.customer_id?.toString()
+        );
         const estimateObject = estimate.toObject();
         return {
           ...estimateObject,
@@ -109,25 +125,6 @@ exports.getEstimate = async (req, res) => {
     .catch((err) => {
       handleError(res, err);
     });
-};
-
-exports.getEstimateListsData = async (req, res) => {
-  const company_id = req.company_id;
-  try {
-    const [listsData, companySettings] = await Promise.all([
-      getListsData(company_id),
-      CompanyService.findBy({ _id: company_id }),
-    ]);
-
-    handleResponse(res, 200, "Success", {
-      ...listsData,
-      miscPricing: companySettings?.miscPricing,
-      fabricatingPricing: companySettings?.fabricatingPricing,
-      doorWidth: companySettings?.doorWidth
-    });
-  } catch (err) {
-    handleError(res, err);
-  }
 };
 
 exports.updateEstimate = async (req, res) => {
@@ -196,8 +193,14 @@ exports.saveEstimate = async (req, res) => {
     throw new Error("Customer Data is required!");
   }
   try {
-    if(data?.estimateData?.creator_type === userRoles.STAFF){
-    StaffService.update({_id:data?.estimateData?.creator_id},{$inc: { totalQuoted: data?.estimateData?.cost },lastQuoted:new Date()});
+    if (data?.estimateData?.creator_type === userRoles.STAFF) {
+      StaffService.update(
+        { _id: data?.estimateData?.creator_id },
+        {
+          $inc: { totalQuoted: data?.estimateData?.cost },
+          lastQuoted: new Date(),
+        }
+      );
     }
     const customer = await addOrUpdateCustomerEstimateRelation(
       customerData,
@@ -222,7 +225,7 @@ exports.getAllStats = async (req, res) => {
     let pending = 0;
     let voided = 0;
     let approved = 0;
-    estimates.forEach(estimate => {
+    estimates.forEach((estimate) => {
       total += estimate.cost;
       switch (estimate.status) {
         case estimateStatus.PENDING:
@@ -255,37 +258,37 @@ exports.modifyExistingRecords = async (req, res) => {
   try {
     await Promise.all(
       estimates?.map(async (estimate) => {
-        estimate.category = 'showers',
-        estimate.config = {
-          layout_id: estimate.layout_id,
-          isCustomizedDoorWidth: estimate.isCustomizedDoorWidth,
-          doorWidth: estimate.doorWidth,
-          hardwareFinishes:estimate.hardwareFinishes,
-          handles:{...estimate.handles},
-          hinges:{...estimate.hinges},
-          mountingClamps:{...estimate.mountingClamps},
-          cornerClamps:{...estimate.cornerClamps},
-          mountingChannel:estimate.mountingChannel,
-          glassType:{...estimate.glassType},
-          slidingDoorSystem:{...estimate.slidingDoorSystem}, 
-          header:{...estimate.header},
-          glassAddons:estimate.glassAddons,
-          hardwareAddons:estimate.hardwareAddons,
-          oneInchHoles:estimate.oneInchHoles,
-          hingeCut:estimate.hingeCut,
-          clampCut:estimate.clampCut,
-          notch:estimate.notch,
-          outages:estimate.outages,
-          mitre:estimate.mitre,
-          polish:estimate.polish,
-          people:estimate.people,
-          hours:estimate.hours,
-          additionalFields:estimate.additionalFields,
-          measurements:estimate.measurements,
-          perimeter:estimate.perimeter,
-          sqftArea:estimate.sqftArea,
-          userProfitPercentage:estimate.userProfitPercentage
-        };
+        (estimate.category = "showers"),
+          (estimate.config = {
+            layout_id: estimate.layout_id,
+            isCustomizedDoorWidth: estimate.isCustomizedDoorWidth,
+            doorWidth: estimate.doorWidth,
+            hardwareFinishes: estimate.hardwareFinishes,
+            handles: { ...estimate.handles },
+            hinges: { ...estimate.hinges },
+            mountingClamps: { ...estimate.mountingClamps },
+            cornerClamps: { ...estimate.cornerClamps },
+            mountingChannel: estimate.mountingChannel,
+            glassType: { ...estimate.glassType },
+            slidingDoorSystem: { ...estimate.slidingDoorSystem },
+            header: { ...estimate.header },
+            glassAddons: estimate.glassAddons,
+            hardwareAddons: estimate.hardwareAddons,
+            oneInchHoles: estimate.oneInchHoles,
+            hingeCut: estimate.hingeCut,
+            clampCut: estimate.clampCut,
+            notch: estimate.notch,
+            outages: estimate.outages,
+            mitre: estimate.mitre,
+            polish: estimate.polish,
+            people: estimate.people,
+            hours: estimate.hours,
+            additionalFields: estimate.additionalFields,
+            measurements: estimate.measurements,
+            perimeter: estimate.perimeter,
+            sqftArea: estimate.sqftArea,
+            userProfitPercentage: estimate.userProfitPercentage,
+          });
 
         // Remove old fields
         estimate.layout_id = undefined;

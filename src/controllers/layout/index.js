@@ -1,9 +1,9 @@
-const LayoutService = require("../../services/layout");
+const LayoutService = require("@services/layout");
 const {
   nestedObjectsToDotNotation,
-  getListsData,
-} = require("../../utils/common");
-const { handleResponse, handleError } = require("../../utils/responses");
+  getShowersHardwareList,
+} = require("@utils/common");
+const { handleResponse, handleError } = require("@utils/responses");
 
 exports.getAll = async (req, res) => {
   const company_id = req.company_id;
@@ -21,7 +21,7 @@ exports.getLayout = async (req, res) => {
   LayoutService.findBy({ _id: id })
     .then(async (layout) => {
       const company_id = req.company_id;
-      const listData = await getListsData(company_id);
+      const listData = await getShowersHardwareList(company_id);
       handleResponse(res, 200, "Success", {
         layoutData: layout,
         listData: listData,
