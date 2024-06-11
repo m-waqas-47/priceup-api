@@ -20,6 +20,8 @@ const {
   generateRandomString,
 } = require("../../utils/common");
 const { handleResponse, handleError } = require("../../utils/responses");
+const MirrorGlassTypeService = require("@services/mirror/glassType");
+const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
 
 exports.getAll = async (req, res) => {
   CompanyService.findAll()
@@ -197,6 +199,38 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone glassTypes
+
+    const mirrorGlassTypes = await MirrorGlassTypeService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror glassTypes
+
+    await Promise.all(
+      mirrorGlassTypes?.map(async (mirrorGlassType) => {
+        await MirrorGlassTypeService.create({
+          ...mirrorGlassType,
+          company_id: company._id,
+          name: mirrorGlassType.name,
+          slug: mirrorGlassType.slug,
+          options: mirrorGlassType.options,
+        });
+      })
+    ); // clone Mirror glassTypes
+
+    const mirrorEdgeWorks = await MirrorEdgeWorkService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror edgeWorks
+
+    await Promise.all(
+      mirrorEdgeWorks?.map(async (mirrorEdgeWork) => {
+        await MirrorEdgeWorkService.create({
+          ...mirrorEdgeWork,
+          company_id: company._id,
+          name: mirrorEdgeWork.name,
+          slug: mirrorEdgeWork.slug,
+          options: mirrorEdgeWork.options,
+        });
+      })
+    ); // clone Mirror edgeWorks
 
     const glassAddons = await GlassAddonService.findAll({
       company_id: data.company_id,
