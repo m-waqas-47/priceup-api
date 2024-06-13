@@ -8,6 +8,8 @@ const HardwareService = require("../services/hardware");
 const StaffService = require("../services/staff");
 const UserService = require("../services/user");
 const MirrorGlassTypeService = require("@services/mirror/glassType");
+const MirrorGlassAddonService = require("@services/mirror/glassAddon");
+const MirrorHardwareService = require("@services/mirror/hardware");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -187,14 +189,18 @@ exports.getShowersHardwareList = async (company_id) => {
 
 exports.getMirrorsHardwareList = async (company_id) => {
   try {
-    const [edgeWorks, glassTypes] = await Promise.all([
+    const [edgeWorks, glassTypes, glassAddons, hardwares] = await Promise.all([
       MirrorEdgeWorkService.findAll({ company_id }),
       MirrorGlassTypeService.findAll({ company_id }),
+      MirrorGlassAddonService.findAll({ company_id }),
+      MirrorHardwareService.findAll({ company_id }),
     ]);
 
     const listData = {
       edgeWorks,
       glassTypes,
+      glassAddons,
+      hardwares,
     };
 
     return listData;

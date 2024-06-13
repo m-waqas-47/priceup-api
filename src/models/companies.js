@@ -103,38 +103,38 @@ const companySchema = new mongoose.Schema(
         type: Boolean,
         default: true,
       },
-      floatingSmall: {
-        type: Number,
-        default: 75,
-      },
-      floatingMedium: {
-        type: Number,
-        default: 125,
-      },
-      floatingLarge: {
-        type: Number,
-        default: 175,
-      },
-      sandBlastingMultiplier: {
-        type: Number,
-        default: 9,
-      },
-      bevelStrip: {
-        type: Number,
-        default: 0.90,
-      },
-      safetyBacking: {
-        type: Number,
-        default: 2,
-      },
+      // floatingSmall: {
+      //   type: Number,
+      //   default: 75,
+      // },
+      // floatingMedium: {
+      //   type: Number,
+      //   default: 125,
+      // },
+      // floatingLarge: {
+      //   type: Number,
+      //   default: 175,
+      // },
+      // sandBlastingMultiplier: {
+      //   type: Number,
+      //   default: 9,
+      // },
+      // bevelStrip: {
+      //   type: Number,
+      //   default: 0.90,
+      // },
+      // safetyBacking: {
+      //   type: Number,
+      //   default: 2,
+      // },
       holeMultiplier: {
         type: Number,
         default: 6,
       },
-      outletMultiplier: {
-        type: Number,
-        default: 12.5,
-      },
+      // outletMultiplier: {
+      //   type: Number,
+      //   default: 12.5,
+      // },
       lightHoleMultiplier: {
         type: Number,
         default: 15,
@@ -143,34 +143,34 @@ const companySchema = new mongoose.Schema(
         type: Number,
         default: 0,
       },
-      singleDecoraMultiplier: {
+      singleOutletCutoutMultiplier: {
         type: Number,
         default: 6.5,
       },
-      doubleDecoraMultiplier: {
+      doubleOutletCutoutMultiplier: {
         type: Number,
         default: 0,
       },
-      tripleDecoraMultiplier: {
+      tripleOutletCutoutMultiplier: {
         type: Number,
         default: 0,
       },
-      quadDecoraMultiplier: {
+      quadOutletCutoutMultiplier: {
         type: Number,
         default: 20,
       },
-      singleDuplexMultiplier: {
-        type: Number,
-        default: 4.6,
-      },
-      doubleDuplexMultiplier: {
-        type: Number,
-        default: 8.25,
-      },
-      tripleDuplexMultiplier: {
-        type: Number,
-        default: 10,
-      },
+      // singleDuplexMultiplier: {
+      //   type: Number,
+      //   default: 4.6,
+      // },
+      // doubleDuplexMultiplier: {
+      //   type: Number,
+      //   default: 8.25,
+      // },
+      // tripleDuplexMultiplier: {
+      //   type: Number,
+      //   default: 10,
+      // },
     },
     showers: {
       doorWidth: {

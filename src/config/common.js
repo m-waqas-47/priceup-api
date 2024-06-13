@@ -38,7 +38,9 @@ exports.multerSource = {
   ADMINS: "admins",
   CUSTOMERS: "customers",
   MIRROREDGEWORKS: "mirrorEdgeWorks",
-  MIRRORGLASSTYPES: "mirrorGlassTypes"
+  MIRRORGLASSTYPES: "mirrorGlassTypes",
+  MIRRORGLASSADDONS: "mirrorGlassAddons",
+  MIRRORHARDWARES: "mirrorHardwares",
 };
 
 exports.minDoorWidthStandard = 1;

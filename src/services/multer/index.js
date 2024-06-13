@@ -11,6 +11,10 @@ const storage = multer.diskStorage({
         destinationPath += "mirrorGlassTypes/uploads/";
       } else if (req.originalUrl.includes("/edgeWorks")) {
         destinationPath += "mirrorEdgeWorks/uploads/";
+      } else if (req.originalUrl.includes("/hardwares")) {
+        destinationPath += "mirrorHardwares/uploads/";
+      } else if (req.originalUrl.includes("/glassAddons")) {
+        destinationPath += "mirrorGlassAddons/uploads/";
       }
     } else if (req.originalUrl.includes("/finishes")) {
       destinationPath += "finishes/uploads/";

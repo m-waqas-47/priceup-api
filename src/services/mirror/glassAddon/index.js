@@ -1,12 +1,12 @@
-const Company = require("../../models/companies");
+const MirrorGlassAddons = require("@models/mirror/glassAddons");
 
-class CompanyService {
+class MirrorGlassAddonService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
-      Company.find(data)
+      MirrorGlassAddons.find(data)
         .sort({ createdAt: "desc" })
-        .then((companies) => {
-          resolve(companies);
+        .then((glassAddons) => {
+          resolve(glassAddons);
         })
         .catch((err) => {
           reject(err);
@@ -16,9 +16,9 @@ class CompanyService {
 
   static findBy(data) {
     return new Promise((resolve, reject) => {
-      Company.findOne(data)
-        .then((company) => {
-          resolve(company);
+      MirrorGlassAddons.findOne(data)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -28,21 +28,9 @@ class CompanyService {
 
   static update(condition, data) {
     return new Promise((resolve, reject) => {
-      Company.findOneAndUpdate(condition, data, { new: true })
-        .then((company) => {
-          resolve(company);
-        })
-        .catch((err) => {
-          reject(err);
-        });
-    });
-  }
-
-  static updateMany(condition, data) {
-    return new Promise((resolve, reject) => {
-      Company.updateMany(condition, data)
-        .then(() => {
-          resolve(true);
+      MirrorGlassAddons.findOneAndUpdate(condition, data, { new: true })
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -52,9 +40,21 @@ class CompanyService {
 
   static delete(condition) {
     return new Promise((resolve, reject) => {
-      Company.findOneAndDelete(condition)
-        .then((company) => {
-          resolve(company);
+      MirrorGlassAddons.findOneAndDelete(condition)
+        .then((glassAddon) => {
+          resolve(glassAddon);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static deleteAll(condition) {
+    return new Promise((resolve, reject) => {
+      MirrorGlassAddons.deleteMany(condition)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -64,7 +64,7 @@ class CompanyService {
 
   static count(condition) {
     return new Promise((resolve, reject) => {
-      Company.countDocuments(condition)
+      MirrorGlassAddons.countDocuments(condition)
         .then((count) => {
           resolve(count);
         })
@@ -76,9 +76,9 @@ class CompanyService {
 
   static create(data) {
     return new Promise((resolve, reject) => {
-      Company.create(data)
-        .then((company) => {
-          resolve(company);
+      MirrorGlassAddons.create(data)
+        .then((glassAddon) => {
+          resolve(glassAddon);
         })
         .catch((err) => {
           reject(err);
@@ -87,4 +87,4 @@ class CompanyService {
   }
 }
 
-module.exports = CompanyService;
+module.exports = MirrorGlassAddonService;

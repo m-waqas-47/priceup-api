@@ -683,8 +683,8 @@ exports.modifyExistingRecords = async (req, res) => {
             floatingMedium: 125,
             floatingLarge: 175,
             sandBlastingMultiplier: 9,
-            bevelStrip: 0.90,
-            safetyBacking:2,
+            bevelStrip: 0.9,
+            safetyBacking: 2,
             holeMultiplier: 6,
             outletMultiplier: 12.5,
             lightHoleMultiplier: 15,
@@ -700,6 +700,41 @@ exports.modifyExistingRecords = async (req, res) => {
         }
         return company.save();
       })
+    );
+    handleResponse(res, 200, "Locations info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.modifyExistingRecords2 = async (req, res) => {
+  try {
+    await CompanyService.updateMany(
+      {}, // Filter (empty filter matches all documents)
+      {
+        $unset: {
+          "mirrors.singleDecoraMultiplier": "",
+          "mirrors.doubleDecoraMultiplier": "",
+          "mirrors.tripleDecoraMultiplier": "",
+          "mirrors.quadDecoraMultiplier": "",
+          "mirrors.outletMultiplier": "",
+          "mirrors.floatingSmall": "",
+          "mirrors.floatingMedium": "",
+          "mirrors.floatingLarge": "",
+          "mirrors.sandBlastingMultiplier": "",
+          "mirrors.bevelStrip": "",
+          "mirrors.safetyBacking": "",
+          "mirrors.singleDuplexMultiplier": "",
+          "mirrors.doubleDuplexMultiplier": "",
+          "mirrors.tripleDuplexMultiplier": "",
+        }, // remove these fields
+        $set: {
+          "mirrors.singleOutletCutoutMultiplier": 6.5,
+          "mirrors.doubleOutletCutoutMultiplier": 0,
+          "mirrors.tripleOutletCutoutMultiplier": 0,
+          "mirrors.quadOutletCutoutMultiplier": 20,
+        }, // add these fields with default values
+      }
     );
     handleResponse(res, 200, "Locations info updated");
   } catch (err) {
