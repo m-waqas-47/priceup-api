@@ -124,7 +124,7 @@ exports.getCustomerEstimates = async (req, res) => {
                 variant: layoutData.settings.variant,
                 heavyDutyOption: layoutData.settings.heavyDutyOption,
                 hinges: layoutData.settings.hinges,
-                glassType: estimateObject.glassType,
+                glassType: estimateObject.config.glassType,
               }
             : null,
           creatorData: creator
