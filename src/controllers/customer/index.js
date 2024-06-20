@@ -93,7 +93,7 @@ exports.getCustomerEstimates = async (req, res) => {
 
     const result = await Promise.all(
       estimates.map(async (estimate) => {
-        const layoutData = layouts.find(item => item.id === estimate?.layout_id?.toString());
+        const layoutData = layouts.find(item => item.id === estimate?.config?.layout_id?.toString());
         let creator = null;
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
