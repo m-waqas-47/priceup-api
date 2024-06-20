@@ -156,8 +156,8 @@ exports.getCustomerEstimates = async (req, res) => {
 exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>{
   return new Promise(async(resolve,reject)=>{
      try{  
-      if(customerData?.id){
-        let customer = await CustomerService.findBy({_id:customerData?.id});
+      // if(customerData?.id){
+        let customer = await CustomerService.findBy({ email: customerData?.email, company_id: company_id });
         if(customer){
           resolve(customer);
         }
@@ -170,16 +170,16 @@ exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>
           });
           resolve(customer);
         }
-      }
-      else{
-        let customer = await CustomerService.create({
-          ...customerData,
-        name: `${customerData?.firstName} ${customerData?.lastName}`,
-        lastQuotedOn: getCurrentDate(),
-        company_id: company_id,
-        });
-        resolve(customer);
-      }
+      // }
+      // else{
+      //   let customer = await CustomerService.create({
+      //     ...customerData,
+      //   name: `${customerData?.firstName} ${customerData?.lastName}`,
+      //   lastQuotedOn: getCurrentDate(),
+      //   company_id: company_id,
+      //   });
+      //   resolve(customer);
+      // }
      }
      catch(err){
          reject(err);
