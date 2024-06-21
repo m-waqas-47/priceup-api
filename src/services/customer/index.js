@@ -4,7 +4,7 @@ class CustomerService {
   static findAll(data) {
     return new Promise((resolve, reject) => {
       Customer.find(data)
-        .sort({ createdAt: "desc" })
+        .sort({ updatedAt: "desc" })
         .then((customers) => {
           resolve(customers);
         })
