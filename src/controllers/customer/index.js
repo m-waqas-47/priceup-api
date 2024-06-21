@@ -159,6 +159,7 @@ exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>
       // if(customerData?.id){
         let customer = await CustomerService.findBy({ email: customerData?.email, company_id: company_id });
         if(customer){
+          customer = await CustomerService.update({ _id: customer._id },{lastQuotedOn: getCurrentDate()});
           resolve(customer);
         }
         else{
