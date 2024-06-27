@@ -189,12 +189,14 @@ exports.saveEstimate = async (req, res) => {
   const company_id = req.company_id;
   const data = { ...req.body };
   const customerData = data?.customerData;
+
   if (!customerData) {
-    throw new Error("Customer Data is required!");
+    return handleError(res, new Error("Customer Data is required!"));
   }
+
   try {
     if (data?.estimateData?.creator_type === userRoles.STAFF) {
-      StaffService.update(
+      await StaffService.update(
         { _id: data?.estimateData?.creator_id },
         {
           $inc: { totalQuoted: data?.estimateData?.cost },
@@ -202,6 +204,7 @@ exports.saveEstimate = async (req, res) => {
         }
       );
     }
+
     const customer = await addOrUpdateCustomerEstimateRelation(
       customerData,
       company_id
@@ -211,6 +214,7 @@ exports.saveEstimate = async (req, res) => {
       customer_id: customer._id,
       company_id: company_id,
     });
+
     handleResponse(res, 200, "Estimate created successfully", estimate);
   } catch (err) {
     handleError(res, err);

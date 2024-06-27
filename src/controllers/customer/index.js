@@ -1,5 +1,9 @@
 // const customers = require("../../models/customers");
-const { multerActions, multerSource, userRoles } = require("../../config/common");
+const {
+  multerActions,
+  multerSource,
+  userRoles,
+} = require("../../config/common");
 const CustomUserService = require("../../services/customUser");
 const CustomerService = require("../../services/customer");
 const EstimateService = require("../../services/estimate");
@@ -58,7 +62,7 @@ exports.updateCustomer = async (req, res) => {
   } catch (err) {
     handleError(res, err);
   }
-}
+};
 
 exports.saveCustomer = async (req, res) => {
   const data = req.body;
@@ -81,9 +85,17 @@ exports.getCustomerEstimates = async (req, res) => {
     const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
     const skip = (page - 1) * limit;
 
-    const [estimatesCount, estimates, layouts, customers, users, customUsers, staffs] = await Promise.all([
-      EstimateService.count({customer_id: id}),
-      EstimateService.findAll({ customer_id: id },{ skip, limit }),
+    const [
+      estimatesCount,
+      estimates,
+      layouts,
+      customers,
+      users,
+      customUsers,
+      staffs,
+    ] = await Promise.all([
+      EstimateService.count({ customer_id: id }),
+      EstimateService.findAll({ customer_id: id }, { skip, limit }),
       LayoutService.findAll({ company_id }),
       CustomerService.findAll({ company_id }),
       UserService.findAll(),
@@ -93,25 +105,37 @@ exports.getCustomerEstimates = async (req, res) => {
 
     const result = await Promise.all(
       estimates.map(async (estimate) => {
-        const layoutData = layouts.find(item => item.id === estimate?.config?.layout_id?.toString());
+        const layoutData = layouts.find(
+          (item) => item.id === estimate?.config?.layout_id?.toString()
+        );
         let creator = null;
         switch (estimate.creator_type) {
           case userRoles.ADMIN:
-            creator = users.find(item => item.id === estimate?.creator_id?.toString());
+            creator = users.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             if (!creator) {
-              creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+              creator = customUsers.find(
+                (item) => item.id === estimate?.creator_id?.toString()
+              );
             }
             break;
           case userRoles.STAFF:
-            creator = staffs.find( item => item.id === estimate?.creator_id?.toString());
+            creator = staffs.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             break;
           case userRoles.CUSTOM_ADMIN:
-            creator = customUsers.find(item => item.id === estimate?.creator_id?.toString());
+            creator = customUsers.find(
+              (item) => item.id === estimate?.creator_id?.toString()
+            );
             break;
           default:
             break;
         }
-        const customer = customers.find(item => item.id === estimate?.customer_id?.toString());
+        const customer = customers.find(
+          (item) => item.id === estimate?.customer_id?.toString()
+        );
         const estimateObject = estimate.toObject();
         return {
           ...estimateObject,
@@ -153,50 +177,65 @@ exports.getCustomerEstimates = async (req, res) => {
   }
 };
 
-exports.addOrUpdateCustomerEstimateRelation = async (customerData,company_id) =>{
-  return new Promise(async(resolve,reject)=>{
-     try{  
-      // if(customerData?.id){
-        let customer = await CustomerService.findBy({ email: customerData?.email, company_id: company_id });
-        if(customer){
-          customer = await CustomerService.update({ _id: customer._id },{lastQuotedOn: getCurrentDate()});
-          resolve(customer);
-        }
-        else{
-          customer = await CustomerService.create({
-            ...customerData,
+exports.addOrUpdateCustomerEstimateRelation = async (
+  customerData,
+  company_id
+) => {
+  try {
+    if (customerData?.id) {
+      let customer = await CustomerService.findBy({
+        _id: customerData?.id,
+        company_id: company_id,
+      });
+      if (customer) {
+        const customerUpdated = await CustomerService.update(
+          { _id: customer._id },
+          { lastQuotedOn: getCurrentDate() }
+        );
+        return customerUpdated;
+      } else {
+        throw new Error("Customer not found.");
+      }
+    } else {
+      // Dynamically constructing the query object
+      const query = {
+        name: `${customerData?.firstName} ${customerData?.lastName}`,
+        company_id: company_id,
+      };
+      if (customerData?.email) {
+        query.email = customerData.email;
+      }
+      if (customerData?.phone) {
+        query.phone = customerData.phone;
+      }
+
+      const existingCustomer = await CustomerService.findBy(query);
+      if (existingCustomer) {
+        throw new Error(
+          "Customer already exists with the same details. Please select from the existing list."
+        );
+      } else {
+        let created = await CustomerService.create({
+          ...customerData,
           name: `${customerData?.firstName} ${customerData?.lastName}`,
           lastQuotedOn: getCurrentDate(),
           company_id: company_id,
-          });
-          resolve(customer);
-        }
-      // }
-      // else{
-      //   let customer = await CustomerService.create({
-      //     ...customerData,
-      //   name: `${customerData?.firstName} ${customerData?.lastName}`,
-      //   lastQuotedOn: getCurrentDate(),
-      //   company_id: company_id,
-      //   });
-      //   resolve(customer);
-      // }
-     }
-     catch(err){
-         reject(err);
-     }
-  });
-}
+        });
+
+        return created;
+      }
+    }
+  } catch (err) {
+    throw err;
+  }
+};
 
 exports.modifyExistingRecords = async (req, res) => {
   const customers = await CustomerService.findAll();
   try {
     await Promise.all(
       customers?.map(async (customer) => {
-        await CustomerService.update(
-          { _id: customer._id },
-          { phone: "" }
-        );
+        await CustomerService.update({ _id: customer._id }, { phone: "" });
       })
     );
     handleResponse(res, 200, "Customers info updated");
