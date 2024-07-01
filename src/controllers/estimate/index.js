@@ -13,8 +13,24 @@ const { addOrUpdateCustomerEstimateRelation } = require("../customer");
 exports.getAll = async (req, res) => {
   try {
     const company_id = req.company_id;
-    const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
+    const { page = 1, limit = 10, search = "" } = req.query; // Added search query
     const skip = (page - 1) * limit;
+
+    let customerIds = [];
+    if (search) {
+      // Find customers based on the search keyword
+      const customers = await CustomerService.findAll({
+        company_id,
+        name: { $regex: search, $options: "i" },
+      });
+      customerIds = customers.map((customer) => customer.id);
+    }
+
+    // Filter estimates based on the customer IDs if search keyword is provided
+    const estimateQuery = { company_id };
+    if (search && customerIds.length > 0) {
+      estimateQuery.customer_id = { $in: customerIds };
+    }
 
     const [
       estimatesCount,
@@ -25,8 +41,8 @@ exports.getAll = async (req, res) => {
       customUsers,
       staffs,
     ] = await Promise.all([
-      EstimateService.count({ company_id }),
-      EstimateService.findAll({ company_id }, { skip, limit }),
+      EstimateService.count(estimateQuery),
+      EstimateService.findAll(estimateQuery, { skip, limit }),
       LayoutService.findAll({ company_id }),
       CustomerService.findAll({ company_id }),
       UserService.findAll(),
@@ -98,7 +114,6 @@ exports.getAll = async (req, res) => {
         };
       })
     );
-
     handleResponse(res, 200, "All Estimates", {
       totalRecords: estimatesCount,
       estimates: result,
@@ -107,6 +122,127 @@ exports.getAll = async (req, res) => {
     handleError(res, err);
   }
 };
+
+// exports.getAll = async (req, res) => {
+//   try {
+//     const company_id = req.company_id;
+//     const { page = 1, limit = 10, search = "" } = req.query; // Default page is 1 and limit is 10, adjust as needed
+//     const skip = (page - 1) * limit;
+
+//     let estimatesCount = EstimateService.count({ company_id });
+//     // Fetch customers based on search criteria
+//     const customersData = await CustomerService.findAll({ company_id });
+//     let newLimit = limit;
+//     let newSkip = skip;
+//     let customers = customersData;
+//     if (search) {
+//       customers = customersData.filter((customer) =>
+//         customer.name.toLowerCase().includes(search.toLowerCase())
+//       );
+//       console.log(customers, "filteredCustomers");
+//       estimatesCount = customers?.length;
+//       newLimit = customers?.length;
+//       newSkip = (page - 1) * newLimit;
+//     }
+
+//     const [
+//       // estimatesCount,
+//       estimates,
+//       layouts,
+//       // customers,
+//       users,
+//       customUsers,
+//       staffs,
+//     ] = await Promise.all([
+//       EstimateService.findAll(
+//         { company_id },
+//         {
+//           skip: newSkip,
+//           limit: newLimit,
+//         }
+//       ),
+//       LayoutService.findAll({ company_id }),
+//       // CustomerService.findAll({ company_id }),
+//       UserService.findAll(),
+//       CustomUserService.findAll(),
+//       StaffService.findAll(),
+//     ]);
+
+//     const result = await Promise.all(
+//       estimates.map(async (estimate) => {
+//         const layoutData = layouts.find(
+//           (item) => item.id === estimate?.config?.layout_id?.toString()
+//         );
+//         let creator = null;
+//         switch (estimate.creator_type) {
+//           case userRoles.ADMIN:
+//             creator = users.find(
+//               (item) => item.id === estimate?.creator_id?.toString()
+//             );
+//             if (!creator) {
+//               creator = customUsers.find(
+//                 (item) => item.id === estimate?.creator_id?.toString()
+//               );
+//             }
+//             break;
+//           case userRoles.STAFF:
+//             creator = staffs.find(
+//               (item) => item.id === estimate?.creator_id?.toString()
+//             );
+//             break;
+//           case userRoles.CUSTOM_ADMIN:
+//             creator = customUsers.find(
+//               (item) => item.id === estimate?.creator_id?.toString()
+//             );
+//             break;
+//           default:
+//             break;
+//         }
+
+//         const customer = customers.find(
+//           (item) => item.id === estimate?.customer_id?.toString()
+//         );
+//         // console.log(customer, "customer");
+//         const estimateObject = estimate.toObject();
+//         return {
+//           ...estimateObject,
+//           settings: layoutData
+//             ? {
+//                 measurementSides: layoutData.settings.measurementSides,
+//                 image: layoutData.image,
+//                 name: layoutData.name,
+//                 _id: layoutData._id,
+//                 variant: layoutData.settings.variant,
+//                 heavyDutyOption: layoutData.settings.heavyDutyOption,
+//                 hinges: layoutData.settings.hinges,
+//                 glassType: estimateObject.config.glassType,
+//               }
+//             : null,
+//           creatorData: creator
+//             ? {
+//                 name: creator.name,
+//                 image: creator.image,
+//                 email: creator.email,
+//               }
+//             : null,
+//           customerData: customer
+//             ? {
+//                 name: customer.name,
+//                 email: customer.email,
+//               }
+//             : null,
+//         };
+//       })
+//     );
+
+//     handleResponse(res, 200, "All Estimates", {
+//       totalRecords: estimatesCount,
+//       estimates: result,
+//     });
+//   } catch (err) {
+//     handleError(res, err);
+//   }
+// };
 
 exports.getEstimate = async (req, res) => {
   const { id } = req.params;
