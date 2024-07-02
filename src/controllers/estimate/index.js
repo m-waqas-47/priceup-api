@@ -28,7 +28,7 @@ exports.getAll = async (req, res) => {
 
     // Filter estimates based on the customer IDs if search keyword is provided
     const estimateQuery = { company_id };
-    if (search && customerIds.length > 0) {
+    if (search && search?.length > 0) {
       estimateQuery.customer_id = { $in: customerIds };
     }
 
