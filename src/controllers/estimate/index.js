@@ -15,36 +15,52 @@ exports.getAll = async (req, res) => {
     const company_id = req.company_id;
     const { page = 1, limit = 10, search = "" } = req.query; // Added search query
     const skip = (page - 1) * limit;
-
-    let customerIds = [];
-    if (search) {
-      // Find customers based on the search keyword
-      const customers = await CustomerService.findAll({
-        company_id,
-        name: { $regex: search, $options: "i" },
-      });
-      customerIds = customers.map((customer) => customer.id);
-    }
-
+    let estimates = [];
+    let totalRecords = 0;
+  
     // Filter estimates based on the customer IDs if search keyword is provided
     const estimateQuery = { company_id };
-    if (search && search?.length > 0) {
+    const customerQuery = { company_id };
+    if (search && search?.length) {
+      customerQuery.name = { $regex: search.toLowerCase(), $options: "i" }
+    }
+    const customers = await CustomerService.findAll(customerQuery);
+    const customerIds = customers.map((customer) => customer.id);
+
+    if(customerIds?.length && search?.length){
       estimateQuery.customer_id = { $in: customerIds };
     }
 
+    const estimatesAll = await EstimateService.findAll(estimateQuery);
+    
+    if(customerIds?.length && search?.length){
+      const filteredTotalRecords = estimatesAll.filter(estimate => 
+        {if(customerIds.includes(estimate.customer_id.toString())){console.log(estimate.customer_id,'cust');return true;}}
+      );
+      totalRecords = filteredTotalRecords?.length;
+      estimates = filteredTotalRecords.slice(Number(skip), Number(skip) + Number(limit));
+     console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
+    
+    }
+    else{
+      totalRecords = estimatesAll?.length;
+      estimates = estimatesAll.slice(Number(skip), Number(skip) + Number(limit));
+     console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
+    }
+
     const [
-      estimatesCount,
-      estimates,
+      // estimatesCount,
+      // estimates,
       layouts,
-      customers,
+      // customers,
       users,
       customUsers,
       staffs,
     ] = await Promise.all([
-      EstimateService.count(estimateQuery),
-      EstimateService.findAll(estimateQuery, { skip, limit }),
+      // EstimateService.count(estimateQuery),
+      // EstimateService.findAll(estimateQuery, { skip:searchSkip, limit:searchLimit }),
       LayoutService.findAll({ company_id }),
-      CustomerService.findAll({ company_id }),
+      // CustomerService.findAll({ company_id }),
       UserService.findAll(),
       CustomUserService.findAll(),
       StaffService.findAll(),
@@ -115,7 +131,7 @@ exports.getAll = async (req, res) => {
       })
     );
     handleResponse(res, 200, "All Estimates", {
-      totalRecords: estimatesCount,
+      totalRecords: totalRecords,
       estimates: result,
     });
   } catch (err) {
