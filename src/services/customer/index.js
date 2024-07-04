@@ -1,10 +1,12 @@
 const Customer = require("../../models/customers");
 
 class CustomerService {
-  static findAll(data) {
+  static findAll(query,options) {
     return new Promise((resolve, reject) => {
-      Customer.find(data)
-        .sort({ updatedAt: "desc" })
+      Customer.find(query)
+        .skip(options?.skip ?? 0)
+        .limit(options?.limit ?? 0)
+        .sort({ createdAt: "desc" })
         .then((customers) => {
           resolve(customers);
         })

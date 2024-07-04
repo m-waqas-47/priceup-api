@@ -35,17 +35,17 @@ exports.getAll = async (req, res) => {
     
     if(customerIds?.length && search?.length){
       const filteredTotalRecords = estimatesAll.filter(estimate => 
-        {if(customerIds.includes(estimate.customer_id.toString())){console.log(estimate.customer_id,'cust');return true;}}
+        customerIds.includes(estimate.customer_id.toString())
       );
       totalRecords = filteredTotalRecords?.length;
       estimates = filteredTotalRecords.slice(Number(skip), Number(skip) + Number(limit));
-     console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
+    //  console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
     
     }
     else{
       totalRecords = estimatesAll?.length;
       estimates = estimatesAll.slice(Number(skip), Number(skip) + Number(limit));
-     console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
+    //  console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
     }
 
     const [
