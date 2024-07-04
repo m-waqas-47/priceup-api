@@ -41,11 +41,14 @@ exports.getAll = async (req, res) => {
       estimates = filteredTotalRecords.slice(Number(skip), Number(skip) + Number(limit));
     //  console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
     
+    }else if (search?.length && customerIds?.length === 0){  // no record found
+      totalRecords = 0;
+      estimates = [];
     }
     else{
       totalRecords = estimatesAll?.length;
       estimates = estimatesAll.slice(Number(skip), Number(skip) + Number(limit));
-    //  console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
+      //  console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
     }
 
     const [
