@@ -46,3 +46,17 @@ exports.multerSource = {
 exports.minDoorWidthStandard = 1;
 
 exports.maxDoorWidthStandard = 39;
+
+exports.socketIoChannel = {
+  NOTIFICATIONS: "notifications",
+};
+
+exports.notificationCategories = {
+  ESTIMATES: "estimates",
+};
+
+exports.notificationActions = {
+  CREATE: "create",
+  UPDATE: "update",
+  DELETE: "delete",
+};

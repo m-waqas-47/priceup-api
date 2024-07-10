@@ -19,7 +19,7 @@ const CustomerService = require("../../services/customer");
 const LayoutService = require("../../services/layout");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   // get staff related to company and company he/she have added to
   StaffService.findAll({
     $or: [{ company_id: company_id }, { haveAccessTo: { $in: [company_id] } }],
@@ -142,7 +142,7 @@ exports.deleteStaff = async (req, res) => {
 
 exports.saveStaff = async (req, res) => {
   const password = /*generateRandomString(8)*/ "abcdef";
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   const data = {
     ...req.body,
     password: password,

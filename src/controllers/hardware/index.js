@@ -13,7 +13,7 @@ const { addOrUpdateOrDelete } = require("@services/multer");
 const { multerSource, multerActions } = require("@config/common");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   HardwareService.findAll({ company_id: company_id })
     .then((hardwares) => {
       handleResponse(res, 200, "All Hardwares", hardwares);
@@ -101,7 +101,7 @@ exports.deleteHardware = async (req, res) => {
 
 exports.getHardwaresByCategory = async (req, res) => {
   const { slug } = req.params;
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   HardwareService.findAllBy({
     hardware_category_slug: slug,
     company_id: company_id,
@@ -116,7 +116,7 @@ exports.getHardwaresByCategory = async (req, res) => {
 
 exports.saveHardware = async (req, res) => {
   const data = { ...req.body };
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
 
   try {
     const oldHardware = await HardwareService.findBy({
@@ -152,7 +152,7 @@ exports.saveHardware = async (req, res) => {
 exports.updateHardware = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  // const company_id = req.company_id;
+  // const company_id = req.user.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {
@@ -189,7 +189,7 @@ exports.updateHardware = async (req, res) => {
 };
 
 exports.getShowersHardware = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   try {
     const list = await getShowersHardwareList(company_id);
     handleResponse(res, 200, "Showers Hardwares List", list);
@@ -199,7 +199,7 @@ exports.getShowersHardware = async (req, res) => {
 };
 
 exports.getMirrorsHardware = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   try {
     const list = await getMirrorsHardwareList(company_id);
     handleResponse(res, 200, "Showers Hardwares List", list);

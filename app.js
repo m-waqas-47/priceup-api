@@ -1,10 +1,14 @@
 const express = require("express");
 const cors = require("cors");
+const { createServer } = require("node:http");
+const { Server } = require("socket.io");
 require("dotenv").config();
 require("module-alias/register");
 require("@db/connection");
 
 const app = express();
+const server = createServer(app);
+const socketIo = new Server(server);
 const bodyParser = require("body-parser");
 const path = require("path");
 const port = process.env.PORT || 5000;
@@ -23,15 +27,10 @@ const adminRouter = require("@routes/admins");
 const indexRouter = require("@routes/index");
 const customUsers = require("@routes/customUsers");
 const mirrorsRouter = require("@routes/mirror");
+const notificationsRouter = require("@routes/notifications");
+const { socketIoChannel } = require("@config/common");
 
-app.use(
-  cors({
-    origin: "*",
-    // methods: "GET,POST,PUT,DELETE",
-    // credentials:true,
-    // optionSuccessStatus:200,
-  })
-);
+app.use(cors({ origin: "*" }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, "public")));
 
@@ -49,8 +48,21 @@ app.use("/glassTypes", glassTypeRouter);
 app.use("/glassAddons", glassAddonRouter);
 app.use("/customUsers", customUsers);
 app.use("/mirrors", mirrorsRouter);
+app.use("/notifications", notificationsRouter);
 app.use("/", indexRouter);
 
-app.listen(port, () => {
+// Socket.IO connection
+socketIo.on("connection", (socket) => {
+  console.log("A client connected");
+  socket.on(socketIoChannel.NOTIFICATIONS, (msg) => {
+    console.log("message: " + msg);
+    socket.broadcast.emit(socketIoChannel.NOTIFICATIONS, msg);
+  });
+  socket.on("disconnect", () => {
+    console.log("client disconnected");
+  });
+});
+
+server.listen(port, () => {
   console.log(`App is listening on PORT ${port}`);
 });

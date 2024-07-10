@@ -71,7 +71,7 @@ exports.getAll = async (req, res) => {
 };
 
 exports.getDashboardTotals = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   try {
     const estimates = await EstimateService.count({ company_id: company_id });
     const customers = await CustomerService.count({ company_id: company_id });

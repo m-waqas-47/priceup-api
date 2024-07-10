@@ -7,7 +7,7 @@ const CompanyService = require("@services/company");
 const { mirrorGlassAddons } = require("@seeders/mirrorGlassAddonSeeder");
 const entityType = "Glass Addon";
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   MirrorGlassAddonService.findAll({ company_id: company_id })
     .then((records) => {
       handleResponse(res, 200, `All ${entityType}s`, records);
@@ -77,7 +77,7 @@ exports.deleteEntity = async (req, res) => {
 
 exports.save = async (req, res) => {
   const data = { ...req.body };
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
 
   try {
     const oldRecord = await MirrorGlassAddonService.findBy({

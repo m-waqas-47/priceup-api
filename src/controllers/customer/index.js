@@ -15,7 +15,7 @@ const { isEmailAlreadyUsed, getCurrentDate } = require("../../utils/common");
 const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   const { page, limit, search } = req.query; // Default page is 1 and limit is 10, adjust as needed
   const customerQuery = { company_id };
   const options = {};
@@ -101,7 +101,7 @@ exports.saveCustomer = async (req, res) => {
 exports.getCustomerEstimates = async (req, res) => {
   try {
     const { id } = req.params;
-    const company_id = req.company_id;
+    const company_id = req.user.company_id;
     const { page = 1, limit = 10 } = req.query; // Default page is 1 and limit is 10, adjust as needed
     const skip = (page - 1) * limit;
 

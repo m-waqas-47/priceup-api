@@ -9,7 +9,7 @@ const { addOrUpdateOrDelete } = require("../../services/multer");
 const { multerActions, multerSource } = require("../../config/common");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   GlassTypeService.findAll({ company_id: company_id })
     .then((glassTypes) => {
       handleResponse(res, 200, "All Glass Types", glassTypes);
@@ -79,7 +79,7 @@ exports.deleteGlassType = async (req, res) => {
 
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
 
   try {
     const oldGlassType = await GlassTypeService.findBy({
@@ -147,7 +147,7 @@ const generateOptions = () => {
 exports.updateGlassType = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  // const company_id = req.company_id;
+  // const company_id = req.user.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {

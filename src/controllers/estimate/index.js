@@ -1,4 +1,9 @@
-const { userRoles, estimateStatus } = require("@config/common");
+const {
+  userRoles,
+  estimateStatus,
+  notificationCategories,
+  notificationActions,
+} = require("@config/common");
 const CompanyService = require("@services/company");
 const CustomUserService = require("@services/customUser");
 const CustomerService = require("@services/customer");
@@ -9,45 +14,51 @@ const UserService = require("@services/user");
 const { nestedObjectsToDotNotation } = require("@utils/common");
 const { handleResponse, handleError } = require("@utils/responses");
 const { addOrUpdateCustomerEstimateRelation } = require("../customer");
+const { generateNotifications } = require("@utils/notification");
 
 exports.getAll = async (req, res) => {
   try {
-    const company_id = req.company_id;
+    const company_id = req.user.company_id;
     const { page = 1, limit = 10, search = "" } = req.query; // Added search query
     const skip = (page - 1) * limit;
     let estimates = [];
     let totalRecords = 0;
-  
+
     // Filter estimates based on the customer IDs if search keyword is provided
     const estimateQuery = { company_id };
     const customerQuery = { company_id };
     if (search && search?.length) {
-      customerQuery.name = { $regex: search.toLowerCase(), $options: "i" }
+      customerQuery.name = { $regex: search.toLowerCase(), $options: "i" };
     }
     const customers = await CustomerService.findAll(customerQuery);
     const customerIds = customers.map((customer) => customer.id);
 
-    if(customerIds?.length && search?.length){
+    if (customerIds?.length && search?.length) {
       estimateQuery.customer_id = { $in: customerIds };
     }
 
     const estimatesAll = await EstimateService.findAll(estimateQuery);
-    
-    if(customerIds?.length && search?.length){
-      const filteredTotalRecords = estimatesAll.filter(estimate => 
+
+    if (customerIds?.length && search?.length) {
+      const filteredTotalRecords = estimatesAll.filter((estimate) =>
         customerIds.includes(estimate.customer_id.toString())
       );
       totalRecords = filteredTotalRecords?.length;
-      estimates = filteredTotalRecords.slice(Number(skip), Number(skip) + Number(limit));
-    //  console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
-    
-    }else if (search?.length && customerIds?.length === 0){  // no record found
+      estimates = filteredTotalRecords.slice(
+        Number(skip),
+        Number(skip) + Number(limit)
+      );
+      //  console.log('skip search',Number(skip),'limit',Number(skip) + Number(limit));
+    } else if (search?.length && customerIds?.length === 0) {
+      // no record found
       totalRecords = 0;
       estimates = [];
-    }
-    else{
+    } else {
       totalRecords = estimatesAll?.length;
-      estimates = estimatesAll.slice(Number(skip), Number(skip) + Number(limit));
+      estimates = estimatesAll.slice(
+        Number(skip),
+        Number(skip) + Number(limit)
+      );
       //  console.log('skip',Number(skip),'limit',Number(skip) + Number(limit));
     }
 
@@ -144,7 +155,7 @@ exports.getAll = async (req, res) => {
 
 // exports.getAll = async (req, res) => {
 //   try {
-//     const company_id = req.company_id;
+//     const company_id = req.user.company_id;
 //     const { page = 1, limit = 10, search = "" } = req.query; // Default page is 1 and limit is 10, adjust as needed
 //     const skip = (page - 1) * limit;
 
@@ -283,65 +294,56 @@ exports.getEstimate = async (req, res) => {
 };
 
 exports.updateEstimate = async (req, res) => {
+  const user = req.user;
   const { id } = req.params;
   const { customerData, estimateData } = req.body;
   const data = await nestedObjectsToDotNotation(estimateData);
-  EstimateService.update({ _id: id }, data)
-    .then((estimate) => {
-      handleResponse(res, 200, "Estimate updated successfully", estimate);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const estimate = await EstimateService.update({ _id: id }, data);
+    await generateNotifications(
+      notificationCategories.ESTIMATES,
+      notificationActions.UPDATE,
+      user,
+      estimate._id
+    );
+    handleResponse(res, 200, "Estimate updated successfully", estimate);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.deleteEstimate = async (req, res) => {
+  const user = req.user;
   const { id } = req.params;
-  EstimateService.findBy({ _id: id })
-    .then((estimate) => {
-      if (!estimate) {
-        return res.status(404).json({ message: "Estimate not found" });
-      }
-
-      const customerId = estimate.customer_id;
-      EstimateService.count({ customer_id: customerId })
-        .then((count) => {
-          if (count <= 1) {
-            Promise.all([
-              EstimateService.delete({ _id: id }),
-              CustomerService.delete({ _id: customerId }),
-            ])
-              .then(() => {
-                handleResponse(
-                  res,
-                  200,
-                  "Estimate and customer deleted successfully"
-                );
-              })
-              .catch((err) => {
-                handleError(res, err);
-              });
-          } else {
-            EstimateService.delete({ _id: id })
-              .then(() => {
-                handleResponse(res, 200, "Estimate deleted successfully");
-              })
-              .catch((err) => {
-                handleError(res, err);
-              });
-          }
-        })
-        .catch((err) => {
-          handleError(res, err);
-        });
-    })
-    .catch((err) => {
-      handleError(res, err);
+  try {
+    const estimate = await EstimateService.findBy({ _id: id });
+    if (!estimate) {
+      throw new Error("Estimate not found");
+    }
+    const count = await EstimateService.count({
+      customer_id: estimate.customer_id,
     });
+    if (count <= 1) {
+      CustomerService.delete({ _id: estimate.customer_id });
+    }
+    const resp = await EstimateService.delete({ _id: id });
+
+    await generateNotifications(
+      notificationCategories.ESTIMATES,
+      notificationActions.DELETE,
+      user,
+      estimate._id
+    );
+
+    handleResponse(res, 200, "Estimate deleted successfully", resp);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.saveEstimate = async (req, res) => {
-  const company_id = req.company_id;
+  const user = req.user;
+  const company_id = req.user.company_id;
   const data = { ...req.body };
   const customerData = data?.customerData;
 
@@ -370,6 +372,13 @@ exports.saveEstimate = async (req, res) => {
       company_id: company_id,
     });
 
+    await generateNotifications(
+      notificationCategories.ESTIMATES,
+      notificationActions.CREATE,
+      user,
+      estimate._id
+    );
+
     handleResponse(res, 200, "Estimate created successfully", estimate);
   } catch (err) {
     handleError(res, err);
@@ -377,7 +386,7 @@ exports.saveEstimate = async (req, res) => {
 };
 
 exports.getAllStats = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   try {
     const estimates = await EstimateService.findAll({ company_id: company_id });
     let total = 0;

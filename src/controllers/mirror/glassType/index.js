@@ -7,7 +7,7 @@ const CompanyService = require("@services/company");
 const { mirrorGlassTypes } = require("@seeders/mirrorGlassTypeSeeder");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   MirrorGlassTypeService.findAll({ company_id: company_id })
     .then((glassTypes) => {
       handleResponse(res, 200, "All Glass Types", glassTypes);
@@ -77,7 +77,7 @@ exports.deleteGlassType = async (req, res) => {
 
 exports.saveGlassType = async (req, res) => {
   const data = { ...req.body };
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
 
   try {
     const oldGlassType = await MirrorGlassTypeService.findBy({

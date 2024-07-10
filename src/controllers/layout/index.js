@@ -6,7 +6,7 @@ const {
 const { handleResponse, handleError } = require("@utils/responses");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   LayoutService.findAll({ company_id: company_id })
     .then((layouts) => {
       handleResponse(res, 200, "All Layouts", layouts);
@@ -20,7 +20,7 @@ exports.getLayout = async (req, res) => {
   const { id } = req.params;
   LayoutService.findBy({ _id: id })
     .then(async (layout) => {
-      const company_id = req.company_id;
+      const company_id = req.user.company_id;
       const listData = await getShowersHardwareList(company_id);
       handleResponse(res, 200, "Success", {
         layoutData: layout,

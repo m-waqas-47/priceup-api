@@ -7,7 +7,7 @@ const CompanyService = require("@services/company");
 const { mirrorEdgeWork } = require("@seeders/mirrorEdgeWorkSeeder");
 
 exports.getAll = async (req, res) => {
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
   MirrorEdgeWorkService.findAll({ company_id: company_id })
     .then((edgeWorks) => {
       handleResponse(res, 200, "All Edge Works", edgeWorks);
@@ -77,7 +77,7 @@ exports.deleteEdgeWork = async (req, res) => {
 
 exports.saveEdgeWork = async (req, res) => {
   const data = { ...req.body };
-  const company_id = req.company_id;
+  const company_id = req.user.company_id;
 
   try {
     const oldEdgeWork = await MirrorEdgeWorkService.findBy({
@@ -133,7 +133,7 @@ const generateOptions = () => {
 exports.updateEdgeWork = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
-  // const company_id = req.company_id;
+  // const company_id = req.user.company_id;
   const updatedData = nestedObjectsToDotNotation(data);
 
   try {

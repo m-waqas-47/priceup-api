@@ -12,7 +12,8 @@ module.exports.verifyToken = (req, res, next) => {
           if (err) {
             throw new Error("Token verification failed");
           } else {
-            req.company_id = payload.company_id;
+            // req.company_id = payload.company_id;
+            req.user = payload;
             next();
           }
         });
