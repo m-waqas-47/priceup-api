@@ -3,13 +3,13 @@ const { handleError, handleResponse } = require("@utils/responses");
 
 exports.getMy = async (req, res) => {
   const user_id = req.user.id;
-  NotificationService.findAll({ viewer: user_id })
-    .then((records) => {
-      handleResponse(res, 200, `All Notifications`, records);
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+  try {
+    const notifications = await NotificationService.findAll({ viewer: user_id });
+    const unReadCount = await NotificationService.count({ viewer: user_id, isRead: false });
+    handleResponse(res, 200, `All Notifications`, {notifications,unReadCount});
+  } catch (err) {
+    handleError(res, err);
+  }
 };
 
 exports.get = async (req, res) => {

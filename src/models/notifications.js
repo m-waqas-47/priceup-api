@@ -34,7 +34,7 @@ const notificationSchema = new mongoose.Schema(
     },
     isRead: {
       type: Boolean,
-      default: true,
+      default: false,
     },
     archived: {
       type: Boolean,
