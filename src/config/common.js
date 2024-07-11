@@ -56,7 +56,7 @@ exports.notificationCategories = {
 };
 
 exports.notificationActions = {
-  CREATE: "create",
-  UPDATE: "update",
-  DELETE: "delete",
+  CREATE: "created",
+  UPDATE: "updated",
+  DELETE: "deleted",
 };

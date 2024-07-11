@@ -20,6 +20,10 @@ const notificationSchema = new mongoose.Schema(
       type: String,
       required: "Performer role is required",
     },
+    performer_name: {
+      type: String,
+      default: "",
+    },
     action: {
       type: String,
       required: "Action is required",
