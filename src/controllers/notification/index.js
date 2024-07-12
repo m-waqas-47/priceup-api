@@ -1,12 +1,22 @@
+const { notificationCategories } = require("@config/common");
 const NotificationService = require("@services/notification");
+const { getResourceInfo } = require("@utils/notification");
 const { handleError, handleResponse } = require("@utils/responses");
 
 exports.getMy = async (req, res) => {
   const user_id = req.user.id;
   try {
-    const notifications = await NotificationService.findAll({ viewer: user_id });
-    const unReadCount = await NotificationService.count({ viewer: user_id, isRead: false });
-    handleResponse(res, 200, `All Notifications`, {notifications,unReadCount});
+    const notifications = await NotificationService.findAll({
+      viewer: user_id,
+    });
+    const unReadCount = await NotificationService.count({
+      viewer: user_id,
+      isRead: false,
+    });
+    handleResponse(res, 200, `All Notifications`, {
+      notifications,
+      unReadCount,
+    });
   } catch (err) {
     handleError(res, err);
   }
@@ -16,11 +26,15 @@ exports.get = async (req, res) => {
   const { id } = req.params;
   try {
     const notification = await NotificationService.findBy({ _id: id });
-    const data = { ...notification };
     if (!notification) {
       throw new Error("Invalid notification Id");
     }
-
+    const resourceInfo = await getResourceInfo({
+      category: notification.category,
+      id: notification.resource_id,
+    });
+    const notificationObject = notification.toObject();
+    const data = { ...notificationObject, resourceInfo };
     handleResponse(res, 200, "Record", data);
   } catch (err) {
     handleError(res, err);

@@ -60,3 +60,8 @@ exports.notificationActions = {
   UPDATE: "updated",
   DELETE: "deleted",
 };
+
+exports.estimateCategory = {
+  SHOWERS: "showers",
+  MIRRORS: "mirrors",
+};
