@@ -223,15 +223,29 @@ const getCreator = async (creatorType, creatorId) => {
   }
 };
 
-const fetchDocumentsByIds = async (Model, ids) => {
+const fetchDocumentsByIds = async (ids,Service) => {
   try {
-    const documents = await Model.findAll({ _id: { $in: ids } });
-    console.log(documents, "doc", Model);
+    const documents = await Service.findAll({ _id: { $in: ids } });
     return documents.map((doc) => doc.toObject());
   } catch (error) {
     console.error("Error fetching documents:", error);
     throw error;
   }
+};
+
+const fetchDocumentsByIdsWithCount = async (items,Service) => {
+  const ids = items.map(item => item.type);
+
+  // Query the database
+  const foundItems = await Service.findAll({ _id: { $in: ids } });
+
+  // Map the results to the desired format
+  const result = items.map(item => {
+      const foundItem = foundItems.find(i => i._id.toString() === item.type);
+      return { item: foundItem, count: item.count };
+  });
+
+  return result;
 };
 
 // Main function
@@ -247,7 +261,8 @@ exports.getResourceInfo = async (resource) => {
 
     const estimate = await EstimateService.findBy({ _id: resource.id });
     if (!estimate) {
-      throw new Error("Estimate not found");
+      // throw new Error("Estimate not found");
+      return null;
     }
 
     const estimateObject = estimate.toObject();
@@ -360,14 +375,36 @@ const getShowersMissingProps = async (estimate) => {
     : { item: null, thickness: "3/8" };
   const glassAddons =
     estimate.config?.glassAddons?.length > 0
-      ? await GlassAddonService.findAll({
-          _id: { $in: estimate.config?.glassAddons },
-        })
+      ? await fetchDocumentsByIds(estimate.config?.glassAddons,GlassAddonService)
       : [];
-  const noGlassAddons = await GlassAddonService?.findBy({
+  let noGlassAddons = null;
+  if(glassAddons?.length <= 0){
+  noGlassAddons = await GlassAddonService?.findBy({
     slug: "no-treatment",
   });
-
+  }
+  const hardwareAddons =
+  estimate.config?.hardwareAddons?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.hardwareAddons,HardwareService)
+    : [];
+  const wallClamp = estimate.config?.mountingClamps?.wallClamp?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.wallClamp,HardwareService)
+  : [];
+  const sleeveOver = estimate.config?.mountingClamps?.sleeveOver?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.sleeveOver,HardwareService)
+  : [];
+  const glassToGlass = estimate.config?.mountingClamps?.glassToGlass?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.glassToGlass,HardwareService)
+  : [];
+  const cornerWallClamp = estimate.config?.cornerClamps?.wallClamp?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.wallClamp,HardwareService)
+  : [];
+  const cornerSleeveOver = estimate.config?.cornerClamps?.sleeveOver?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.sleeveOver,HardwareService)
+  : [];
+  const cornerGlassToGlass = estimate.config?.cornerClamps?.glassToGlass?.length > 0
+  ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.glassToGlass,HardwareService)
+  : [];
   return {
     hardwareFinishes: finishes,
     handles: handles,
@@ -377,13 +414,13 @@ const getShowersMissingProps = async (estimate) => {
     header: header,
     glassType: glassType,
     glassAddons: glassAddons?.length ? glassAddons : [noGlassAddons],
-    hardwareAddons: [],
-    wallClamp: [],
-    sleeveOver: [],
-    glassToGlass: [],
-    cornerWallClamp: [],
-    cornerSleeveOver: [],
-    cornerGlassToGlass: [],
+    hardwareAddons: hardwareAddons,
+    wallClamp: wallClamp,
+    sleeveOver: sleeveOver,
+    glassToGlass: glassToGlass,
+    cornerWallClamp: cornerWallClamp,
+    cornerSleeveOver: cornerSleeveOver,
+    cornerGlassToGlass: cornerGlassToGlass,
   };
 };
 
