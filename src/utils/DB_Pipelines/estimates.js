@@ -4,11 +4,39 @@ exports.fetchAllRecords = (condition, search, options) => {
     {
       $match: condition,
     },
-    // Lookup to join customer details
+    // Lookup to join project details
+    {
+      $lookup: {
+        from: "projects",
+        localField: "project_id",
+        foreignField: "_id",
+        as: "projectDetails",
+      },
+    },
+    // Unwind the projectDetails array
+    {
+      $unwind: {
+        path: "$projectDetails",
+        preserveNullAndEmptyArrays: true, // Allow for estimates without projects
+      },
+    },
+    // Add a conditional field to determine the source of customer_id
+    {
+      $addFields: {
+        actualCustomerId: {
+          $cond: {
+            if: { $gt: ["$customer_id", null] }, // Check if customer_id exists
+            then: "$customer_id",
+            else: "$projectDetails.customer_id",
+          },
+        },
+      },
+    },
+    // Lookup to join customer details based on actualCustomerId
     {
       $lookup: {
         from: "customers",
-        localField: "customer_id",
+        localField: "actualCustomerId",
         foreignField: "_id",
         as: "customerDetails",
       },

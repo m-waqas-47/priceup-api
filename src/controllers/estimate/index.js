@@ -102,12 +102,12 @@ exports.deleteEstimate = async (req, res) => {
     if (!estimate) {
       throw new Error("Estimate not found");
     }
-    const count = await EstimateService.count({
-      customer_id: estimate.customer_id,
-    });
-    if (count <= 1) {
-      CustomerService.delete({ _id: estimate.customer_id });
-    }
+    // const count = await EstimateService.count({
+    //   customer_id: estimate.customer_id,
+    // });
+    // if (count <= 1) {
+    //   CustomerService.delete({ _id: estimate.customer_id });
+    // }
     const resp = await EstimateService.delete({ _id: id });
 
     await generateNotifications(
@@ -127,11 +127,11 @@ exports.saveEstimate = async (req, res) => {
   const user = req.user;
   const company_id = req.user.company_id;
   const data = { ...req.body };
-  const customerData = data?.customerData;
+  // const customerData = data?.customerData;
 
-  if (!customerData) {
-    return handleError(res, new Error("Customer Data is required!"));
-  }
+  // if (!customerData) {
+  //   return handleError(res, new Error("Customer Data is required!"));
+  // }
 
   try {
     if (data?.estimateData?.creator_type === userRoles.STAFF) {
@@ -151,13 +151,13 @@ exports.saveEstimate = async (req, res) => {
       }
     );
 
-    const customer = await addOrUpdateCustomerEstimateRelation(
-      customerData,
-      company_id
-    );
+    // const customer = await addOrUpdateCustomerEstimateRelation(
+    //   customerData,
+    //   company_id
+    // );
     const estimate = await EstimateService.create({
       ...data?.estimateData,
-      customer_id: customer._id,
+      // customer_id: customer._id,
       company_id: company_id,
     });
 

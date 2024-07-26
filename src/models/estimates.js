@@ -26,14 +26,14 @@ const estimateSchema = new mongoose.Schema(
       type: String,
       required: "Creator role is required",
     },
-    customer_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: "Customer reference is required",
-    },
+    // customer_id: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   required: "Customer reference is required",
+    // },
     project_id: {
       type: mongoose.Schema.Types.ObjectId,
-      default: null,
-      // required: "Project reference is required",
+      // default: null,
+      required: "Project reference is required",
     },
     status: {
       type: String,
