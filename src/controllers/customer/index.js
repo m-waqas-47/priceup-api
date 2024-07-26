@@ -85,14 +85,33 @@ exports.updateCustomer = async (req, res) => {
 };
 
 exports.saveCustomer = async (req, res) => {
-  const data = req.body;
+  const company_id = req.user.company_id;
+  const data = { ...req.body };
   try {
     const check = await isEmailAlreadyUsed(data?.email);
     if (check) {
       throw new Error("Email already exist in system.Please try with new one.");
     }
-    const customer = await CustomerService.create(data);
-    handleResponse(res, 200, "Customer created successfully", customer);
+    const query = {
+      name: data.name,
+      company_id: company_id,
+    };
+    if (data?.email) {
+      query.email = data.email;
+    }
+    if (data?.phone) {
+      query.phone = data.phone;
+    }
+
+    const existingCustomer = await CustomerService.findBy(query);
+    if (existingCustomer) {
+      throw new Error(
+        "Customer already exists with the same details. Please select from the existing list."
+      );
+    } else {
+      const customer = await CustomerService.create({ ...data, company_id });
+      handleResponse(res, 200, "Customer created successfully", customer);
+    }
   } catch (err) {
     handleError(res, err);
   }

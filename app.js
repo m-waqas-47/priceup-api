@@ -27,6 +27,7 @@ const adminRouter = require("@routes/admins");
 const indexRouter = require("@routes/index");
 const customUsers = require("@routes/customUsers");
 const mirrorsRouter = require("@routes/mirror");
+const projectsRouter = require("@routes/projects");
 const notificationsRouter = require("@routes/notifications");
 const { socketIoChannel } = require("@config/common");
 
@@ -49,6 +50,7 @@ app.use("/glassAddons", glassAddonRouter);
 app.use("/customUsers", customUsers);
 app.use("/mirrors", mirrorsRouter);
 app.use("/notifications", notificationsRouter);
+app.use("/projects", projectsRouter);
 app.use("/", indexRouter);
 
 // Socket.IO connection

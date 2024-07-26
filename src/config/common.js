@@ -65,3 +65,9 @@ exports.estimateCategory = {
   SHOWERS: "showers",
   MIRRORS: "mirrors",
 };
+
+exports.projectStatus = {
+  PENDING: "pending",
+  VOIDED: "voided",
+  APPROVED: "approved",
+}
