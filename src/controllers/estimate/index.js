@@ -13,6 +13,7 @@ const { handleResponse, handleError } = require("@utils/responses");
 const { addOrUpdateCustomerEstimateRelation } = require("../customer");
 const { generateNotifications } = require("@utils/notification");
 const { default: mongoose } = require("mongoose");
+const ProjectService = require("@services/project");
 
 exports.getAll = async (req, res) => {
   try {
@@ -142,6 +143,13 @@ exports.saveEstimate = async (req, res) => {
         }
       );
     }
+
+    await ProjectService.update(
+      { _id: data?.estimateData?.project_id },
+      {
+        $inc: { totalAmountQuoted: data?.estimateData?.cost },
+      }
+    );
 
     const customer = await addOrUpdateCustomerEstimateRelation(
       customerData,

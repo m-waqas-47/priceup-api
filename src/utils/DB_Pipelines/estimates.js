@@ -151,6 +151,7 @@ exports.fetchAllRecords = (condition, search, options) => {
               customerData: "$customerDetails",
               companyData: "$companyDetails",
               settings: 1,
+              project_id: 1,
             },
           },
           { $skip: options.skip },

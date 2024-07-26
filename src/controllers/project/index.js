@@ -1,4 +1,5 @@
 const { projectStatus } = require("@config/common");
+const EstimateService = require("@services/estimate");
 const ProjectService = require("@services/project");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
@@ -23,7 +24,9 @@ exports.getAll = async (req, res) => {
 exports.getSingleRecord = async (req, res) => {
   const { id } = req.params;
   try {
-    const record = await Service.findBy({ _id:  new mongoose.Types.ObjectId(id) });
+    const record = await Service.findBy({
+      _id: new mongoose.Types.ObjectId(id),
+    });
     handleResponse(res, 200, "Single Record", record);
   } catch (err) {
     handleError(res, err);
@@ -46,10 +49,13 @@ exports.deleteRecord = async (req, res) => {
   //   const user = req.user;
   const { id } = req.params;
   try {
-    const record = await Service.findBy({ _id: new mongoose.Types.ObjectId(id) });
+    const record = await Service.findBy({
+      _id: new mongoose.Types.ObjectId(id),
+    });
     if (!record) {
       throw new Error("Invalid ID");
     }
+    await EstimateService.deleteAll({ project_id: id });
     const resp = await Service.delete({ _id: id });
     handleResponse(res, 200, "Record Deleted", resp);
   } catch (err) {
@@ -65,7 +71,6 @@ exports.saveRecord = async (req, res) => {
     creator_id: user.id,
     creator_type: user.role,
   };
-  console.log(data,'data');
   try {
     const record = await Service.create(data);
     handleResponse(res, 200, "Record created successfully", record);
