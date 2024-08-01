@@ -179,11 +179,10 @@ exports.fetchAllRecords = (condition, search, options) => {
 
 exports.fetchSingleRecord = (condition) => {
   const pipeline = [
-    // Match the specific project by condition
+    // Match the specific condition
     {
       $match: condition,
     },
-
     // Lookup to join customer details
     {
       $lookup: {
@@ -193,6 +192,7 @@ exports.fetchSingleRecord = (condition) => {
         as: "customerDetails",
       },
     },
+    // Unwind the customerDetails array
     {
       $unwind: {
         path: "$customerDetails",
@@ -236,71 +236,53 @@ exports.fetchSingleRecord = (condition) => {
     {
       $lookup: {
         from: "users",
-        let: { creatorId: "$creator_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$creatorId"] },
-                  { $eq: ["$creator_type", "admin"] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "creatorDetails",
+        localField: "creator_id",
+        foreignField: "_id",
+        as: "adminDetails",
       },
     },
     {
       $lookup: {
         from: "staffs",
-        let: { creatorId: "$creator_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$creatorId"] },
-                  { $eq: ["$creator_type", "staff"] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "creatorDetails",
+        localField: "creator_id",
+        foreignField: "_id",
+        as: "staffDetails",
       },
     },
     {
       $lookup: {
-        from: "custom_admins",
-        let: { creatorId: "$creator_id" },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$_id", "$$creatorId"] },
-                  { $eq: ["$creator_type", "custom_admin"] },
-                ],
-              },
-            },
-          },
-        ],
-        as: "creatorDetails",
+        from: "customusers",
+        localField: "creator_id",
+        foreignField: "_id",
+        as: "customadminDetails",
       },
     },
-
     {
       $addFields: {
         creatorDetails: {
-          $arrayElemAt: ["$creatorDetails", 0],
+          $switch: {
+            branches: [
+              {
+                case: { $eq: ["$creator_type", "admin"] },
+                then: { $arrayElemAt: ["$adminDetails", 0] },
+              },
+              {
+                case: { $eq: ["$creator_type", "staff"] },
+                then: { $arrayElemAt: ["$staffDetails", 0] },
+              },
+              {
+                case: { $eq: ["$creator_type", "custom_admin"] },
+                then: { $arrayElemAt: ["$customadminDetails", 0] },
+              },
+            ],
+            default: null,
+          },
         },
       },
     },
   ];
 
-    pipeline.push(
+  pipeline.push(
     {
       $project: {
         name: 1,
@@ -316,8 +298,9 @@ exports.fetchSingleRecord = (condition) => {
         status: 1,
         createdAt: 1,
         updatedAt: 1,
-        
       },
-    });
+    },
+    { $sort: { createdAt: -1 } }
+  );
   return pipeline;
 };
