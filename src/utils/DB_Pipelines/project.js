@@ -21,6 +21,22 @@ exports.fetchAllRecords = (condition, search, options) => {
       },
     },
 
+    // Lookup to join address details
+    {
+      $lookup: {
+        from: "addresses",
+        localField: "address_id",
+        foreignField: "_id",
+        as: "addressDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$addressDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
     // Lookup to join company details
     {
       $lookup: {
@@ -92,7 +108,8 @@ exports.fetchAllRecords = (condition, search, options) => {
         $or: [
           { "customerDetails.name": { $regex: search, $options: "i" } },
           { name: { $regex: search, $options: "i" } },
-          { location: { $regex: search, $options: "i" } },
+          { "addressDetails.name": { $regex: search, $options: "i" } },
+          // { location: { $regex: search, $options: "i" } },
         ],
       },
     });
@@ -115,6 +132,7 @@ exports.fetchAllRecords = (condition, search, options) => {
                 creatorData: "$creatorDetails",
                 creator_type: 1,
                 customerData: "$customerDetails",
+                addressData: "$addressDetails",
                 companyData: "$companyDetails",
                 status: 1,
                 createdAt: 1,
@@ -146,6 +164,7 @@ exports.fetchAllRecords = (condition, search, options) => {
           creatorData: "$creatorDetails",
           creator_type: 1,
           customerData: "$customerDetails",
+          addressData: "$addressDetails",
           companyData: "$companyDetails",
           status: 1,
           createdAt: 1,
@@ -178,6 +197,22 @@ exports.fetchSingleRecord = (condition) => {
       $unwind: {
         path: "$customerDetails",
         preserveNullAndEmptyArrays: false, // Only include projects with matching customers
+      },
+    },
+
+    // Lookup to join address details
+    {
+      $lookup: {
+        from: "addresses",
+        localField: "address_id",
+        foreignField: "_id",
+        as: "addressDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$addressDetails",
+        preserveNullAndEmptyArrays: true,
       },
     },
 
@@ -276,6 +311,7 @@ exports.fetchSingleRecord = (condition) => {
         creatorData: "$creatorDetails",
         creator_type: 1,
         customerData: "$customerDetails",
+        addressData: "$addressDetails",
         companyData: "$companyDetails",
         status: 1,
         createdAt: 1,

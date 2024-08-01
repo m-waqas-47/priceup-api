@@ -28,6 +28,7 @@ const indexRouter = require("@routes/index");
 const customUsers = require("@routes/customUsers");
 const mirrorsRouter = require("@routes/mirror");
 const projectsRouter = require("@routes/projects");
+const addressRouter = require("@routes/addresses");
 const notificationsRouter = require("@routes/notifications");
 const { socketIoChannel } = require("@config/common");
 
@@ -51,6 +52,7 @@ app.use("/customUsers", customUsers);
 app.use("/mirrors", mirrorsRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/projects", projectsRouter);
+app.use("/addresses", addressRouter);
 app.use("/", indexRouter);
 
 // Socket.IO connection

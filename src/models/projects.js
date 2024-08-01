@@ -7,6 +7,7 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: "Name is required",
       minlength: [3, "Name must be atleast 3 character long"],
+      unique: true,
     },
     notes: {
       type: String,
@@ -15,27 +16,9 @@ const projectSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    location: {
-      type: String,
-      required: "Project location is required",
-    },
-    address: {
-      street: {
-        type: String,
-      },
-      city: {
-        type: String,
-      },
-      state: {
-        type: String,
-      },
-      postalCode: {
-        type: String,
-      },
-      country: {
-        type: String,
-        default:"America"
-      },
+    address_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: "Address reference is required",
     },
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -60,5 +43,6 @@ const projectSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+projectSchema.index({ company_id: 1 });
+projectSchema.index({ name: 1 });
 module.exports = mongoose.model("projects", projectSchema);

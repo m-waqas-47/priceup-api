@@ -75,6 +75,9 @@ exports.saveRecord = async (req, res) => {
     const record = await Service.create(data);
     handleResponse(res, 200, "Record created successfully", record);
   } catch (err) {
+    if (err.code === 11000) {
+      err.message = "Another project already exists with the same name.";
+    }
     handleError(res, err);
   }
 };
