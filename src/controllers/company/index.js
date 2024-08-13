@@ -33,6 +33,18 @@ exports.getAll = async (req, res) => {
     });
 };
 
+exports.getAllByUserRole = async (req, res) => {
+  const role = req.user.role;
+  const { search = "", status = null } = req.query; // Added search query
+  CompanyService.findAllByRole(role, { search, status })
+    .then((records) => {
+      handleResponse(res, 200, "All Records", records);
+    })
+    .catch((err) => {
+      handleError(res, err);
+    });
+};
+
 exports.getCompany = async (req, res) => {
   const { id } = req.params;
   CompanyService.findBy({ _id: id })

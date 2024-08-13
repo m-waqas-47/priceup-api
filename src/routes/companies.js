@@ -7,13 +7,15 @@ const {
   deleteCompany,
   cloneCompany,
   modifyExistingRecords,
-  modifyExistingRecords2
+  modifyExistingRecords2,
+  getAllByUserRole
 } = require("../controllers/company");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
+router.get("/by-role", verifyToken, getAllByUserRole);
 router.put("/modifyExisting", modifyExistingRecords); // run only once to update existing documents
 router.put("/modifyExisting2", modifyExistingRecords2); // run only once to update existing documents
 router.get("/:id", verifyToken, getCompany);

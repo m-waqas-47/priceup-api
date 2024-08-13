@@ -1,4 +1,6 @@
+const { userRoles } = require("@config/common");
 const Company = require("../../models/companies");
+const { fetchAllLocationsForSuperAdmin } = require("@utils/DB_Pipelines/companies");
 
 class CompanyService {
   static findAll(data) {
@@ -7,6 +9,22 @@ class CompanyService {
         .sort({ createdAt: "desc" })
         .then((companies) => {
           resolve(companies);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllByRole(role, filter) {
+    return new Promise((resolve, reject) => {
+      let pipeline = [];
+      if (role === userRoles.SUPER_ADMIN) {
+        pipeline = fetchAllLocationsForSuperAdmin(filter.search, filter.status);
+      }
+      Company.aggregate(pipeline)
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);
