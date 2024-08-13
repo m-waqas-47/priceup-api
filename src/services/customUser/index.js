@@ -1,3 +1,4 @@
+const { fetchAllLocationsForCustomAdmin } = require("@utils/DB_Pipelines/companies");
 const CustomUser = require("../../models/customUsers");
 
 class CustomUserService {
@@ -19,6 +20,22 @@ class CustomUserService {
       CustomUser.findOne(data)
         .then((customUser) => {
           resolve(customUser);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllLocations(condition, filter) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllLocationsForCustomAdmin(
+        condition,
+        filter.search
+      );
+      CustomUser.aggregate(pipeline)
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);

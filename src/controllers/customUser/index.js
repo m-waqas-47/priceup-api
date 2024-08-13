@@ -24,6 +24,7 @@ const EstimateService = require("../../services/estimate");
 const CustomerService = require("../../services/customer");
 const StaffService = require("../../services/staff");
 const LayoutService = require("../../services/layout");
+const { default: mongoose } = require("mongoose");
 
 exports.getAll = async (req, res) => {
   CustomUserService.findAll()
@@ -165,39 +166,13 @@ exports.saveUser = async (req, res) => {
 
 exports.haveAccessTo = async (req, res) => {
   const { id } = req.params;
+  const { search = "" } = req.query; // Added search query
   try {
-    const customUser = await CustomUserService.findBy({ _id: id });
-    if (!customUser) {
-      return handleResponse(res, 200, "Locations info", []); // have no access
-    }
-    let results = [];
-    results = await Promise.all(
-      customUser?.locationsAccess?.map(async (company_id) => {
-        const company = await CompanyService.findBy({ _id: company_id });
-        const estimates = await EstimateService.count({
-          company_id: company._id,
-        });
-        const customers = await CustomerService.count({
-          company_id: company._id,
-        });
-        const staffs = await StaffService.count({
-          company_id: company._id,
-        });
-        const layouts = await LayoutService.count({
-          company_id: company._id,
-        });
-        const user = await UserService.findBy({ _id: company.user_id });
-        return {
-          company: company,
-          user: user,
-          estimates: estimates || 0,
-          customers: customers || 0,
-          staffs: staffs || 0,
-          layouts: layouts || 0,
-        };
-      })
+    const resp = await CustomUserService.findAllLocations(
+      { _id: new mongoose.Types.ObjectId(id) },
+      { search }
     );
-    handleResponse(res, 200, "Locations info", results);
+    handleResponse(res, 200, "Locations info", resp);
   } catch (err) {
     handleError(res, err);
   }
