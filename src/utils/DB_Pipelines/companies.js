@@ -272,3 +272,148 @@ exports.fetchAllLocationsForCustomAdmin = (condition, search) => {
   ];
   return pipeline;
 };
+
+exports.fetchAllLocationsForStaff = (condition, search) => {
+  const pipeline = [
+    // Step 1: Get the staff by _id and extract haveAccessTo
+    {
+      $match: condition
+    },
+    {
+      $project: {
+        haveAccessTo: 1,
+      },
+    },
+    {
+      $lookup: {
+        from: "companies",
+        localField: "haveAccessTo",
+        foreignField: "_id",
+        as: "companies",
+      },
+    },
+    {
+      $unwind: "$companies",
+    },
+    {
+      $replaceRoot: { newRoot: "$companies" },
+    },
+    // Apply the search filter based on company name
+    {
+      $match: {
+        ...(search &&
+          search.trim() !== "" && {
+            name: { $regex: search, $options: "i" },
+          }),
+      },
+    },
+    // Lookup user information
+    {
+      $lookup: {
+        from: "users",
+        let: { companyUserId: "$user_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$_id", "$$companyUserId"] },
+            },
+          },
+        ],
+        as: "user",
+      },
+    },
+    {
+      $unwind: {
+        path: "$user",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+    // Lookup full staffs information
+    {
+      $lookup: {
+        from: "staffs",
+        let: { companyId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $eq: ["$company_id", "$$companyId"] },
+                  { $in: ["$$companyId", "$haveAccessTo"] },
+                ],
+              },
+            },
+          },
+        ],
+        as: "staffs",
+      },
+    },
+    // Lookup and count related documents
+    {
+      $lookup: {
+        from: "estimates",
+        let: { companyId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$company_id", "$$companyId"] },
+            },
+          },
+          {
+            $count: "count",
+          },
+        ],
+        as: "estimatesCount",
+      },
+    },
+    {
+      $lookup: {
+        from: "customers",
+        let: { companyId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$company_id", "$$companyId"] },
+            },
+          },
+          {
+            $count: "count",
+          },
+        ],
+        as: "customersCount",
+      },
+    },
+    {
+      $lookup: {
+        from: "layouts",
+        let: { companyId: "$_id" },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ["$company_id", "$$companyId"] },
+            },
+          },
+          {
+            $count: "count",
+          },
+        ],
+        as: "layoutsCount",
+      },
+    },
+    {
+      $project: {
+        _id: 1,
+        name: 1,
+        image: 1,
+        address: 1,
+        user: 1,
+        staffs: 1,
+        estimates: { $arrayElemAt: ["$estimatesCount.count", 0] },
+        customers: { $arrayElemAt: ["$customersCount.count", 0] },
+        layouts: { $arrayElemAt: ["$layoutsCount.count", 0] },
+      },
+    },
+    { $sort: { createdAt: -1 } },
+  ];
+  return pipeline;
+};

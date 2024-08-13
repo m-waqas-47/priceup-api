@@ -1,3 +1,4 @@
+const { fetchAllLocationsForStaff } = require("@utils/DB_Pipelines/companies");
 const Staff = require("../../models/staffs");
 
 class StaffService {
@@ -19,6 +20,22 @@ class StaffService {
       Staff.findOne(data)
         .then((staff) => {
           resolve(staff);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllLocations(condition, filter) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllLocationsForStaff(
+        condition,
+        filter.search
+      );
+      Staff.aggregate(pipeline)
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);
