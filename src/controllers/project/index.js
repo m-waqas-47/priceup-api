@@ -7,13 +7,22 @@ const Service = ProjectService;
 exports.getAll = async (req, res) => {
   try {
     const company_id = req.user.company_id;
-    const { page = 1, limit = 10, search = "" } = req.query; // Added search query
+    const { page = 1, limit = 10, search = "", status, date } = req.query; // Added search query
+    const query = { company_id: new mongoose.Types.ObjectId(company_id) };
+    if (status) {
+      query.status = status;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
     const skip = (page - 1) * limit;
-    const { totalRecords, projects } = await Service.findAll(
-      { company_id: new mongoose.Types.ObjectId(company_id) },
-      search,
-      { skip, limit: Number(limit) }
-    );
+    const { totalRecords, projects } = await Service.findAll(query, search, {
+      skip,
+      limit: Number(limit),
+    });
 
     handleResponse(res, 200, "All Records", { totalRecords, projects });
   } catch (err) {
