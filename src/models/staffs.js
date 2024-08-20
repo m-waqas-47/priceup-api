@@ -34,6 +34,10 @@ const staffSchema = new mongoose.Schema(
       type: Number,
       default: 0.0,
     },
+    role: {
+      type: String,
+      default: userRoles.STAFF,
+    },
     status: {
       type: Boolean,
       default: true,
