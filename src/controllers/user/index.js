@@ -76,7 +76,10 @@ exports.getDashboardTotals = async (req, res) => {
     const estimates = await EstimateService.count({ company_id: company_id });
     const customers = await CustomerService.count({ company_id: company_id });
     const staffs = await StaffService.count({
-      $or: [{ company_id: company_id }, { haveAccessTo: { $in: [company_id] } }],
+      $or: [
+        { company_id: company_id },
+        { haveAccessTo: { $in: [company_id] } },
+      ],
     });
     handleResponse(res, 200, "Dashboard Data", {
       estimates: estimates || 0,
@@ -282,11 +285,17 @@ exports.saveUser = async (req, res) => {
     });
     mirrorGlassTypes?.map(async (glassType) => {
       // create user glass types for mirror layouts
-      await MirrorGlassTypeService.create({ ...glassType, company_id: company?.id });
+      await MirrorGlassTypeService.create({
+        ...glassType,
+        company_id: company?.id,
+      });
     });
     mirrorEdgeWork?.map(async (edgeWork) => {
       // create user edge works for mirror layouts
-      await MirrorEdgeWorkService.create({ ...edgeWork, company_id: company?.id });
+      await MirrorEdgeWorkService.create({
+        ...edgeWork,
+        company_id: company?.id,
+      });
     });
     glassTypes?.map(async (glassType) => {
       // create user glass types
@@ -676,4 +685,3 @@ exports.generateFinishes = (finish) => {
     }
   });
 };
-

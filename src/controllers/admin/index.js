@@ -1,18 +1,23 @@
-const AdminService = require("../../services/admin");
-const UserService = require("../../services/user");
-const { handleError, handleResponse } = require("../../utils/responses");
-const CompanyService = require("../../services/company");
+const AdminService = require("@services/admin");
+const UserService = require("@services/user");
+const { handleError, handleResponse } = require("@utils/responses");
+const CompanyService = require("@services/company");
 const {
   isEmailAlreadyUsed,
   generateRandomString,
-} = require("../../utils/common");
-const MailgunService = require("../../services/mailgun");
-const { addOrUpdateOrDelete } = require("../../services/multer");
-const { multerSource, multerActions } = require("../../config/common");
+  validateEmail,
+  checkIfEmailExists,
+  getMulterSource,
+} = require("@utils/common");
+const MailgunService = require("@services/mailgun");
+const { addOrUpdateOrDelete } = require("@services/multer");
+const { multerSource, multerActions, userRoles } = require("@config/common");
 const {
   passwordUpdatedTemplate,
   userCreatedTemplate,
-} = require("../../templates/email");
+} = require("@templates/email");
+const StaffService = require("@services/staff");
+const CustomUserService = require("@services/customUser");
 
 exports.getAll = async (req, res) => {
   AdminService.findAll()
@@ -23,7 +28,6 @@ exports.getAll = async (req, res) => {
       handleError(res, err);
     });
 };
-
 
 exports.updateAdmin = async (req, res) => {
   const { id } = req.params;
@@ -108,6 +112,211 @@ exports.updateAdminPassword = async (req, res) => {
   }
 };
 
+exports.saveUser = async (req, res) => {
+  const password = generateRandomString(8);
+  const data = { ...req.body, password };
+  try {
+    if (!data?.email) {
+      throw new Error("Email is required");
+    }
+    if (!data?.role) {
+      throw new Error("Role is required");
+    }
+    await validateEmail(data.email);
+    await checkIfEmailExists(data.email);
+    const multerSourceVal = getMulterSource(data.role);
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.SAVE,
+        multerSourceVal,
+        req.file.path
+      );
+    }
+    const assignedLocations = JSON.parse(data.assignedLocations);
+    let user = null;
+    switch (data.role) {
+      case userRoles.SUPER_ADMIN:
+        user = await AdminService.create(data);
+        break;
+      case userRoles.STAFF:
+        user = await StaffService.create({
+          ...data,
+          company_id: assignedLocations[0],
+          haveAccessTo: assignedLocations,
+        });
+        break;
+      case userRoles.CUSTOM_ADMIN:
+        user = await CustomUserService.create({
+          ...data,
+          locationsAccess: assignedLocations,
+        });
+        break;
+      default:
+        break;
+    }
+    // Sending an email to the user
+    const html = userCreatedTemplate(password);
+    await MailgunService.sendEmail(data.email, "Account Created", html);
+    return handleResponse(res, 200, "User created successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.updateUser = async (req, res) => {
+  const { id } = req.params;
+  const data = { ...req.body };
+  try {
+    if (!data?.role) {
+      throw new Error("Role is required");
+    }
+    let oldRecord = null;
+    switch (data.role) {
+      case userRoles.STAFF:
+        oldRecord = await StaffService.findBy({ _id: id });
+        break;
+      case userRoles.CUSTOM_ADMIN:
+        oldRecord = await CustomUserService.findBy({ _id: id });
+        break;
+      case userRoles.SUPER_ADMIN:
+        oldRecord = await AdminService.findBy({ _id: id });
+        break;
+      default:
+        break;
+    }
+    const multerSourceVal = getMulterSource(data.role);
+    if (req.file && req.file.fieldname === "image") {
+      data.image = await addOrUpdateOrDelete(
+        multerActions.PUT,
+        multerSourceVal,
+        req.file.path,
+        oldRecord?.image
+      );
+    }
+    const assignedLocations = JSON.parse(data.assignedLocations);
+    let user = null;
+    switch (data.role) {
+      case userRoles.SUPER_ADMIN:
+        user = await AdminService.update({ _id: id }, data);
+        break;
+      case userRoles.STAFF:
+        user = await StaffService.update(
+          { _id: id },
+          {
+            ...data,
+            haveAccessTo: assignedLocations,
+          }
+        );
+        break;
+      case userRoles.CUSTOM_ADMIN:
+        user = await CustomUserService.update(
+          { _id: id },
+          {
+            ...data,
+            locationsAccess: assignedLocations,
+          }
+        );
+        break;
+      default:
+        break;
+    }
+
+    return handleResponse(res, 200, "User created successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.updateUserPassword = async (req, res) => {
+  const { id } = req.params;
+  const role = req.query?.role;
+  const password = generateRandomString(8);
+  try {
+    if (!role) {
+      throw new Error("Role is required");
+    }
+    let user = null;
+    switch (role) {
+      case userRoles.ADMIN:
+        user = await AdminService.update({ _id: id }, { password: password });
+        break;
+      case userRoles.STAFF:
+        user = await StaffService.update({ _id: id }, { password: password });
+        break;
+      case userRoles.CUSTOM_ADMIN:
+        user = await CustomUserService.update(
+          { _id: id },
+          { password: password }
+        );
+        break;
+      default:
+        break;
+    }
+    // Sending an email to the user
+    const html = passwordUpdatedTemplate(password);
+    await MailgunService.sendEmail(user.email, "Password Updated", html);
+    handleResponse(res, 200, "User password updated successfully", user);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const admin = await AdminService.delete({ _id: id });
+    const staff = await StaffService.delete({ _id: id });
+    const customAdmin = await CustomUserService.delete({ _id: id });
+    if (admin) {
+      if (
+        admin &&
+        admin.image &&
+        admin.image.startsWith("images/admins/uploads")
+      ) {
+        await addOrUpdateOrDelete(
+          multerActions.DELETE,
+          multerSource.ADMINS,
+          admin.image
+        );
+      }
+      return handleResponse(res, 200, "User deleted successfully", admin);
+    }
+    if (staff) {
+      if (
+        staff &&
+        staff.image &&
+        staff.image.startsWith("images/staff/uploads")
+      ) {
+        await addOrUpdateOrDelete(
+          multerActions.DELETE,
+          multerSource.STAFFS,
+          staff.image
+        );
+      }
+      return handleResponse(res, 200, "User deleted successfully", staff);
+    }
+    if (customAdmin) {
+      if (
+        customAdmin &&
+        customAdmin.image &&
+        customAdmin.image.startsWith("images/customUsers/uploads")
+      ) {
+        await addOrUpdateOrDelete(
+          multerActions.DELETE,
+          multerSource.CUSTOMUSERS,
+          customAdmin.image
+        );
+      }
+      return handleResponse(res, 200, "User deleted successfully", customAdmin);
+    }
+    if (!admin && !customAdmin && !staff) {
+      throw new Error("Invalid user id");
+    }
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.deleteAdmin = async (req, res) => {
   const { id } = req.params;
   try {
@@ -141,7 +350,9 @@ exports.allLocations = async (req, res) => {
     const admins = await UserService.findAll();
     const results = await Promise.all(
       companies?.map(async (company) => {
-        const admin = admins.find(item => item.id === company.user_id.toString());
+        const admin = admins.find(
+          (item) => item.id === company.user_id.toString()
+        );
         return {
           id: company._id,
           name: company.name,
@@ -151,6 +362,33 @@ exports.allLocations = async (req, res) => {
       })
     );
     handleResponse(res, 200, "All Locations", results);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = "", status, date, role } = req.query; // Added search query
+    const query = {};
+    if (status && ['active','inactive'].includes(status)) {
+      query.status = status === 'active' ? true : false;
+    }
+    if (role) {
+      query.role = role;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
+    const skip = (page - 1) * limit;
+    const data = await AdminService.findAllUsers(query, search, {
+      skip,
+      limit: Number(limit),
+    });
+    handleResponse(res, 200, "All Records", { ...data });
   } catch (err) {
     handleError(res, err);
   }

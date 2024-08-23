@@ -10,6 +10,8 @@ const UserService = require("../services/user");
 const MirrorGlassTypeService = require("@services/mirror/glassType");
 const MirrorGlassAddonService = require("@services/mirror/glassAddon");
 const MirrorHardwareService = require("@services/mirror/hardware");
+const MailgunService = require("@services/mailgun");
+const { userRoles, multerSource } = require("@config/common");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -208,3 +210,28 @@ exports.getMirrorsHardwareList = async (company_id) => {
     throw error;
   }
 };
+
+exports.validateEmail = async (email) => {
+  const emailVerified = await MailgunService.verifyEmail(email);
+  if (emailVerified.result !== "deliverable") {
+    throw new Error("Email is not valid. Please enter a correct one.");
+  }
+}
+
+exports.checkIfEmailExists = async (email) => {
+  const emailUsed = await this.isEmailAlreadyUsed(email);
+  if (emailUsed) {
+    throw new Error("Email already exists in the system. Please try with a new one.");
+  }
+}
+
+exports.getMulterSource = (role) => {
+  switch (role) {
+    case userRoles.STAFF:
+      return multerSource.STAFFS;
+    case userRoles.CUSTOM_ADMIN:
+      return multerSource.CUSTOMUSERS;
+    default:
+      return multerSource.ADMINS;
+  }
+}

@@ -1,3 +1,4 @@
+const { fetchAllRecords } = require("@utils/DB_Pipelines/users");
 const Admin = require("../../models/admins");
 
 class AdminService {
@@ -7,6 +8,27 @@ class AdminService {
         .sort({ createdAt: "desc" })
         .then((admins) => {
           resolve(admins);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllUsers(condition, search = "", options = {}) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllRecords(condition, search, options);
+      Admin.aggregate(pipeline)
+        .then((result) => {
+          if (
+            options &&
+            options.skip !== undefined &&
+            options.limit !== undefined
+          ) {
+            resolve(result[0]);
+          } else {
+            resolve(result);
+          }
         })
         .catch((err) => {
           reject(err);
@@ -25,7 +47,6 @@ class AdminService {
         });
     });
   }
-
 
   static update(condition, data) {
     return new Promise((resolve, reject) => {

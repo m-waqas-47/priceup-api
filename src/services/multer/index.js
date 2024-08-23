@@ -2,6 +2,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { multerActions } = require("@config/common");
+const { getMulterSource } = require("@utils/common");
 
 const storage = multer.diskStorage({
   destination: (req, file, callback) => {
@@ -33,11 +34,19 @@ const storage = multer.diskStorage({
     } else if (req.originalUrl.includes("/customUsers")) {
       destinationPath += "customUsers/uploads/";
     } else if (req.originalUrl.includes("/admins")) {
-      destinationPath += "admins/uploads/";
+      if (req.originalUrl.includes("/user")) {
+        // apply this check for user CRUD perform by admin
+        const role = req.query?.role;
+        if (role) {
+          const source = getMulterSource(role);
+          destinationPath += `${source}/uploads`;
+        }
+      } else {
+        destinationPath += "admins/uploads/";
+      }
     } else if (req.originalUrl.includes("/customers")) {
       destinationPath += "customers/uploads/";
     }
-
     if (!fs.existsSync(destinationPath)) {
       // If not, create the directory
       fs.mkdirSync(destinationPath, { recursive: true }, (err) => {
@@ -74,7 +83,7 @@ const addOrUpdateOrDelete = async (
         case multerActions.SAVE:
           resolve(`images/${source}/uploads/${path.basename(newFilePath)}`);
         case multerActions.PUT:
-          const newImagePath = `images/${source}/uploads/${newFilePath}`;
+          const newImagePath = `images/${source}/uploads/${path.basename(newFilePath)}`;
           if (oldFilePath !== "") {
             if (oldFilePath?.startsWith(`images/${source}/uploads`)) {
               if (fs.existsSync(`public/${oldFilePath}`))

@@ -14,24 +14,42 @@ const {
   passwordUpdatedTemplate,
   userNotActiveTemplate,
 } = require("../../templates/email");
-const EstimateService = require("../../services/estimate");
-const CustomerService = require("../../services/customer");
-const LayoutService = require("../../services/layout");
+// const EstimateService = require("../../services/estimate");
+// const CustomerService = require("../../services/customer");
+// const LayoutService = require("../../services/layout");
 const { default: mongoose } = require("mongoose");
 
 exports.getAll = async (req, res) => {
   const company_id = req.user.company_id;
-  // get staff related to company and company he/she have added to
-  StaffService.findAll({
-    $or: [{ company_id: company_id }, { haveAccessTo: { $in: [company_id] } }],
-  })
-    .then((staffs) => {
-      handleResponse(res, 200, "All Staff", staffs);
-    })
-    .catch((err) => {
-      handleError(res, err);
+  try {
+    const { page = 1, limit = 10, search = "", status, date } = req.query; // Added search query
+    // get staff related to company and company he/she have added to
+    const query = {
+      $or: [
+        { company_id: new mongoose.Types.ObjectId(company_id) },
+        { haveAccessTo: { $in: [new mongoose.Types.ObjectId(company_id)] } },
+      ],
+    };
+    if (status && ["active", "inactive"].includes(status)) {
+      query.status = status === "active" ? true : false;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
+    const skip = (page - 1) * limit;
+    const data = await StaffService.findAll(query, search, {
+      skip,
+      limit: Number(limit),
     });
+    handleResponse(res, 200, "All Records", data);
+  } catch (err) {
+    handleError(res, err);
+  }
 };
+
 exports.getAllStaff = async (req, res) => {
   try {
     const staffs = await StaffService.findAll(); // get all staff
@@ -142,13 +160,14 @@ exports.deleteStaff = async (req, res) => {
 };
 
 exports.saveStaff = async (req, res) => {
-  const password = /*generateRandomString(8)*/ "abcdef";
+  const password = generateRandomString(8);
   const company_id = req.user.company_id;
   const data = {
-    ...req.body,
+    name: req.body.name,
+    email: req.body.email,
     password: password,
     company_id: company_id,
-    haveAccessTo: JSON.parse(req.body?.haveAccessTo),
+    haveAccessTo: [company_id],
   };
   try {
     if (!data?.email) {

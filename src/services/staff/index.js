@@ -1,13 +1,22 @@
 const { fetchAllLocationsForStaff } = require("@utils/DB_Pipelines/companies");
 const Staff = require("../../models/staffs");
+const { fetchAllRecords } = require("@utils/DB_Pipelines/staffs");
 
 class StaffService {
-  static findAll(data) {
+  static findAll(condition = {}, search = "", options = {}) {
     return new Promise((resolve, reject) => {
-      Staff.find(data)
-        .sort({ createdAt: "desc" })
-        .then((staffs) => {
-          resolve(staffs);
+      const pipeline = fetchAllRecords(condition, search, options);
+      Staff.aggregate(pipeline)
+        .then((result) => {
+          if (
+            options &&
+            options.skip !== undefined &&
+            options.limit !== undefined
+          ) {
+            resolve(result[0]);
+          } else {
+            resolve(result);
+          }
         })
         .catch((err) => {
           reject(err);
@@ -29,10 +38,7 @@ class StaffService {
 
   static findAllLocations(condition, filter) {
     return new Promise((resolve, reject) => {
-      const pipeline = fetchAllLocationsForStaff(
-        condition,
-        filter.search
-      );
+      const pipeline = fetchAllLocationsForStaff(condition, filter.search);
       Staff.aggregate(pipeline)
         .then((result) => {
           resolve(result);
