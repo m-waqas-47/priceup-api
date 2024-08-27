@@ -1,3 +1,4 @@
+const { fetchAllRecords } = require("@utils/DB_Pipelines/layouts");
 const Layout = require("../../models/layouts");
 
 class LayoutService {
@@ -7,6 +8,19 @@ class LayoutService {
         .sort({ createdAt: "desc" })
         .then((layouts) => {
           resolve(layouts);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllWithDetail(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllRecords(condition);
+      Layout.aggregate(pipeline)
+        .then((result) => {
+            resolve(result);
         })
         .catch((err) => {
           reject(err);

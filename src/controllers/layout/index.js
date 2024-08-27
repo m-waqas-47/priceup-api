@@ -4,10 +4,11 @@ const {
   getShowersHardwareList,
 } = require("@utils/common");
 const { handleResponse, handleError } = require("@utils/responses");
+const { default: mongoose } = require("mongoose");
 
 exports.getAll = async (req, res) => {
   const company_id = req.user.company_id;
-  LayoutService.findAll({ company_id: company_id })
+  LayoutService.findAllWithDetail({ company_id: new mongoose.Types.ObjectId(company_id) })
     .then((layouts) => {
       handleResponse(res, 200, "All Layouts", layouts);
     })
