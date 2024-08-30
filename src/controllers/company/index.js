@@ -141,17 +141,18 @@ exports.cloneCompany = async (req, res) => {
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
-        multerSource.USERS,
+        multerSource.COMPANIES,
         req.file.path
       );
     } // save image if attached in payload
 
-    const user = await UserService.create(data); // create user
+    const user = await UserService.create({...data,image:'images/users/default.jpg'}); // create user
 
     const company = await CompanyService.create({
       ...referenceCompany,
       user_id: user?.id,
       name: data?.locationName,
+      image: data?.image !== 'null' ? data?.image : 'images/others/company_default.jpg'
     }); // create user company
 
     const finishes = await FinishService.findAll({

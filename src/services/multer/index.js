@@ -30,7 +30,7 @@ const storage = multer.diskStorage({
     } else if (req.originalUrl.includes("/glassTypes")) {
       destinationPath += "glassTypes/uploads/";
     } else if (req.originalUrl.includes("/users")) {
-      destinationPath += "users/uploads/";
+      destinationPath += "companies/uploads/";
     } else if (req.originalUrl.includes("/customUsers")) {
       destinationPath += "customUsers/uploads/";
     } else if (req.originalUrl.includes("/admins")) {

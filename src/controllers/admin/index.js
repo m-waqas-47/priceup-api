@@ -237,7 +237,7 @@ exports.updateUserPassword = async (req, res) => {
     }
     let user = null;
     switch (role) {
-      case userRoles.ADMIN:
+      case userRoles.SUPER_ADMIN:
         user = await AdminService.update({ _id: id }, { password: password });
         break;
       case userRoles.STAFF:

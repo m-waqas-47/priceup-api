@@ -24,7 +24,7 @@ class CompanyService {
       }
       Company.aggregate(pipeline)
         .then((result) => {
-          resolve(result);
+          resolve(result[0]);
         })
         .catch((err) => {
           reject(err);

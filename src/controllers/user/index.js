@@ -37,6 +37,7 @@ const { mirrorGlassTypes } = require("@seeders/mirrorGlassTypeSeeder");
 const MirrorGlassTypeService = require("@services/mirror/glassType");
 const { mirrorEdgeWork } = require("@seeders/mirrorEdgeWorkSeeder");
 const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
+const ProjectService = require("@services/project");
 
 exports.getAll = async (req, res) => {
   try {
@@ -109,17 +110,24 @@ exports.updateUser = async (req, res) => {
     if (!oldUser) {
       throw new Error("Invalid user ID");
     }
+    const oldCompany = await CompanyService.findBy({ user_id: id });
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.PUT,
-        multerSource.USERS,
+        multerSource.COMPANIES,
         req.file.filename,
-        oldUser.image
+        oldCompany.image
       );
     }
 
-    const user = await UserService.update({ _id: id }, data);
-    handleResponse(res, 200, "User info updated successfully", user);
+    await UserService.update({_id:id},{name:data?.name}); // update user
+    const company = await CompanyService.update({user_id: id},{
+      name: data?.locationName,
+      image: data?.image !== 'null' ? data?.image : 'images/others/company_default.jpg',
+      address: data?.locationAddress
+    }); // update user company
+
+    handleResponse(res, 200, "Location info updated successfully", company);
   } catch (err) {
     handleError(res, err);
   }
@@ -154,7 +162,7 @@ exports.updateUserStatus = async (req, res) => {
 
   UserService.update({ _id: id }, { status: data?.status })
     .then((user) => {
-      handleResponse(res, 200, "User status updated successfully", user);
+      handleResponse(res, 200, "Location status updated successfully", user);
     })
     .catch((err) => {
       handleError(res, err);
@@ -179,6 +187,13 @@ exports.deleteUser = async (req, res) => {
         user.image
       );
     }
+    if (company && company.image && company.image.startsWith("images/companies/uploads")) {
+      await addOrUpdateOrDelete(
+        multerActions.DELETE,
+        multerSource.COMPANIES,
+        company.image
+      );
+    }
     const allStaff = await StaffService.findAll();
     // remove company id from haveAccessTo array of Staff members
     await Promise.all(
@@ -196,6 +211,8 @@ exports.deleteUser = async (req, res) => {
     await StaffService.deleteAll({ company_id: company._id });
     // Delete Estimates
     await EstimateService.deleteAll({ company_id: company._id });
+    // Delete Projects
+    await ProjectService.deleteAll({ company_id: company._id });
     // Delete Customers
     await CustomerService.deleteAll({ company_id: company._id });
     // Delete Finishes
@@ -213,7 +230,7 @@ exports.deleteUser = async (req, res) => {
     // Delete Company user
     await UserService.delete({ _id: user._id });
 
-    handleResponse(res, 200, "User deleted successfully", user);
+    handleResponse(res, 200, "Location deleted successfully", user);
   } catch (err) {
     handleError(res, err);
   }
@@ -241,7 +258,7 @@ exports.saveUser = async (req, res) => {
     if (req.file && req.file.fieldname === "image") {
       data.image = await addOrUpdateOrDelete(
         multerActions.SAVE,
-        multerSource.USERS,
+        multerSource.COMPANIES,
         req.file.path
       );
     }
@@ -254,10 +271,12 @@ exports.saveUser = async (req, res) => {
         })
       );
     }
-    const user = await UserService.create(data); // create user
+    const user = await UserService.create({...data,image:"images/users/default.jpg"}); // create user
     const company = await CompanyService.create({
       user_id: user?.id,
       name: data?.locationName,
+      image: data?.image !== 'null' ? data?.image : 'images/others/company_default.jpg',
+      address: data?.locationAddress
     }); // create user company
     await Promise.all(
       finishes?.map(async (finish) => {
@@ -315,7 +334,7 @@ exports.saveUser = async (req, res) => {
 
     await MailgunService.sendEmail(data.email, "Account Created", html);
 
-    handleResponse(res, 200, "User created successfully", user);
+    handleResponse(res, 200, "Location created successfully", user);
   } catch (error) {
     console.log(error);
     handleError(res, error);
