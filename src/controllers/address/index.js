@@ -1,5 +1,6 @@
 const AddressService = require("@services/address");
 const { handleError, handleResponse } = require("@utils/responses");
+const { default: mongoose } = require("mongoose");
 const Service = AddressService;
 exports.getAll = async (req, res) => {
   try {
@@ -14,8 +15,20 @@ exports.getAll = async (req, res) => {
 exports.addressesbyCustomer = async (req, res) => {
   const { id } = req.params;
   try {
-    const records = await Service.findAll({ customer_id: id });
-    handleResponse(res, 200, "All Records", records);
+    const { page, limit, search = "" } = req.query;
+    let skip = undefined;
+    if (page && limit) {
+      skip = (page - 1) * limit;
+    }
+    const query = {
+      customer_id: new mongoose.Types.ObjectId(id),
+    };
+    const result = await Service.findAllWithPipeline(query, search, {
+      skip: skip,
+      limit: limit ? Number(limit) : undefined,
+    });
+
+    handleResponse(res, 200, "All Records", result);
   } catch (err) {
     handleError(res, err);
   }

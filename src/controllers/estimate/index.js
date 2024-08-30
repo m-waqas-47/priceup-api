@@ -84,6 +84,10 @@ exports.getEstimatesByProject = async (req, res) => {
   }
 };
 
+exports.getEstimatesByCustomer = async (req,res) => {
+  
+}
+
 exports.updateEstimate = async (req, res) => {
   const user = req.user;
   const { id } = req.params;

@@ -1,4 +1,5 @@
 const Model = require("@models/addresses");
+const { fetchAllRecords } = require("@utils/DB_Pipelines/addresses");
 
 class AddressService {
   static findAll(query, options) {
@@ -7,6 +8,22 @@ class AddressService {
         .sort({ createdAt: -1 })
         .then((record) => {
           resolve(record);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllWithPipeline(condition, search, options) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllRecords(condition, search, {
+        skip: options?.skip,
+        limit: options?.limit,
+      });
+      Model.aggregate(pipeline)
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);

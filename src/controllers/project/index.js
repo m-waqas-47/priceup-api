@@ -30,6 +30,36 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getCustomerProjects = async (req, res) => {
+  const { id } = req.params;
+  const company_id = req.user.company_id;
+  try {
+    const { page = 1, limit = 10, search = "", status, date } = req.query; // Added search query
+    const query = {
+      company_id: new mongoose.Types.ObjectId(company_id),
+      customer_id: new mongoose.Types.ObjectId(id),
+    };
+    if (status) {
+      query.status = status;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
+    const skip = (page - 1) * limit;
+    const { totalRecords, projects } = await Service.findAll(query, search, {
+      skip,
+      limit: Number(limit),
+    });
+
+    handleResponse(res, 200, "All Records", { totalRecords, projects });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.getSingleRecord = async (req, res) => {
   const { id } = req.params;
   try {
