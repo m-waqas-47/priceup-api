@@ -84,9 +84,27 @@ exports.getEstimatesByProject = async (req, res) => {
   }
 };
 
-exports.getEstimatesByCustomer = async (req,res) => {
-  
-}
+exports.getEstimatesByCustomer = async (req, res) => {
+  const { id } = req.params;
+  const { page = 1, limit = 10, search = "" } = req.query; // Added search query
+  const skip = (page - 1) * limit;
+  try {
+    const query = {};
+    const { totalRecords, estimates } =
+      await EstimateService.findAllWithPipeline(
+        query,
+        search,
+        {
+          skip,
+          limit: Number(limit),
+        },
+        id
+      );
+    handleResponse(res, 200, "Records", { totalRecords, estimates });
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
 exports.updateEstimate = async (req, res) => {
   const user = req.user;

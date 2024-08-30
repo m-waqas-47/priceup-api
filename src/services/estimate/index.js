@@ -1,13 +1,29 @@
-const { fetchAllRecords } = require("@utils/DB_Pipelines/estimates");
+const {
+  fetchAllRecords,
+  fetchAllRecordsByCustomer,
+} = require("@utils/DB_Pipelines/estimates");
 const Estimate = require("../../models/estimates");
 
 class EstimateService {
-  static findAllWithPipeline(condition, search, options) {
+  static findAllWithPipeline(condition, search, options, customerId = null) {
     return new Promise((resolve, reject) => {
-      const pipeline = fetchAllRecords(condition, search, {
-        skip: options?.skip || 0,
-        limit: options?.limit || 0,
-      });
+      let pipeline = [];
+      if (customerId) {
+        pipeline = fetchAllRecordsByCustomer(
+          condition,
+          search,
+          {
+            skip: options?.skip || 0,
+            limit: options?.limit || 0,
+          },
+          customerId
+        );
+      } else {
+        pipeline = fetchAllRecords(condition, search, {
+          skip: options?.skip || 0,
+          limit: options?.limit || 0,
+        });
+      }
       Estimate.aggregate(pipeline)
         .then((result) => {
           const { totalRecords, estimates } = result[0];
