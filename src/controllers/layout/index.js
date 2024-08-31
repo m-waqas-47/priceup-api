@@ -17,6 +17,18 @@ exports.getAll = async (req, res) => {
     });
 };
 
+exports.getAllLayoutsForEstimate = async (req ,res) => {
+  const company_id = req.user.company_id;
+  console.log(company_id,'id')
+  LayoutService.findAll({ company_id })
+    .then((layouts) => {
+      handleResponse(res, 200, "All Layouts", layouts);
+    })
+    .catch((err) => {
+      handleError(res, err);
+    });
+}
+
 exports.getLayout = async (req, res) => {
   const { id } = req.params;
   LayoutService.findBy({ _id: id })
