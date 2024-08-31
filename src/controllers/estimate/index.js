@@ -66,12 +66,21 @@ exports.getEstimate = async (req, res) => {
 
 exports.getEstimatesByProject = async (req, res) => {
   const { projectId } = req.params;
-  const { page = 1, limit = 10, category, search = "" } = req.query; // Added search query
+  const { page = 1, limit = 10, category, search = "", status, date } = req.query; // Added search query
   const skip = (page - 1) * limit;
   try {
     const query = { project_id: new mongoose.Types.ObjectId(projectId) };
     if (category) {
       query.category = category;
+    }
+    if (status) {
+      query.status = status;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
     }
     const { totalRecords, estimates } =
       await EstimateService.findAllWithPipeline(query, search, {
@@ -86,10 +95,19 @@ exports.getEstimatesByProject = async (req, res) => {
 
 exports.getEstimatesByCustomer = async (req, res) => {
   const { id } = req.params;
-  const { page = 1, limit = 10, search = "" } = req.query; // Added search query
+  const { page = 1, limit = 10, search = "", status, date } = req.query; // Added search query
   const skip = (page - 1) * limit;
   try {
     const query = {};
+    if (status) {
+      query.status = status;
+    }
+    if (date) {
+      const inputDate = new Date(date);
+      const startOfDay = new Date(inputDate.setUTCHours(0, 0, 0, 0));
+      const endOfDay = new Date(inputDate.setUTCHours(23, 59, 59, 999));
+      query.createdAt = { $gte: startOfDay, $lte: endOfDay };
+    }
     const { totalRecords, estimates } =
       await EstimateService.findAllWithPipeline(
         query,
