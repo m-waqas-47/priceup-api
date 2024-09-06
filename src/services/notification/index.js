@@ -1,12 +1,13 @@
 const Notification = require("@models/notifications");
+const { fetchAllRecords } = require("@utils/DB_Pipelines/notifications");
 
 class NotificationService {
-  static findAll(data) {
+  static findAll(condition) {
     return new Promise((resolve, reject) => {
-      Notification.find(data)
-        .sort({ createdAt: "desc" })
-        .then((notifications) => {
-          resolve(notifications);
+      const pipeline = fetchAllRecords(condition);
+      Notification.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
         })
         .catch((err) => {
           reject(err);
@@ -76,7 +77,7 @@ class NotificationService {
 
   static updateMany(condition, data) {
     return new Promise((resolve, reject) => {
-        Notification.updateMany(condition, data)
+      Notification.updateMany(condition, data)
         .then((resp) => {
           resolve(resp);
         })
