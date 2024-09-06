@@ -18,6 +18,7 @@ const MirrorGlassAddonService = require("@services/mirror/glassAddon");
 const MirrorGlassTypeService = require("@services/mirror/glassType");
 const MirrorHardwareService = require("@services/mirror/hardware");
 const NotificationService = require("@services/notification");
+const ProjectService = require("@services/project");
 const StaffService = require("@services/staff");
 const UserService = require("@services/user");
 
@@ -119,89 +120,6 @@ exports.generateNotifications = async (
   }
 };
 
-// exports.getResourceInfo = async (resource) => {
-//   try {
-//     switch (resource.category) {
-//       case notificationCategories.ESTIMATES:
-//         // fetch estimate
-//         const estimate = await EstimateService.findBy({ _id: resource.id });
-//         const estimateObject = estimate.toObject();
-//         // fetch layout data
-//         const layoutData = await LayoutService.findBy({
-//           _id: estimate?.config?.layout_id,
-//         });
-//         // fetch estimate creater data
-//         let creator = null;
-//         switch (estimate.creator_type) {
-//           case userRoles.ADMIN:
-//             creator = await UserService.findBy({ _id: estimate?.creator_id });
-//             if (!creator) {
-//               creator = await CustomUserService.findBy({
-//                 _id: estimate?.creator_id,
-//               });
-//             }
-//             break;
-//           case userRoles.STAFF:
-//             creator = StaffService.findBy({ _id: estimate?.creator_id });
-//             break;
-//           case userRoles.CUSTOM_ADMIN:
-//             creator = await CustomUserService.findBy({
-//               _id: estimate?.creator_id,
-//             });
-//             break;
-//           default:
-//             break;
-//         }
-//         // customer info
-//         const customer = await CustomerService.findBy({
-//           _id: estimate?.customer_id,
-//         });
-//         let missingProps = null;
-//         let modifiedObject = {
-//           ...estimateObject,
-//           settings: layoutData
-//             ? {
-//                 measurementSides: layoutData.settings.measurementSides,
-//                 image: layoutData.image,
-//                 name: layoutData.name,
-//                 _id: layoutData._id,
-//                 variant: layoutData.settings.variant,
-//                 heavyDutyOption: layoutData.settings.heavyDutyOption,
-//                 hinges: layoutData.settings.hinges,
-//                 glassType: estimateObject.config.glassType,
-//               }
-//             : null,
-//           creatorData: creator
-//             ? {
-//                 name: creator.name,
-//                 image: creator.image,
-//                 email: creator.email,
-//               }
-//             : null,
-//           customerData: customer
-//             ? {
-//                 name: customer.name,
-//                 email: customer.email,
-//               }
-//             : null,
-//         };
-//         switch (estimate.category) {
-//           case estimateCategory.SHOWERS:
-//             missingProps = await getShowersMissingProps(estimate);
-//             break;
-//           case estimateCategory.MIRRORS:
-//             missingProps = await getMirrorsMissingProps(estimate);
-//             break;
-//         }
-//         return {...modifiedObject,resourceInfoWithFullObjects:missingProps}
-//       default:
-//         return null;
-//     }
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
 const getUserById = async (id) => {
   let user = await UserService.findBy({ _id: id });
   if (!user) {
@@ -273,9 +191,11 @@ exports.getResourceInfo = async (resource) => {
       estimate.creator_type,
       estimate.creator_id
     );
-    const customer = await CustomerService.findBy({
-      _id: estimate?.customer_id,
-    });
+    let customer = null;
+    if(estimate?.project_id){
+      const project = await ProjectService.findBy({_id:estimate?.project_id});
+      customer = project?.customerData;
+    }
 
     const modifiedObject = {
       ...estimateObject,
