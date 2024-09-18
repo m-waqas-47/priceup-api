@@ -211,6 +211,50 @@ exports.getMirrorsHardwareList = async (company_id) => {
   }
 };
 
+exports.getWineCellarHardwareList = async (company_id) => {
+  try {
+    const [
+      finishes,
+      handles,
+      hinges,
+      mountingChannel,
+      glassType,
+      // glassAddons,
+    ] = await Promise.all([
+      WineCellarFinishService.findAll({ company_id }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "handles",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "hinges",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "mounting-channels",
+        company_id,
+      }),
+      WineCellarGlassTypeService.findAll({ company_id }),
+      // GlassAddonService.findAll({ company_id }),
+    ]);
+
+    const listData = {
+      hardwareFinishes: finishes,
+      handles,
+      hinges,
+      heavyDutyOption: hinges,
+      channelOrClamps: ["Channel"],
+      mountingChannel,
+      glassType,
+      // glassAddons,
+    };
+
+    return listData;
+  } catch (error) {
+    throw error;
+  }
+};
+
 exports.validateEmail = async (email) => {
   const emailVerified = await MailgunService.verifyEmail(email);
   if (emailVerified.result !== "deliverable") {
@@ -235,3 +279,26 @@ exports.getMulterSource = (role) => {
       return multerSource.ADMINS;
   }
 }
+
+exports.generateFinishes = (finish) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const hardwareFinishes = await finish?.flatMap((finish) => [
+        // generate hardware finishes of user
+        {
+          name: finish?.name,
+          slug: finish?.slug,
+          image: finish?.image,
+          partNumber: finish?.partNumber,
+          // holesNeeded: finish?.holesNeeded,
+          cost: finish?.cost,
+          status: false,
+          finish_id: finish?.id,
+        },
+      ]);
+      resolve(hardwareFinishes);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};

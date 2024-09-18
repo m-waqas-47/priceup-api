@@ -41,6 +41,10 @@ exports.multerSource = {
   MIRRORGLASSTYPES: "mirrorGlassTypes",
   MIRRORGLASSADDONS: "mirrorGlassAddons",
   MIRRORHARDWARES: "mirrorHardwares",
+  WINECELLARHARDWARES: "wineCellarHardwares",
+  WINECELLARGLASSTYPES: "wineCellarGlassTypes",
+  WINECELLARFINISHES: "wineCellarFinishes",
+  WINECELLARGLASSADDONS: "wineCellarGlassAddons",
 };
 
 exports.minDoorWidthStandard = 1;
@@ -64,10 +68,18 @@ exports.notificationActions = {
 exports.estimateCategory = {
   SHOWERS: "showers",
   MIRRORS: "mirrors",
+  WINECELLARS: "wineCellars"
 };
 
 exports.projectStatus = {
   PENDING: "pending",
   VOIDED: "voided",
   APPROVED: "approved",
+}
+
+exports.wineCellarLayoutVariants = {
+  INLINE: "inline",
+  NINTYDEGREE: "90-degree",
+  THREESIDEDGLASS: "3-sided-glass",
+  GLASSCUBE: "glass-cube"
 }

@@ -17,6 +17,16 @@ const storage = multer.diskStorage({
       } else if (req.originalUrl.includes("/glassAddons")) {
         destinationPath += "mirrorGlassAddons/uploads/";
       }
+    } else if (req.originalUrl.includes("/wineCellars")) {
+      if (req.originalUrl.includes("/glassTypes")) {
+        destinationPath += "wineCellarGlassTypes/uploads/";
+      } else if (req.originalUrl.includes("/hardwares")) {
+        destinationPath += "wineCellarHardwares/uploads/";
+      } else if (req.originalUrl.includes("/finishes")) {
+        destinationPath += "wineCellarFinishes/uploads/";
+      } else if (req.originalUrl.includes("/glassAddons")) {
+        destinationPath += "wineCellarGlassAddons/uploads/";
+      }
     } else if (req.originalUrl.includes("/finishes")) {
       destinationPath += "finishes/uploads/";
     } else if (req.originalUrl.includes("/hardwares")) {
