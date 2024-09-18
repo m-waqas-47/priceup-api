@@ -931,3 +931,33 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
     }
   });
 };
+
+exports.modifyExistingRecords = async (req, res) => {
+  try {
+    await CompanyService.updateMany(
+      {}, // Filter (empty filter matches all documents)
+      {
+        $unset: {
+          "showers.fabricatingPricing.minterOneByTwoInch": "",
+          "showers.fabricatingPricing.minterThreeByEightInch": "",
+        }, // remove these fields
+        $set: {
+          "showers.fabricatingPricing.miterOneByTwoInch": 0.62,
+          "showers.fabricatingPricing.miterThreeByEightInch": 0.55,
+          "wineCellars.doorWidth": 36,
+          "wineCellars.miscPricing.pricingFactor": 2.42,
+          "wineCellars.miscPricing.hourlyRate": 72,
+          "wineCellars.miscPricing.pricingFactorStatus": true,
+          "wineCellars.fabricatingPricing.oneHoleOneByTwoInchGlass": 7.74,
+          "wineCellars.fabricatingPricing.oneHoleThreeByEightInchGlass": 6.9,
+          "wineCellars.fabricatingPricing.hingeCutoutOneByTwoInch": 15.48,
+          "wineCellars.fabricatingPricing.hingeCutoutThreeByEightInch": 12.89,
+
+        }, // add these fields with default values
+      }
+    );
+    handleResponse(res, 200, "Locations info updated");
+  } catch (err) {
+    handleError(res, err);
+  }
+};
