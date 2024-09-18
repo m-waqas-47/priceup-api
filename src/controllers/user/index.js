@@ -40,7 +40,20 @@ const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
 const ProjectService = require("@services/project");
 const {estimateCategory} = require("@config/common");
 const {generateLayoutSettings, generateLayoutSettingsForWineCellar} = require("@utils/generateFormats");
-
+const {mirrorHardwares} = require("@seeders/mirrorHardwareSeeder");
+const MirrorHardwareService = require("@services/mirror/hardware");
+const MirrorGlassAddonService = require("@services/mirror/glassAddon");
+const {mirrorGlassAddons} = require("@seeders/mirrorGlassAddonSeeder");
+const WineCellarHardwareCategoryService = require("@services/wineCellar/hardwareCategory");
+const {wineCellarHardwareCategories} = require("@seeders/wineCellarHardwareCategoriesSeeder");
+const {wineCellarFinishes} = require("@seeders/wineCellarFinishSeeder");
+const WineCellarFinishService = require("@services/wineCellar/finish");
+const {wineCellarHardware} = require("@seeders/wineCellarHardwareSeeder");
+const WineCellarHardwareService = require("@services/wineCellar/hardware");
+const {wineCellarGlassTypes} = require("@seeders/wineCellarGlassTypeSeeder");
+const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const {wineCellarLayouts} = require("@seeders/wineCellarLayoutSeeder");
+const WineCellarLayoutService = require("@services/wineCellar/layout");
 exports.getAll = async (req, res) => {
   try {
     const companies = await CompanyService.findAll();
@@ -227,6 +240,22 @@ exports.deleteUser = async (req, res) => {
     await HardwareService.deleteAll({ company_id: company._id });
     // Delete Layouts
     await LayoutService.deleteAll({ company_id: company._id });
+    // Delete Mirror Hardwares
+    await MirrorHardwareService.deleteAll({ company_id: company._id });
+    // Delete Mirror Edge works
+    await MirrorEdgeWorkService.deleteAll({ company_id: company._id });
+    // Delete Mirror Glass Types
+    await MirrorGlassTypeService.deleteAll({ company_id: company._id });
+    // Delete Mirror Glass Addons
+    await MirrorGlassAddonService.deleteAll({ company_id: company._id });
+    // Delete Wine Cellar Hardwares
+    await WineCellarHardwareService.deleteAll({ company_id: company._id });
+    // Delete Wine Cellar Glass Types
+    await WineCellarGlassTypeService.deleteAll({ company_id: company._id });
+    // Delete Wine Cellar Finishes
+    await WineCellarFinishService.deleteAll({ company_id: company._id });
+    // Delete Wine Cellar Layouts
+    await WineCellarLayoutService.deleteAll({ company_id: company._id });
     // Delete Company record
     await CompanyService.delete({ _id: company._id });
     // Delete Company user
@@ -297,13 +326,27 @@ exports.saveUser = async (req, res) => {
         );
         return { ...hardwareFinish, finish_id: finish._id };
       });
-      // create user hardwares
+      // create user hardware
       await HardwareService.create({
         ...hardware,
         company_id: company?.id,
         finishes: finishes,
       });
     });
+
+    glassTypes?.map(async (glassType) => {
+      // create user glass types
+      await GlassTypeService.create({ ...glassType, company_id: company?.id });
+    });
+    glassAddons?.map(async (glassAddon) => {
+      // create user glass treatments
+      await GlassAddonService.create({
+        ...glassAddon,
+        company_id: company?.id,
+      });
+    });
+    await seedLayouts(layouts, company?.id,estimateCategory.SHOWERS); // create user layouts
+    /** Mirror hardware **/
     mirrorGlassTypes?.map(async (glassType) => {
       // create user glass types for mirror layouts
       await MirrorGlassTypeService.create({
@@ -318,19 +361,59 @@ exports.saveUser = async (req, res) => {
         company_id: company?.id,
       });
     });
-    glassTypes?.map(async (glassType) => {
-      // create user glass types
-      await GlassTypeService.create({ ...glassType, company_id: company?.id });
+    mirrorHardwares?.map(async (hardware) => {
+      // create user edge works for mirror layouts
+      await MirrorHardwareService.create({
+        ...hardware,
+        company_id: company?.id,
+      });
     });
-    glassAddons?.map(async (glassAddon) => {
-      // create user glass treatments
-      await GlassAddonService.create({
+    mirrorGlassAddons?.map(async (glassAddon) => {
+      // create user edge works for mirror layouts
+      await MirrorGlassAddonService.create({
         ...glassAddon,
         company_id: company?.id,
       });
     });
-    await seedLayouts(layouts, company?.id); // create user layouts
+    /** end **/
+    /** WineCellar Hardware **/
+    const wineCellarHardwareCat = await WineCellarHardwareCategoryService.findAll();
+    if (wineCellarHardwareCat?.length <= 0) { // hardware categories add
+      await Promise.all(
+          wineCellarHardwareCategories?.map(async (cat) => {
+            await WineCellarHardwareCategoryService.create({ ...cat });
+          })
+      );
+    }
+    await Promise.all(  // finishes add
+        wineCellarFinishes?.map(async (finish) => {
+          await WineCellarFinishService.create({ ...finish, company_id: company?.id }); // create company finishes
+        })
+    );
+    const userFinishesWineCellar = await WineCellarFinishService.findAll({
+      company_id: company?.id,
+    }); // get all finishes
 
+    wineCellarHardware?.map(async (hardware) => {
+      const finishes = hardware?.finishes?.map((hardwareFinish) => {
+        const finish = userFinishesWineCellar?.find(
+            (item) => item?.slug === hardwareFinish?.finish_id
+        );
+        return { ...hardwareFinish, finish_id: finish._id };
+      });
+      // create user hardware for wine cellar
+      await WineCellarHardwareService.create({
+        ...hardware,
+        company_id: company?.id,
+        finishes: finishes,
+      });
+    });
+    wineCellarGlassTypes?.map(async (glassType) => {
+      // create user glass types
+      await WineCellarGlassTypeService.create({ ...glassType, company_id: company?.id });
+    });
+    await seedLayouts(wineCellarLayouts, company?.id,estimateCategory.WINECELLARS); // create user layouts
+    /** end **/
     // Sending an email to the user
     const html = userCreatedTemplate(password);
 

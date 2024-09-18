@@ -14,7 +14,7 @@ const router = express.Router();
 router.get("/", verifyToken, getAll);
 router.get("/for-estimate", verifyToken, getAllLayoutsForEstimate);
 router.get("/:id", verifyToken, getSingle);
-router.put("/existingLayouts", updateExistingCollection);  // run only once to update previous documents
+router.put("/modifyExisting", updateExistingCollection);  // run only once to update previous documents
 router.put("/:id", verifyToken, update);
 router.delete("/:id", verifyToken, deleteRecord);
 router.post("/save", verifyToken, save);
