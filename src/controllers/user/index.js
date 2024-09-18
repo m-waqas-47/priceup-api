@@ -437,21 +437,29 @@ const seedLayouts = (layouts, company_id, type) => {
               layout?.settings,
               company_id
           );
+          result.push(
+            await LayoutService.create({
+              name: layout?.name,
+              image: layout?.image,
+              company_id: new mongoose.Types.ObjectId(company_id),
+              settings: { ...settings },
+            })
+          );
         }
         else if (type === estimateCategory.WINECELLARS){
           settings = await generateLayoutSettingsForWineCellar(
               layout?.settings,
               company_id
           );
+          result.push(
+            await WineCellarLayoutService.create({
+              name: layout?.name,
+              image: layout?.image,
+              company_id: new mongoose.Types.ObjectId(company_id),
+              settings: { ...settings },
+            })
+          );
         }
-        result.push(
-          await LayoutService.create({
-            name: layout?.name,
-            image: layout?.image,
-            company_id: new mongoose.Types.ObjectId(company_id),
-            settings: { ...settings },
-          })
-        );
       });
       resolve(result);
     } catch (error) {

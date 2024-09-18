@@ -22,6 +22,12 @@ const {
 const { handleResponse, handleError } = require("../../utils/responses");
 const MirrorGlassTypeService = require("@services/mirror/glassType");
 const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
+const MirrorHardwareService = require("@services/mirror/hardware");
+const MirrorGlassAddonService = require("@services/mirror/glassAddon");
+const WineCellarFinishService = require("@services/wineCellar/finish");
+const WineCellarHardwareService = require("@services/wineCellar/hardware");
+const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const WineCellarLayoutService = require("@services/wineCellar/layout");
 
 exports.getAll = async (req, res) => {
   CompanyService.findAll()
@@ -213,37 +219,6 @@ exports.cloneCompany = async (req, res) => {
       })
     ); // clone glassTypes
 
-    const mirrorGlassTypes = await MirrorGlassTypeService.findAll({
-      company_id: data.company_id,
-    }); // find company Mirror glassTypes
-
-    await Promise.all(
-      mirrorGlassTypes?.map(async (mirrorGlassType) => {
-        await MirrorGlassTypeService.create({
-          ...mirrorGlassType,
-          company_id: company._id,
-          name: mirrorGlassType.name,
-          slug: mirrorGlassType.slug,
-          options: mirrorGlassType.options,
-        });
-      })
-    ); // clone Mirror glassTypes
-
-    const mirrorEdgeWorks = await MirrorEdgeWorkService.findAll({
-      company_id: data.company_id,
-    }); // find company Mirror edgeWorks
-
-    await Promise.all(
-      mirrorEdgeWorks?.map(async (mirrorEdgeWork) => {
-        await MirrorEdgeWorkService.create({
-          ...mirrorEdgeWork,
-          company_id: company._id,
-          name: mirrorEdgeWork.name,
-          slug: mirrorEdgeWork.slug,
-          options: mirrorEdgeWork.options,
-        });
-      })
-    ); // clone Mirror edgeWorks
 
     const glassAddons = await GlassAddonService.findAll({
       company_id: data.company_id,
@@ -280,6 +255,148 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone layouts
+
+    /** Mirror hardware clone */
+    const mirrorGlassTypes = await MirrorGlassTypeService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror glassTypes
+
+    await Promise.all(
+      mirrorGlassTypes?.map(async (mirrorGlassType) => {
+        await MirrorGlassTypeService.create({
+          ...mirrorGlassType,
+          company_id: company._id,
+          name: mirrorGlassType.name,
+          slug: mirrorGlassType.slug,
+          options: mirrorGlassType.options,
+        });
+      })
+    ); // clone Mirror glassTypes
+
+    const mirrorEdgeWorks = await MirrorEdgeWorkService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror edgeWorks
+
+    await Promise.all(
+      mirrorEdgeWorks?.map(async (mirrorEdgeWork) => {
+        await MirrorEdgeWorkService.create({
+          ...mirrorEdgeWork,
+          company_id: company._id,
+          name: mirrorEdgeWork.name,
+          slug: mirrorEdgeWork.slug,
+          options: mirrorEdgeWork.options,
+        });
+      })
+    ); // clone Mirror edgeWorks
+    const mirrorHardwares = await MirrorHardwareService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror hardware
+
+    await Promise.all(
+      mirrorHardwares?.map(async (mirrorHardware) => {
+        await MirrorHardwareService.create({
+          ...mirrorHardware,
+          company_id: company._id,
+          name: mirrorHardware.name,
+          slug: mirrorHardware.slug,
+          options: mirrorHardware.options,
+        });
+      })
+    ); // clone Mirror hardware
+    const mirrorGlassAddons = await MirrorGlassAddonService.findAll({
+      company_id: data.company_id,
+    }); // find company Mirror glassAddon
+
+    await Promise.all(
+      mirrorGlassAddons?.map(async (mirrorGlassAddon) => {
+        await MirrorGlassAddonService.create({
+          ...mirrorGlassAddon,
+          company_id: company._id,
+          name: mirrorGlassAddon.name,
+          slug: mirrorGlassAddon.slug,
+          options: mirrorGlassAddon.options,
+        });
+      })
+    ); // clone Mirror glassAddon
+    /** end */
+    /** Wine Cellar hardware clone */
+    const wineCellarFinishes = await WineCellarFinishService.findAll({
+      company_id: data.company_id,
+    }); // find company finishes
+
+    const wineCellarNewFinishes = await Promise.all(
+      wineCellarFinishes?.map(async (finish) => {
+        return await WineCellarFinishService.create({
+          ...finish,
+          company_id: company._id,
+          slug: finish.slug,
+          name: finish.name,
+          image: finish.image,
+        });
+      })
+    ); // clone finishes
+
+    const wineCellarHardwares = await WineCellarHardwareService.findAll({
+      company_id: data.company_id,
+    }); // find hardwares
+
+    await Promise.all(
+      wineCellarHardwares?.map(async (hardware) => {
+        const hardwareFinishes = hardware.finishes.map((finish) => {
+          const finishFound = wineCellarNewFinishes.find(
+            (item) => item.name === finish.name
+          );
+          return {
+            ...finish,
+            finish_id: finishFound._id,
+          };
+        });
+        await WineCellarHardwareService.create({
+          ...hardware,
+          company_id: company?.id,
+          finishes: hardwareFinishes,
+          hardware_category_slug: hardware.hardware_category_slug,
+          name: hardware.name,
+          slug: hardware.slug,
+        });
+      })
+    ); // clone hardwares
+
+    const wineCellarGlassTypes = await WineCellarGlassTypeService.findAll({
+      company_id: data.company_id,
+    }); // find company glassTypes
+
+    await Promise.all(
+      wineCellarGlassTypes?.map(async (glassType) => {
+        await WineCellarGlassTypeService.create({
+          ...glassType,
+          company_id: company._id,
+          name: glassType.name,
+          slug: glassType.slug,
+          options: glassType.options,
+        });
+      })
+    ); // clone glassTypes
+    const wineCellarLayouts = await WineCellarLayoutService.findAll({
+      company_id: data.company_id,
+    }); // find company layouts
+
+    await Promise.all(
+      wineCellarLayouts?.map(async (layout) => {
+        const settings = await generateLayoutSettingsForCloneForWineCellar(
+          layout.settings,
+          company?.id
+        );
+        await WineCellarLayoutService.create({
+          ...layout,
+          company_id: company._id,
+          name: layout.name,
+          image: layout.image,
+          settings: settings,
+        });
+      })
+    ); // clone layouts
+    /** end */
 
     handleResponse(res, 200, "Company cloned successfully", company);
   } catch (err) {
@@ -664,93 +781,153 @@ const generateLayoutSettingsForClone = (settings, companyId) => {
   });
 };
 
-exports.modifyExistingRecords = async (req, res) => {
-  const companies = await CompanyService.findAll();
+const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let result = {};
+      if (settings?.hardwareFinishes) {
+        // finishes
+        const oldFinish = await WineCellarFinishService.findBy({
+          _id: settings?.hardwareFinishes,
+        });
 
-  try {
-    await Promise.all(
-      companies?.map(async (company) => {
-        // Move existing pricing data to 'showers'
-        company.showers = {
-          doorWidth: company.doorWidth,
-          miscPricing: {
-            pricingFactor: company.miscPricing.pricingFactor,
-            hourlyRate: company.miscPricing.hourlyRate,
-            pricingFactorStatus: company.miscPricing.pricingFactorStatus,
-          },
-          fabricatingPricing: company.fabricatingPricing,
+        const newFinish = await WineCellarFinishService.findBy({
+          slug: oldFinish.slug,
+          company_id: companyId,
+        });
+
+        result = {
+          ...result,
+          hardwareFinishes: newFinish._id,
         };
-
-        // Remove old fields
-        company.doorWidth = undefined;
-        company.miscPricing = undefined;
-        company.fabricatingPricing = undefined;
-
-        // Initialize 'mirrors' with default values if not already present
-        if (!company.mirrors) {
-          company.mirrors = {
-            pricingFactor: 3.1,
-            hourlyRate: 75,
-            pricingFactorStatus: true,
-            floatingSmall: 75,
-            floatingMedium: 125,
-            floatingLarge: 175,
-            sandBlastingMultiplier: 9,
-            bevelStrip: 0.9,
-            safetyBacking: 2,
-            holeMultiplier: 6,
-            outletMultiplier: 12.5,
-            lightHoleMultiplier: 15,
-            notchMultiplier: 0,
-            singleDecoraMultiplier: 6.5,
-            doubleDecoraMultiplier: 0,
-            tripleDecoraMultiplier: 0,
-            quadDecoraMultiplier: 20,
-            singleDuplexMultiplier: 4.6,
-            doubleDuplexMultiplier: 8.25,
-            tripleDuplexMultiplier: 10,
-          };
-        }
-        return company.save();
-      })
-    );
-    handleResponse(res, 200, "Locations info updated");
-  } catch (err) {
-    handleError(res, err);
-  }
-};
-
-exports.modifyExistingRecords2 = async (req, res) => {
-  try {
-    await CompanyService.updateMany(
-      {}, // Filter (empty filter matches all documents)
-      {
-        $unset: {
-          "mirrors.singleDecoraMultiplier": "",
-          "mirrors.doubleDecoraMultiplier": "",
-          "mirrors.tripleDecoraMultiplier": "",
-          "mirrors.quadDecoraMultiplier": "",
-          "mirrors.outletMultiplier": "",
-          "mirrors.floatingSmall": "",
-          "mirrors.floatingMedium": "",
-          "mirrors.floatingLarge": "",
-          "mirrors.sandBlastingMultiplier": "",
-          "mirrors.bevelStrip": "",
-          "mirrors.safetyBacking": "",
-          "mirrors.singleDuplexMultiplier": "",
-          "mirrors.doubleDuplexMultiplier": "",
-          "mirrors.tripleDuplexMultiplier": "",
-        }, // remove these fields
-        $set: {
-          "mirrors.singleOutletCutoutMultiplier": 6.5,
-          "mirrors.doubleOutletCutoutMultiplier": 0,
-          "mirrors.tripleOutletCutoutMultiplier": 0,
-          "mirrors.quadOutletCutoutMultiplier": 20,
-        }, // add these fields with default values
       }
-    );
-    handleResponse(res, 200, "Locations info updated");
-  } catch (err) {
-    handleError(res, err);
-  }
+      if (settings?.handles && settings?.handles?.handleType) {
+        // handles
+        const oldHandle = await WineCellarHardwareService.findBy({
+          _id: settings?.handles?.handleType,
+        });
+        const newHandle = await WineCellarHardwareService.findBy({
+          slug: oldHandle.slug,
+          company_id: companyId,
+        });
+        result = {
+          ...result,
+          handles: {
+            handleType: newHandle._id,
+            count: settings?.handles?.count,
+          },
+        };
+      }
+      if (settings?.hinges && settings?.hinges?.hingesType) {
+        // hinges
+        const oldHinge = await WineCellarHardwareService.findBy({
+          _id: settings?.hinges?.hingesType,
+        });
+
+        const newHinge = await WineCellarHardwareService.findBy({
+          slug: oldHinge?.slug,
+          company_id: companyId,
+        });
+        result = {
+          ...result,
+          hinges: {
+            hingesType: newHinge?._id,
+            count: settings?.hinges?.count,
+          },
+        };
+      }
+      if (
+        settings?.heavyDutyOption &&
+        settings?.heavyDutyOption?.heavyDutyType
+      ) {
+        // heavyDutyOption
+        const oldHeavyDutyType = await WineCellarHardwareService.findBy({
+          _id: settings?.heavyDutyOption?.heavyDutyType,
+        });
+
+        const newHeavyDutyType = await WineCellarHardwareService.findBy({
+          slug: oldHeavyDutyType?.slug,
+          company_id: companyId,
+        });
+
+        result = {
+          ...result,
+          heavyDutyOption: {
+            heavyDutyType: newHeavyDutyType?._id,
+            threshold: settings?.heavyDutyOption?.threshold,
+            height: settings?.heavyDutyOption?.height,
+          },
+        };
+      }
+      if (settings?.channelOrClamps) {
+        // channelOrClamps
+        result = { ...result, channelOrClamps: settings?.channelOrClamps };
+      }
+      if (settings?.mountingChannel) {
+        // mountingChannel
+        const oldMountingChannel = await WineCellarHardwareService.findBy({
+          _id: settings?.mountingChannel,
+        });
+        const newMountingChannel = await WineCellarHardwareService.findBy({
+          slug: oldMountingChannel?.slug,
+          company_id: companyId,
+        });
+        result = {
+          ...result,
+          mountingChannel: newMountingChannel?._id,
+        };
+      }
+      if (settings?.glassType && settings?.glassType?.type) {
+        // glassType
+        const oldGlassType = await WineCellarGlassTypeService.findBy({
+          _id: settings?.glassType?.type,
+        });
+        const newGlassType = await WineCellarGlassTypeService.findBy({
+          slug: oldGlassType?.slug,
+          company_id: companyId,
+        });
+        result = {
+          ...result,
+          glassType: {
+            type: newGlassType?._id,
+            thickness: settings?.glassType?.thickness,
+          },
+        };
+      }
+      if (settings?.glassAddon) {
+        // glassAddon
+        // const oldGlassAddon = await GlassAddonService.findBy({
+        //   _id: settings?.glassAddon,
+        // });
+        // const newGlassAddon = await GlassAddonService.findBy({
+        //   slug: oldGlassAddon?.slug,
+        //   company_id: companyId,
+        // });
+        // result = {
+        //   ...result,
+        //   glassAddon: newGlassAddon?._id,
+        // };
+      }
+      // variant
+      if (settings?.variant) {
+        result = {
+          ...result,
+          variant: settings?.variant,
+        };
+      }
+      if (settings?.other) {
+        // other
+        result = {
+          ...result,
+          other: {
+            people: settings?.other?.people,
+            hours: settings?.other?.hours,
+          },
+        };
+      }
+      resolve(result);
+    } catch (error) {
+      reject(error);
+    }
+  });
 };
