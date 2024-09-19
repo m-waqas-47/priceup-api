@@ -6,7 +6,7 @@ exports.fetchAllRecords = (condition) => {
         // Lookup and transform the 'hardwareFinishes'
         {
             $lookup: {
-                from: "finishes",
+                from: "wine_cellar_finishes",
                 localField: "settings.hardwareFinishes",
                 foreignField: "_id",
                 as: "hardwareFinishesDetails",
@@ -40,7 +40,7 @@ exports.fetchAllRecords = (condition) => {
         // Lookup and transform the 'handles.handleType'
         {
             $lookup: {
-                from: "hardwares",
+                from: "wine_cellar_hardwares",
                 localField: "settings.handles.handleType",
                 foreignField: "_id",
                 as: "handlesDetails",
@@ -74,7 +74,7 @@ exports.fetchAllRecords = (condition) => {
         // Lookup and transform the 'hinges.hingesType'
         {
             $lookup: {
-                from: "hardwares",
+                from: "wine_cellar_hardwares",
                 localField: "settings.hinges.hingesType",
                 foreignField: "_id",
                 as: "hingesDetails",
@@ -105,10 +105,44 @@ exports.fetchAllRecords = (condition) => {
                 hingesDetails: 0,
             },
         },
+        // Lookup and transform the 'doorLock.type'
+        {
+            $lookup: {
+                from: "wine_cellar_hardwares",
+                localField: "settings.doorLock.type",
+                foreignField: "_id",
+                as: "doorLockDetails",
+            },
+        },
+        {
+            $addFields: {
+                "settings.doorLock.type": {
+                    $arrayElemAt: [
+                        {
+                            $map: {
+                                input: "$doorLockDetails",
+                                as: "item",
+                                in: {
+                                    _id: "$$item._id",
+                                    name: "$$item.name",
+                                    image: "$$item.image",
+                                },
+                            },
+                        },
+                        0,
+                    ],
+                },
+            },
+        },
+        {
+            $project: {
+                doorLockDetails: 0,
+            },
+        },
         // Lookup and transform the 'heavyDutyOption.heavyDutyType'
         {
             $lookup: {
-                from: "hardwares",
+                from: "wine_cellar_hardwares",
                 localField: "settings.heavyDutyOption.heavyDutyType",
                 foreignField: "_id",
                 as: "heavyDutyOptionDetails",
@@ -142,7 +176,7 @@ exports.fetchAllRecords = (condition) => {
         // Lookup and transform the 'mountingChannel'
         {
             $lookup: {
-                from: "hardwares",
+                from: "wine_cellar_hardwares",
                 localField: "settings.mountingChannel",
                 foreignField: "_id",
                 as: "mountingChannelDetails",
@@ -177,7 +211,7 @@ exports.fetchAllRecords = (condition) => {
         // Lookup and transform the 'glassType.type'
         {
             $lookup: {
-                from: "glasstypes",
+                from: "wine_cellar_glass_types",
                 localField: "settings.glassType.type",
                 foreignField: "_id",
                 as: "glassTypeDetails",
@@ -210,39 +244,39 @@ exports.fetchAllRecords = (condition) => {
         },
 
         // Lookup and transform the 'glassAddon'
-        {
-            $lookup: {
-                from: "glassaddons",
-                localField: "settings.glassAddon",
-                foreignField: "_id",
-                as: "glassAddonDetails",
-            },
-        },
-        {
-            $addFields: {
-                "settings.glassAddon": {
-                    $arrayElemAt: [
-                        {
-                            $map: {
-                                input: "$glassAddonDetails",
-                                as: "item",
-                                in: {
-                                    _id: "$$item._id",
-                                    name: "$$item.name",
-                                    image: "$$item.image",
-                                },
-                            },
-                        },
-                        0,
-                    ],
-                },
-            },
-        },
-        {
-            $project: {
-                glassAddonDetails: 0,
-            },
-        },
+        // {
+        //     $lookup: {
+        //         from: "glassaddons",
+        //         localField: "settings.glassAddon",
+        //         foreignField: "_id",
+        //         as: "glassAddonDetails",
+        //     },
+        // },
+        // {
+        //     $addFields: {
+        //         "settings.glassAddon": {
+        //             $arrayElemAt: [
+        //                 {
+        //                     $map: {
+        //                         input: "$glassAddonDetails",
+        //                         as: "item",
+        //                         in: {
+        //                             _id: "$$item._id",
+        //                             name: "$$item.name",
+        //                             image: "$$item.image",
+        //                         },
+        //                     },
+        //                 },
+        //                 0,
+        //             ],
+        //         },
+        //     },
+        // },
+        // {
+        //     $project: {
+        //         glassAddonDetails: 0,
+        //     },
+        // },
         {
             $project: {
                 // Include all original fields (you can explicitly list them if needed)
