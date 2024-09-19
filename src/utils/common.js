@@ -12,6 +12,9 @@ const MirrorGlassAddonService = require("@services/mirror/glassAddon");
 const MirrorHardwareService = require("@services/mirror/hardware");
 const MailgunService = require("@services/mailgun");
 const { userRoles, multerSource } = require("@config/common");
+const WineCellarFinishService = require("@services/wineCellar/finish");
+const WineCellarHardwareService = require("@services/wineCellar/hardware");
+const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -211,13 +214,14 @@ exports.getMirrorsHardwareList = async (company_id) => {
   }
 };
 
-exports.getWineCellarHardwareList = async (company_id) => {
+exports.getWineCellarsHardwareList = async (company_id) => {
   try {
     const [
       finishes,
       handles,
       hinges,
       mountingChannel,
+      doorLocks,
       glassType,
       // glassAddons,
     ] = await Promise.all([
@@ -234,6 +238,10 @@ exports.getWineCellarHardwareList = async (company_id) => {
         hardware_category_slug: "mounting-channels",
         company_id,
       }),
+      WineCellarHardwareService.findAll({
+        hardware_category_slug: "door-locks",
+        company_id
+      }),
       WineCellarGlassTypeService.findAll({ company_id }),
       // GlassAddonService.findAll({ company_id }),
     ]);
@@ -245,6 +253,7 @@ exports.getWineCellarHardwareList = async (company_id) => {
       heavyDutyOption: hinges,
       channelOrClamps: ["Channel"],
       mountingChannel,
+      doorLocks,
       glassType,
       // glassAddons,
     };

@@ -1,6 +1,6 @@
 const FinishService = require("@services/finish");
 const HardwareService = require("@services/hardware");
-const { nestedObjectsToDotNotation, getShowersHardwareList, getMirrorsHardwareList } = require("@utils/common");
+const { nestedObjectsToDotNotation, getShowersHardwareList, getMirrorsHardwareList, getWineCellarsHardwareList } = require("@utils/common");
 const { handleResponse, handleError } = require("@utils/responses");
 const { generateFinishes } = require("@utils/common");
 const fs = require("fs");
@@ -202,7 +202,17 @@ exports.getMirrorsHardware = async (req, res) => {
   const company_id = req.user.company_id;
   try {
     const list = await getMirrorsHardwareList(company_id);
-    handleResponse(res, 200, "Showers Hardwares List", list);
+    handleResponse(res, 200, "Mirrors Hardwares List", list);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getWineCellarsHardware = async (req, res) => {
+  const company_id = req.user.company_id;
+  try {
+    const list = await getWineCellarsHardwareList(company_id);
+    handleResponse(res, 200, "Wine Cellars Hardwares List", list);
   } catch (err) {
     handleError(res, err);
   }

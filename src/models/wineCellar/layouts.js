@@ -96,6 +96,10 @@ const layoutsSchema = new mongoose.Schema(
                     default: 0,
                 },
             },
+            measurementSides: {
+                type: Number,
+                default: 2,
+            },
             variant: {
                 type: String,
                 required: "Layout Variant is required",

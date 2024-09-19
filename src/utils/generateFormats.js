@@ -439,6 +439,13 @@ exports.generateLayoutSettingsForWineCellar = (settings, companyId) => {
                 //     glassAddon: new mongoose.Types.ObjectId(glassAddon?.id),
                 // };
             }
+            // measurement Sides
+            if (settings?.measurementSides) {
+                result = {
+                    ...result,
+                    measurementSides: settings?.measurementSides,
+                };
+            }
             // layout variant
             if (settings?.variant) {
                 result = {

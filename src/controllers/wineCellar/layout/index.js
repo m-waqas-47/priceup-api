@@ -1,13 +1,14 @@
 const Service = require("@services/wineCellar/layout");
 const {
     nestedObjectsToDotNotation,
-    getWineCellarHardwareList,
+    getWineCellarsHardwareList,
 } = require("@utils/common");
 const { handleResponse, handleError } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
-const CompanyService = require("@services/company");
-const {generateLayoutSettingsForWineCellar} = require("@utils/generateFormats");
-const {wineCellarLayouts} = require("@seeders/wineCellarLayoutSeeder");
+// const CompanyService = require("@services/company");
+// const {generateLayoutSettingsForWineCellar} = require("@utils/generateFormats");
+// const {wineCellarLayouts} = require("@seeders/wineCellarLayoutSeeder");
+const { wineCellarLayoutVariants } = require("@config/common");
 
 exports.getAll = async (req, res) => {
     const company_id = req.user.company_id;
@@ -36,7 +37,7 @@ exports.getSingle = async (req, res) => {
     Service.findBy({ _id: id })
         .then(async (record) => {
             const company_id = req.user.company_id;
-            const listData = await getWineCellarHardwareList(company_id);
+            const listData = await getWineCellarsHardwareList(company_id);
             handleResponse(res, 200, "Success", {
                 layoutData: record,
                 listData: listData,
@@ -83,28 +84,40 @@ exports.save = async (req, res) => {
 };
 
 exports.updateExistingCollection = async (req, res) => {
-    const companies = await CompanyService.findAll();
+    const layouts = await Service.findAll();
     try {
         await Promise.all(
-            companies.map(async (company) => {
-              const layoutPromises =  wineCellarLayouts?.map(async (layout) => {
-                     let settings = {};
-                     settings = await generateLayoutSettingsForWineCellar(
-                            layout?.settings,
-                            company?.id
+            layouts.map(async (layout) => {
+                switch (layout.variant) {
+                    case wineCellarLayoutVariants.INLINE:
+                        return Service.update(
+                            { _id: layout._id },
+                            { $set: { "settings.measurementSides": 2 } }
                         );
-                    return Service.create({
-                            name: layout?.name,
-                            image: layout?.image,
-                            company_id: new mongoose.Types.ObjectId(company?.id),
-                            settings: { ...settings },
-                    });
-                });
-                // Await all hardware creations for the current company
-                await Promise.all(layoutPromises);
+                        
+                    case wineCellarLayoutVariants.NINTYDEGREE:
+                        return Service.update(
+                            { _id: layout._id },
+                            { $set: { "settings.measurementSides": 3 } }
+                        );
+                    case wineCellarLayoutVariants.THREESIDEDGLASS:
+                        return Service.update(
+                            { _id: layout._id },
+                            { $set: { "settings.measurementSides": 4 } }
+                        );
+                    case wineCellarLayoutVariants.GLASSCUBE:
+                        return Service.update(
+                            { _id: layout._id },
+                            { $set: { "settings.measurementSides": 4 } }
+                        );
+                    default:
+                        return; // In case the variant doesn't match any case
+                }
+                
             })
         );
-        handleResponse(res, 200, "Records created successfully.");
+        
+        handleResponse(res, 200, "Records updated successfully.");
     } catch (err) {
         handleError(res, err);
     }

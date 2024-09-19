@@ -908,6 +908,13 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
         //   glassAddon: newGlassAddon?._id,
         // };
       }
+      // measurement Sides
+      if (settings?.measurementSides) {
+        result = {
+          ...result,
+          measurementSides: settings?.measurementSides,
+        };
+      }
       // variant
       if (settings?.variant) {
         result = {

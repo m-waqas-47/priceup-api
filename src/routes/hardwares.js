@@ -11,6 +11,7 @@ const {
   updateExistingHardware,
   getShowersHardware,
   getMirrorsHardware,
+  getWineCellarsHardware
 } = require("@controllers/hardware");
 const { verifyToken } = require("@middlewares/authentication");
 const { upload } = require("@services/multer");
@@ -19,6 +20,7 @@ const router = express.Router();
 router.get("/", verifyToken, getAll);
 router.get("/showersHardware", verifyToken, getShowersHardware);
 router.get("/mirrorsHardware", verifyToken, getMirrorsHardware);
+router.get("/wineCellarsHardware", verifyToken, getWineCellarsHardware);
 router.get("/:id", verifyToken, getHardware);
 router.put("/existingHardware", updateExistingHardware);
 router.put("/:id", upload.single("image"), verifyToken, updateHardware);
