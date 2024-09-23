@@ -29,6 +29,7 @@ exports.wineCellarLayouts = [
         type: "lock",
         count: 1,
       },
+      measurementSides:2,
       other: {
         people: 2,
         hours: 2,
@@ -64,6 +65,7 @@ exports.wineCellarLayouts = [
         type: "lock",
         count: 1,
       },
+      measurementSides:3,
       other: {
         people: 2,
         hours: 2,
@@ -99,6 +101,7 @@ exports.wineCellarLayouts = [
         type: "lock",
         count: 1,
       },
+      measurementSides:4,
       other: {
         people: 2,
         hours: 2,
@@ -134,6 +137,7 @@ exports.wineCellarLayouts = [
         type: "lock",
         count: 1,
       },
+      measurementSides:4,
       other: {
         people: 2,
         hours: 2,
