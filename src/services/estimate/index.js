@@ -61,9 +61,9 @@ class EstimateService {
     });
   }
 
-  static findBy(data) {
+  static findBy(condition) {
     return new Promise((resolve, reject) => {
-      Estimate.findOne(data)
+      Estimate.findOne(condition)
         .then((estimate) => {
           resolve(estimate);
         })

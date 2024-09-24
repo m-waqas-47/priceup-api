@@ -66,7 +66,14 @@ exports.getEstimate = async (req, res) => {
 
 exports.getEstimatesByProject = async (req, res) => {
   const { projectId } = req.params;
-  const { page = 1, limit = 10, category, search = "", status, date } = req.query; // Added search query
+  const {
+    page = 1,
+    limit = 10,
+    category,
+    search = "",
+    status,
+    date,
+  } = req.query; // Added search query
   const skip = (page - 1) * limit;
   try {
     const query = { project_id: new mongoose.Types.ObjectId(projectId) };
@@ -130,12 +137,25 @@ exports.updateEstimate = async (req, res) => {
   const { customerData, estimateData } = req.body;
   const data = await nestedObjectsToDotNotation(estimateData);
   try {
+    const oldRecord = await EstimateService.findBy({ _id: id });
+    if (!oldRecord) {
+      throw new Error("Invalid estimate ID");
+    }
+
     const estimate = await EstimateService.update({ _id: id }, data);
     await generateNotifications(
       notificationCategories.ESTIMATES,
       notificationActions.UPDATE,
       user,
       estimate._id
+    );
+    // Calculate the new totalAmountQuoted
+    const updatedEstimatePrice = data.cost;
+    const oldEstimatePrice = oldRecord.cost;
+    // Update the project's totalAmountQuoted
+    await ProjectService.update(
+      { _id: oldRecord.project_id },
+      { $inc: { totalAmountQuoted: updatedEstimatePrice - oldEstimatePrice } }
     );
     handleResponse(res, 200, "Estimate updated successfully", estimate);
   } catch (err) {
@@ -158,7 +178,11 @@ exports.deleteEstimate = async (req, res) => {
     //   CustomerService.delete({ _id: estimate.customer_id });
     // }
     const resp = await EstimateService.delete({ _id: id });
-
+    // Subtract the estimate's cost from the totalAmountQuoted in the associated project
+    await ProjectService.update(
+      { _id: resp.project_id },
+      { $inc: { totalAmountQuoted: -resp.cost } }
+    );
     await generateNotifications(
       notificationCategories.ESTIMATES,
       notificationActions.DELETE,
