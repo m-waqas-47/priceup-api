@@ -149,6 +149,7 @@ exports.updateEstimate = async (req, res) => {
       user,
       estimate._id
     );
+    if(data?.cost){
     // Calculate the new totalAmountQuoted
     const updatedEstimatePrice = data.cost;
     const oldEstimatePrice = oldRecord.cost;
@@ -156,7 +157,7 @@ exports.updateEstimate = async (req, res) => {
     await ProjectService.update(
       { _id: oldRecord.project_id },
       { $inc: { totalAmountQuoted: updatedEstimatePrice - oldEstimatePrice } }
-    );
+    );}
     handleResponse(res, 200, "Estimate updated successfully", estimate);
   } catch (err) {
     handleError(res, err);
