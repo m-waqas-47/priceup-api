@@ -21,6 +21,10 @@ const NotificationService = require("@services/notification");
 const ProjectService = require("@services/project");
 const StaffService = require("@services/staff");
 const UserService = require("@services/user");
+const WineCellarFinishService = require("@services/wineCellar/finish");
+const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const WineCellarHardwareService = require("@services/wineCellar/hardware");
+const WineCellarLayoutService = require("@services/wineCellar/layout");
 
 exports.generateNotifications = async (
   category,
@@ -184,9 +188,17 @@ exports.getResourceInfo = async (resource) => {
     }
 
     const estimateObject = estimate.toObject();
-    const layoutData = await LayoutService.findBy({
-      _id: estimate?.config?.layout_id,
-    });
+    let layoutData = null;
+    if(estimate?.category === estimateCategory.SHOWERS){
+      layoutData = await LayoutService.findBy({
+        _id: estimate?.config?.layout_id,
+      });
+    } else if(estimate?.category === estimateCategory.WINECELLARS){
+      layoutData = await WineCellarLayoutService.findBy({
+        _id: estimate?.config?.layout_id,
+      });
+    }
+    
     const creator = await getCreator(
       estimate.creator_type,
       estimate.creator_id
@@ -201,14 +213,14 @@ exports.getResourceInfo = async (resource) => {
       ...estimateObject,
       settings: layoutData
         ? {
-            measurementSides: layoutData.settings.measurementSides,
+            measurementSides: layoutData.settings?.measurementSides,
             image: layoutData.image,
             name: layoutData.name,
             _id: layoutData._id,
-            variant: layoutData.settings.variant,
-            heavyDutyOption: layoutData.settings.heavyDutyOption,
-            hinges: layoutData.settings.hinges,
-            glassType: estimateObject.config.glassType,
+            variant: layoutData.settings?.variant,
+            heavyDutyOption: layoutData.settings?.heavyDutyOption,
+            hinges: layoutData.settings?.hinges,
+            glassType: estimateObject.config?.glassType,
           }
         : null,
       creatorData: creator
@@ -234,6 +246,9 @@ exports.getResourceInfo = async (resource) => {
       case estimateCategory.MIRRORS:
         missingProps = await getMirrorsMissingProps(estimate);
         break;
+      case estimateCategory.WINECELLARS:
+          missingProps = await getWineCellarMissingProps(estimate);
+          break;
       default:
         break;
     }
@@ -382,5 +397,65 @@ const getMirrorsMissingProps = async (estimate) => {
     edgeWork: edgeWork,
     glassAddons: glassAddons,
     hardwares: hardwares,
+  };
+};
+
+const getWineCellarMissingProps = async (estimate) => {
+  const finishes = await WineCellarFinishService.findBy({
+    _id: estimate.config.hardwareFinishes,
+  });
+  const handles = estimate.config?.handles?.type
+    ? {
+        item: await WineCellarHardwareService.findBy({
+          _id: estimate.config.handles?.type,
+        }),
+        count: estimate.config.handles.count,
+      }
+    : { item: null, count: 0 };
+  const hinges = estimate.config?.hinges?.type
+    ? {
+        item: await WineCellarHardwareService.findBy({
+          _id: estimate.config.hinges?.type,
+        }),
+        count: estimate.config.hinges.count,
+      }
+    : { item: null, count: 0 };
+  const doorLock = estimate.config?.doorLock?.type
+    ? {
+        item: await WineCellarHardwareService.findBy({
+          _id: estimate.config.doorLock?.type,
+        }),
+        count: estimate.config.doorLock.count,
+      }
+    : { item: null, count: 0 };
+  const mountingChannel = estimate.config?.mountingChannel
+    ? await WineCellarHardwareService.findBy({ _id: estimate.config.mountingChannel })
+    : null;
+  const glassType = estimate.config?.glassType?.type
+    ? {
+        item: await WineCellarGlassTypeService.findBy({
+          _id: estimate.config.glassType?.type,
+        }),
+        thickness: estimate.config.glassType.thickness,
+      }
+    : { item: null, thickness: "3/8" };
+  // const glassAddons =
+  //   estimate.config?.glassAddons?.length > 0
+  //     ? await fetchDocumentsByIds(estimate.config?.glassAddons,GlassAddonService)
+  //     : [];
+  // let noGlassAddons = null;
+  // if(glassAddons?.length <= 0){
+  // noGlassAddons = await GlassAddonService?.findBy({
+  //   slug: "no-treatment",
+  // });
+  // }
+  return {
+    hardwareFinishes: finishes,
+    handles,
+    hinges,
+    doorLock,
+    mountingChannel,
+    glassType,
+    // glassAddons: glassAddons?.length ? glassAddons : [noGlassAddons],
   };
 };
