@@ -96,6 +96,10 @@ const layoutsSchema = new mongoose.Schema(
                     default: 0,
                 },
             },
+            noOfHoursToCompleteSingleDoor:{
+                type: Number,
+                default: 0,
+            },
             measurementSides: {
                 type: Number,
                 default: 2,

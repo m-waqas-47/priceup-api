@@ -86,28 +86,12 @@ exports.save = async (req, res) => {
 };
 
 exports.updateExistingCollection = async (req, res) => {
-    const companies = await CompanyService.findAll();
+    const layouts = await Service.findAll();
     try {
         await Promise.all(
-            companies.map(async (company) => {
-              const layoutPromises =  wineCellarLayouts?.map(async (layout) => {
-                     let settings = {};
-                     settings = await generateLayoutSettingsForWineCellar(
-                            layout?.settings,
-                            company?.id
-                        );
-                    return Service.create({
-                            name: layout?.name,
-                            image: layout?.image,
-                            company_id: new mongoose.Types.ObjectId(company?.id),
-                            settings: { ...settings },
-                    });
-                });
-                // Await all hardware creations for the current company
-                await Promise.all(layoutPromises);
-            })
+            layouts.map(async (layout) => Service.update({_id:layout?.id},{ $set: { 'settings.noOfHoursToCompleteSingleDoor': 0 } }))
         );
-        handleResponse(res, 200, "Records created successfully.");
+        handleResponse(res, 200, "Records updated successfully.");
     } catch (err) {
         handleError(res, err);
     }
