@@ -158,6 +158,12 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
+                      noOfHoursToCompleteSingleDoor: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.noOfHoursToCompleteSingleDoor",
+                          0,
+                        ],
+                      },
                       image: {
                         $arrayElemAt: ["$layoutDetailsWineCellars.image", 0],
                       },
@@ -655,6 +661,12 @@ exports.fetchAllRecordsByCustomer = (
                       measurementSides: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.measurementSides",
+                          0,
+                        ],
+                      },
+                      noOfHoursToCompleteSingleDoor: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.noOfHoursToCompleteSingleDoor",
                           0,
                         ],
                       },
