@@ -214,6 +214,7 @@ exports.getResourceInfo = async (resource) => {
       settings: layoutData
         ? {
             measurementSides: layoutData.settings?.measurementSides,
+            noOfHoursToCompleteSingleDoor: layoutData.settings?.noOfHoursToCompleteSingleDoor ?? 0,
             image: layoutData.image,
             name: layoutData.name,
             _id: layoutData._id,
