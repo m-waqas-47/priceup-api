@@ -284,77 +284,34 @@ exports.getAllStats = async (req, res) => {
 };
 
 exports.modifyExistingRecords = async (req, res) => {
-  const estimates = await EstimateService.findAll();
-
   try {
-    await Promise.all(
-      estimates?.map(async (estimate) => {
-        (estimate.category = "showers"),
-          (estimate.config = {
-            layout_id: estimate.layout_id,
-            isCustomizedDoorWidth: estimate.isCustomizedDoorWidth,
-            doorWidth: estimate.doorWidth,
-            hardwareFinishes: estimate.hardwareFinishes,
-            handles: { ...estimate.handles },
-            hinges: { ...estimate.hinges },
-            mountingClamps: { ...estimate.mountingClamps },
-            cornerClamps: { ...estimate.cornerClamps },
-            mountingChannel: estimate.mountingChannel,
-            glassType: { ...estimate.glassType },
-            slidingDoorSystem: { ...estimate.slidingDoorSystem },
-            header: { ...estimate.header },
-            glassAddons: estimate.glassAddons,
-            hardwareAddons: estimate.hardwareAddons,
-            oneInchHoles: estimate.oneInchHoles,
-            hingeCut: estimate.hingeCut,
-            clampCut: estimate.clampCut,
-            notch: estimate.notch,
-            outages: estimate.outages,
-            mitre: estimate.mitre,
-            polish: estimate.polish,
-            people: estimate.people,
-            hours: estimate.hours,
-            additionalFields: estimate.additionalFields,
-            measurements: estimate.measurements,
-            perimeter: estimate.perimeter,
-            sqftArea: estimate.sqftArea,
-            userProfitPercentage: estimate.userProfitPercentage,
-          });
-
-        // Remove old fields
-        estimate.layout_id = undefined;
-        estimate.isCustomizedDoorWidth = undefined;
-        estimate.doorWidth = undefined;
-        estimate.hardwareFinishes = undefined;
-        estimate.handles = undefined;
-        estimate.hinges = undefined;
-        estimate.mountingClamps = undefined;
-        estimate.cornerClamps = undefined;
-        estimate.mountingChannel = undefined;
-        estimate.glassType = undefined;
-        estimate.slidingDoorSystem = undefined;
-        estimate.header = undefined;
-        estimate.glassAddons = undefined;
-        estimate.hardwareAddons = undefined;
-        estimate.oneInchHoles = undefined;
-        estimate.hingeCut = undefined;
-        estimate.clampCut = undefined;
-        estimate.notch = undefined;
-        estimate.outages = undefined;
-        estimate.mitre = undefined;
-        estimate.polish = undefined;
-        estimate.people = undefined;
-        estimate.hours = undefined;
-        estimate.additionalFields = undefined;
-        estimate.measurements = undefined;
-        estimate.perimeter = undefined;
-        estimate.sqftArea = undefined;
-        estimate.userProfitPercentage = undefined;
-        return estimate.save();
-      })
+    // Update all estimates where category is 'mirrors' and hardwares array exists
+    await EstimateService.updateMany(
+      { 
+        category: "mirrors", 
+        "config.hardwares": { $exists: true, $type: "array" }
+      },
+      [{
+        // MongoDB aggregation pipeline to transform the hardwares array
+        $set: {
+          "config.hardwares": {
+            $map: {
+              input: "$config.hardwares",
+              as: "hardware",
+              in: {
+                type: { $toObjectId: "$$hardware" }, // Convert string to ObjectId
+                count: 1
+              }
+            }
+          }
+        }
+      }]
     );
-    handleResponse(res, 200, "Estimates info updated");
-  } catch (err) {
-    handleError(res, err);
+   
+    console.log(`Estimates updated successfully`);
+    handleResponse(res,200,`Estimates updated successfully`);
+  } catch (error) {
+    console.error("Error updating estimates:", error);
+    handleError(res,error);
   }
 };

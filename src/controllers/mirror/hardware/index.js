@@ -154,9 +154,10 @@ exports.update = async (req, res) => {
 exports.modifyExistingRecords = async (req, res) => {
   const companies = await CompanyService.findAll();
   try {
+    const filteredHardware = mirrorHardwares.filter((item)=>item.slug !== 'bevel-strip');
     await Promise.all(
       companies?.map(async (company) =>
-        mirrorHardwares?.map(
+        filteredHardware?.map(
           async (item) =>
             await MirrorHardwareService.create({
               ...item,
@@ -165,7 +166,7 @@ exports.modifyExistingRecords = async (req, res) => {
         )
       )
     );
-    handleResponse(res, 200, `${entityType} added successfully`);
+    handleResponse(res, 200, `Hardwares added successfully`,filteredHardware);
   } catch (err) {
     handleError(res, err);
   }

@@ -446,6 +446,13 @@ exports.generateLayoutSettingsForWineCellar = (settings, companyId) => {
                     measurementSides: settings?.measurementSides,
                 };
             }
+            // noOfHoursToCompleteSingleDoor
+            if (settings?.noOfHoursToCompleteSingleDoor) {
+                result = {
+                    ...result,
+                    noOfHoursToCompleteSingleDoor: settings?.noOfHoursToCompleteSingleDoor,
+                };
+            }
             // layout variant
             if (settings?.variant) {
                 result = {

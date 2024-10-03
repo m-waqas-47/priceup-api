@@ -387,11 +387,16 @@ const getMirrorsMissingProps = async (estimate) => {
       : [];
 
   const hardwares =
-    estimate.config?.hardwares?.length > 0
-      ? await MirrorHardwareService.findAll({
-          _id: { $in: estimate.config?.hardwares },
-        })
-      : [];
+  estimate.config?.hardwares?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.hardwares,MirrorHardwareService)
+    : [];
+
+  // const hardwares =
+  //   estimate.config?.hardwares?.length > 0
+  //     ? await MirrorHardwareService.findAll({
+  //         _id: { $in: estimate.config?.hardwares },
+  //       })
+  //     : [];
 
   return {
     glassType: glassType,

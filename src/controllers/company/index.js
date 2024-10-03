@@ -818,6 +818,23 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
           },
         };
       }
+      if (settings?.doorLock && settings?.doorLock?.type) {
+        // doorLock
+        const oldDoorLock = await WineCellarHardwareService.findBy({
+          _id: settings?.doorLock?.type,
+        });
+        const newDoorLock = await WineCellarHardwareService.findBy({
+          slug: oldDoorLock?.slug,
+          company_id: companyId,
+        });
+        result = {
+          ...result,
+          doorLock: {
+            type: newDoorLock?._id,
+            count: settings?.doorLock?.count,
+          },
+        };
+      }
       if (settings?.hinges && settings?.hinges?.hingesType) {
         // hinges
         const oldHinge = await WineCellarHardwareService.findBy({
@@ -913,6 +930,13 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
         result = {
           ...result,
           measurementSides: settings?.measurementSides,
+        };
+      }
+      // noOfHoursToCompleteSingleDoor
+      if (settings?.noOfHoursToCompleteSingleDoor) {
+        result = {
+          ...result,
+          noOfHoursToCompleteSingleDoor: settings?.noOfHoursToCompleteSingleDoor,
         };
       }
       // variant
