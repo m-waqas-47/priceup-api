@@ -1,6 +1,7 @@
 const {
   fetchAllRecords,
   fetchAllRecordsByCustomer,
+  fetchSingleRecord,
 } = require("@utils/DB_Pipelines/estimates");
 const Estimate = require("../../models/estimates");
 
@@ -49,10 +50,12 @@ class EstimateService {
     });
   }
 
-  static findOne(data) {
+  static findByWithDetail(condition) {
     return new Promise((resolve, reject) => {
-      Estimate.findOne(data)
-        .then((estimate) => {
+      const pipeline = fetchSingleRecord(condition);
+      Estimate.aggregate(pipeline)
+        .then((result) => {
+          const estimate = result[0];
           resolve(estimate);
         })
         .catch((err) => {

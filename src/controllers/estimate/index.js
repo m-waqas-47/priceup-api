@@ -43,25 +43,13 @@ exports.getAll = async (req, res) => {
 
 exports.getEstimate = async (req, res) => {
   const { id } = req.params;
-  EstimateService.findBy({ _id: id })
-    .then(async (estimate) => {
-      const layoutData = await LayoutService.findBy({
-        id: estimate?.config?.layout_id,
-      });
-      handleResponse(res, 200, "Success", {
-        ...estimate,
-        layout: layoutData
-          ? {
-              image: layoutData.image,
-              name: layoutData.name,
-              _id: layoutData._id,
-            }
-          : null,
-      });
-    })
-    .catch((err) => {
-      handleError(res, err);
-    });
+   try{
+    const estimate = await EstimateService.findByWithDetail({_id: new mongoose.Types.ObjectId(id)})
+   handleResponse(res,200,"Single Record",estimate)
+   }
+   catch(err){
+    handleError(res,err)
+   }
 };
 
 exports.getEstimatesByProject = async (req, res) => {
