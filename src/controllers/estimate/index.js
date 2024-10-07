@@ -44,8 +44,8 @@ exports.getAll = async (req, res) => {
 exports.getEstimate = async (req, res) => {
   const { id } = req.params;
    try{
-    const estimate = await EstimateService.findByWithDetail({_id: new mongoose.Types.ObjectId(id)})
-   handleResponse(res,200,"Single Record",estimate)
+   const estimate = await EstimateService.findByWithDetail({_id: new mongoose.Types.ObjectId(id)});
+   handleResponse(res, 200, "Single Record", estimate ?? null)
    }
    catch(err){
     handleError(res,err)
