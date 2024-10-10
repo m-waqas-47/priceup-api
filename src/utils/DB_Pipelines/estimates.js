@@ -139,7 +139,7 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -187,7 +187,7 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -645,7 +645,7 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -693,7 +693,7 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -1142,7 +1142,7 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -1190,7 +1190,7 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
-                      glassType: "$config.glassType", // Setting glassType from config
+                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
