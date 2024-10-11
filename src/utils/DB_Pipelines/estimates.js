@@ -72,9 +72,7 @@ exports.fetchAllRecords = (condition, search, options) => {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", { $toObjectId: "$$layoutId" }] },
-                ],
+                $and: [{ $eq: ["$_id", { $toObjectId: "$$layoutId" }] }],
               },
             },
           },
@@ -118,7 +116,9 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
-                      image: { $arrayElemAt: ["$layoutDetailsShowers.image", 0] },
+                      image: {
+                        $arrayElemAt: ["$layoutDetailsShowers.image", 0],
+                      },
                       name: { $arrayElemAt: ["$layoutDetailsShowers.name", 0] },
                       _id: { $arrayElemAt: ["$layoutDetailsShowers._id", 0] },
                       variant: {
@@ -139,7 +139,12 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -167,8 +172,12 @@ exports.fetchAllRecords = (condition, search, options) => {
                       image: {
                         $arrayElemAt: ["$layoutDetailsWineCellars.image", 0],
                       },
-                      name: { $arrayElemAt: ["$layoutDetailsWineCellars.name", 0] },
-                      _id: { $arrayElemAt: ["$layoutDetailsWineCellars._id", 0] },
+                      name: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars.name", 0],
+                      },
+                      _id: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars._id", 0],
+                      },
                       variant: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.variant",
@@ -187,7 +196,12 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -291,204 +305,6 @@ exports.fetchAllRecords = (condition, search, options) => {
       },
     },
   ];
-  
-  
-  // return [
-  //   // Match the specific condition
-  //   {
-  //     $match: condition,
-  //   },
-  //   // Lookup to join project details
-  //   {
-  //     $lookup: {
-  //       from: "projects",
-  //       localField: "project_id",
-  //       foreignField: "_id",
-  //       as: "projectDetails",
-  //     },
-  //   },
-  //   // Unwind the projectDetails array
-  //   {
-  //     $unwind: {
-  //       path: "$projectDetails",
-  //       preserveNullAndEmptyArrays: true, // Allow for estimates without projects
-  //     },
-  //   },
-  //   // Add a conditional field to determine the source of customer_id
-  //   {
-  //     $addFields: {
-  //       actualCustomerId: {
-  //         $cond: {
-  //           if: { $gt: ["$customer_id", null] }, // Check if customer_id exists
-  //           then: "$customer_id",
-  //           else: "$projectDetails.customer_id",
-  //         },
-  //       },
-  //     },
-  //   },
-  //   // Lookup to join customer details based on actualCustomerId
-  //   {
-  //     $lookup: {
-  //       from: "customers",
-  //       localField: "actualCustomerId",
-  //       foreignField: "_id",
-  //       as: "customerDetails",
-  //     },
-  //   },
-  //   // Unwind the customerDetails array
-  //   {
-  //     $unwind: {
-  //       path: "$customerDetails",
-  //       preserveNullAndEmptyArrays: false, // Only include projects with matching customers
-  //     },
-  //   },
-
-  //   // Lookup to join company details
-  //   {
-  //     $lookup: {
-  //       from: "companies",
-  //       localField: "company_id",
-  //       foreignField: "_id",
-  //       as: "companyDetails",
-  //     },
-  //   },
-  //   {
-  //     $unwind: {
-  //       path: "$companyDetails",
-  //       preserveNullAndEmptyArrays: true,
-  //     },
-  //   },
-
-  //   // Lookup to join layout details
-  //   {
-  //     $lookup: {
-  //       from: "layouts",
-  //       let: { layoutId: "$config.layout_id" },
-  //       pipeline: [
-  //         {
-  //           $match: { $expr: { $eq: ["$_id", { $toObjectId: "$$layoutId" }] } },
-  //         },
-  //       ],
-  //       as: "layoutDetails",
-  //     },
-  //   },
-  //   {
-  //     $addFields: {
-  //       settings: {
-  //         $cond: {
-  //           if: { $gt: [{ $size: "$layoutDetails" }, 0] },
-  //           then: {
-  //             measurementSides: {
-  //               $arrayElemAt: ["$layoutDetails.settings.measurementSides", 0],
-  //             },
-  //             image: { $arrayElemAt: ["$layoutDetails.image", 0] },
-  //             name: { $arrayElemAt: ["$layoutDetails.name", 0] },
-  //             _id: { $arrayElemAt: ["$layoutDetails._id", 0] },
-  //             variant: { $arrayElemAt: ["$layoutDetails.settings.variant", 0] },
-  //             heavyDutyOption: {
-  //               $arrayElemAt: ["$layoutDetails.settings.heavyDutyOption", 0],
-  //             },
-  //             hinges: { $arrayElemAt: ["$layoutDetails.settings.hinges", 0] },
-  //             glassType: "$config.glassType",
-  //           },
-  //           else: null,
-  //         },
-  //       },
-  //     },
-  //   },
-
-  //   // Conditional lookup for creator details based on creator_type
-  //   {
-  //     $lookup: {
-  //       from: "users",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "adminDetails",
-  //     },
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "staffs",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "staffDetails",
-  //     },
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "customusers",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "customadminDetails",
-  //     },
-  //   },
-  //   {
-  //     $addFields: {
-  //       creatorDetails: {
-  //         $switch: {
-  //           branches: [
-  //             {
-  //               case: { $eq: ["$creator_type", "admin"] },
-  //               then: { $arrayElemAt: ["$adminDetails", 0] },
-  //             },
-  //             {
-  //               case: { $eq: ["$creator_type", "staff"] },
-  //               then: { $arrayElemAt: ["$staffDetails", 0] },
-  //             },
-  //             {
-  //               case: { $eq: ["$creator_type", "custom_admin"] },
-  //               then: { $arrayElemAt: ["$customadminDetails", 0] },
-  //             },
-  //           ],
-  //           default: null,
-  //         },
-  //       },
-  //     },
-  //   },
-  //   // Match based on search term if provided
-  //   ...(search && search.trim() !== ""
-  //     ? [
-  //         {
-  //           $match: {
-  //             "customerDetails.name": { $regex: search, $options: "i" },
-  //           },
-  //         },
-  //       ]
-  //     : []),
-  //   {
-  //     $facet: {
-  //       totalRecords: [{ $count: "count" }],
-  //       estimates: [
-  //         {
-  //           $project: {
-  //             name: 1,
-  //             label: 1,
-  //             category: 1,
-  //             status: 1,
-  //             cost: 1,
-  //             config: 1,
-  //             createdAt: 1,
-  //             updatedAt: 1,
-  //             creatorData: "$creatorDetails",
-  //             customerData: "$customerDetails",
-  //             companyData: "$companyDetails",
-  //             settings: 1,
-  //             project_id: 1,
-  //           },
-  //         },
-  //         { $skip: options.skip },
-  //         { $limit: options.limit },
-  //         { $sort: { createdAt: -1 } },
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     $project: {
-  //       totalRecords: { $arrayElemAt: ["$totalRecords.count", 0] },
-  //       estimates: 1,
-  //     },
-  //   },
-  // ];
 };
 
 exports.fetchAllRecordsByCustomer = (
@@ -497,7 +313,7 @@ exports.fetchAllRecordsByCustomer = (
   options,
   customerId
 ) => {
- return [
+  return [
     // Match the specific condition
     {
       $match: condition,
@@ -552,7 +368,7 @@ exports.fetchAllRecordsByCustomer = (
         preserveNullAndEmptyArrays: false, // Only include projects with matching customers
       },
     },
-  
+
     // Lookup to join company details
     {
       $lookup: {
@@ -568,7 +384,7 @@ exports.fetchAllRecordsByCustomer = (
         preserveNullAndEmptyArrays: true,
       },
     },
-  
+
     // Lookup for layouts if category is 'showers'
     {
       $lookup: {
@@ -578,9 +394,7 @@ exports.fetchAllRecordsByCustomer = (
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", { $toObjectId: "$$layoutId" }] },
-                ],
+                $and: [{ $eq: ["$_id", { $toObjectId: "$$layoutId" }] }],
               },
             },
           },
@@ -624,7 +438,9 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
-                      image: { $arrayElemAt: ["$layoutDetailsShowers.image", 0] },
+                      image: {
+                        $arrayElemAt: ["$layoutDetailsShowers.image", 0],
+                      },
                       name: { $arrayElemAt: ["$layoutDetailsShowers.name", 0] },
                       _id: { $arrayElemAt: ["$layoutDetailsShowers._id", 0] },
                       variant: {
@@ -645,7 +461,12 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -673,8 +494,12 @@ exports.fetchAllRecordsByCustomer = (
                       image: {
                         $arrayElemAt: ["$layoutDetailsWineCellars.image", 0],
                       },
-                      name: { $arrayElemAt: ["$layoutDetailsWineCellars.name", 0] },
-                      _id: { $arrayElemAt: ["$layoutDetailsWineCellars._id", 0] },
+                      name: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars.name", 0],
+                      },
+                      _id: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars._id", 0],
+                      },
                       variant: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.variant",
@@ -693,7 +518,12 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -705,7 +535,7 @@ exports.fetchAllRecordsByCustomer = (
         },
       },
     },
-  
+
     // Conditional lookup for creator details based on creator_type
     {
       $lookup: {
@@ -798,209 +628,6 @@ exports.fetchAllRecordsByCustomer = (
       },
     },
   ];
-  
-  // return [
-  //   // Match the specific condition
-  //   {
-  //     $match: condition,
-  //   },
-  //   // Lookup to join project details
-  //   {
-  //     $lookup: {
-  //       from: "projects",
-  //       localField: "project_id",
-  //       foreignField: "_id",
-  //       as: "projectDetails",
-  //     },
-  //   },
-  //   // Unwind the projectDetails array
-  //   {
-  //     $unwind: {
-  //       path: "$projectDetails",
-  //       preserveNullAndEmptyArrays: true, // Allow for estimates without projects
-  //     },
-  //   },
-  //   // Add a conditional field to determine the source of customer_id
-  //   {
-  //     $addFields: {
-  //       actualCustomerId: {
-  //         $cond: {
-  //           if: { $gt: ["$customer_id", null] }, // Check if customer_id exists in estimates
-  //           then: "$customer_id",
-  //           else: "$projectDetails.customer_id",
-  //         },
-  //       },
-  //     },
-  //   },
-  //   // Match estimates by customer_id if it exists in the projectDetails
-  //   {
-  //     $match: {
-  //       actualCustomerId: new mongoose.Types.ObjectId(customerId), // Assuming `customerId` is passed into the pipeline
-  //     },
-  //   },
-  //   // Lookup to join customer details based on actualCustomerId
-  //   {
-  //     $lookup: {
-  //       from: "customers",
-  //       localField: "actualCustomerId",
-  //       foreignField: "_id",
-  //       as: "customerDetails",
-  //     },
-  //   },
-  //   // Unwind the customerDetails array
-  //   {
-  //     $unwind: {
-  //       path: "$customerDetails",
-  //       preserveNullAndEmptyArrays: false, // Only include projects with matching customers
-  //     },
-  //   },
-
-  //   // Lookup to join company details
-  //   {
-  //     $lookup: {
-  //       from: "companies",
-  //       localField: "company_id",
-  //       foreignField: "_id",
-  //       as: "companyDetails",
-  //     },
-  //   },
-  //   {
-  //     $unwind: {
-  //       path: "$companyDetails",
-  //       preserveNullAndEmptyArrays: true,
-  //     },
-  //   },
-
-  //   // Lookup to join layout details
-  //   {
-  //     $lookup: {
-  //       from: "layouts",
-  //       let: { layoutId: "$config.layout_id" },
-  //       pipeline: [
-  //         {
-  //           $match: { $expr: { $eq: ["$_id", { $toObjectId: "$$layoutId" }] } },
-  //         },
-  //       ],
-  //       as: "layoutDetails",
-  //     },
-  //   },
-  //   {
-  //     $addFields: {
-  //       settings: {
-  //         $cond: {
-  //           if: { $gt: [{ $size: "$layoutDetails" }, 0] },
-  //           then: {
-  //             measurementSides: {
-  //               $arrayElemAt: ["$layoutDetails.settings.measurementSides", 0],
-  //             },
-  //             image: { $arrayElemAt: ["$layoutDetails.image", 0] },
-  //             name: { $arrayElemAt: ["$layoutDetails.name", 0] },
-  //             _id: { $arrayElemAt: ["$layoutDetails._id", 0] },
-  //             variant: { $arrayElemAt: ["$layoutDetails.settings.variant", 0] },
-  //             heavyDutyOption: {
-  //               $arrayElemAt: ["$layoutDetails.settings.heavyDutyOption", 0],
-  //             },
-  //             hinges: { $arrayElemAt: ["$layoutDetails.settings.hinges", 0] },
-  //             glassType: "$config.glassType",
-  //           },
-  //           else: null,
-  //         },
-  //       },
-  //     },
-  //   },
-
-  //   // Conditional lookup for creator details based on creator_type
-  //   {
-  //     $lookup: {
-  //       from: "users",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "adminDetails",
-  //     },
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "staffs",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "staffDetails",
-  //     },
-  //   },
-  //   {
-  //     $lookup: {
-  //       from: "customusers",
-  //       localField: "creator_id",
-  //       foreignField: "_id",
-  //       as: "customadminDetails",
-  //     },
-  //   },
-  //   {
-  //     $addFields: {
-  //       creatorDetails: {
-  //         $switch: {
-  //           branches: [
-  //             {
-  //               case: { $eq: ["$creator_type", "admin"] },
-  //               then: { $arrayElemAt: ["$adminDetails", 0] },
-  //             },
-  //             {
-  //               case: { $eq: ["$creator_type", "staff"] },
-  //               then: { $arrayElemAt: ["$staffDetails", 0] },
-  //             },
-  //             {
-  //               case: { $eq: ["$creator_type", "custom_admin"] },
-  //               then: { $arrayElemAt: ["$customadminDetails", 0] },
-  //             },
-  //           ],
-  //           default: null,
-  //         },
-  //       },
-  //     },
-  //   },
-  //   // Match based on search term if provided
-  //   ...(search && search.trim() !== ""
-  //     ? [
-  //         {
-  //           $match: {
-  //             "customerDetails.name": { $regex: search, $options: "i" },
-  //           },
-  //         },
-  //       ]
-  //     : []),
-  //   {
-  //     $facet: {
-  //       totalRecords: [{ $count: "count" }],
-  //       estimates: [
-  //         {
-  //           $project: {
-  //             name: 1,
-  //             label: 1,
-  //             category: 1,
-  //             status: 1,
-  //             cost: 1,
-  //             config: 1,
-  //             createdAt: 1,
-  //             updatedAt: 1,
-  //             creatorData: "$creatorDetails",
-  //             customerData: "$customerDetails",
-  //             companyData: "$companyDetails",
-  //             settings: 1,
-  //             project_id: 1,
-  //           },
-  //         },
-  //         { $skip: options.skip },
-  //         { $limit: options.limit },
-  //         { $sort: { createdAt: -1 } },
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     $project: {
-  //       totalRecords: { $arrayElemAt: ["$totalRecords.count", 0] },
-  //       estimates: 1,
-  //     },
-  //   },
-  // ];
 };
 
 exports.fetchSingleRecord = (condition) => {
@@ -1075,9 +702,7 @@ exports.fetchSingleRecord = (condition) => {
           {
             $match: {
               $expr: {
-                $and: [
-                  { $eq: ["$_id", { $toObjectId: "$$layoutId" }] },
-                ],
+                $and: [{ $eq: ["$_id", { $toObjectId: "$$layoutId" }] }],
               },
             },
           },
@@ -1121,7 +746,9 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
-                      image: { $arrayElemAt: ["$layoutDetailsShowers.image", 0] },
+                      image: {
+                        $arrayElemAt: ["$layoutDetailsShowers.image", 0],
+                      },
                       name: { $arrayElemAt: ["$layoutDetailsShowers.name", 0] },
                       _id: { $arrayElemAt: ["$layoutDetailsShowers._id", 0] },
                       variant: {
@@ -1142,7 +769,12 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsShowers.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -1170,8 +802,12 @@ exports.fetchSingleRecord = (condition) => {
                       image: {
                         $arrayElemAt: ["$layoutDetailsWineCellars.image", 0],
                       },
-                      name: { $arrayElemAt: ["$layoutDetailsWineCellars.name", 0] },
-                      _id: { $arrayElemAt: ["$layoutDetailsWineCellars._id", 0] },
+                      name: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars.name", 0],
+                      },
+                      _id: {
+                        $arrayElemAt: ["$layoutDetailsWineCellars._id", 0],
+                      },
                       variant: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.variant",
@@ -1190,7 +826,12 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
-                      glassType: "$layoutDetailsWineCellars.settings.glassType", // Setting glassType from layout
+                      glassType: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.glassType",
+                          0,
+                        ],
+                      }, // Setting glassType from layout
                     },
                     else: null, // If no matching layout, set to null
                   },
@@ -1250,39 +891,38 @@ exports.fetchSingleRecord = (condition) => {
         },
       },
     },
-    
+
     // Unwind to get a single record instead of an array
-  {
-    $replaceRoot: {
-      newRoot: {
-        $mergeObjects: [
-          "$$ROOT",
-          { creatorDetails: "$creatorDetails" },
-          { customerData: "$customerDetails" },
-          { companyData: "$companyDetails" },
-          { settings: "$settings" },
-        ],
+    {
+      $replaceRoot: {
+        newRoot: {
+          $mergeObjects: [
+            "$$ROOT",
+            { creatorDetails: "$creatorDetails" },
+            { customerData: "$customerDetails" },
+            { companyData: "$companyDetails" },
+            { settings: "$settings" },
+          ],
+        },
       },
     },
-  },
-  // Finally project the necessary fields
-  {
-    $project: {
-      name: 1,
-      label: 1,
-      category: 1,
-      status: 1,
-      cost: 1,
-      config: 1,
-      createdAt: 1,
-      updatedAt: 1,
-      creatorData: "$creatorDetails",
-      customerData: "$customerDetails",
-      companyData: "$companyDetails",
-      settings: 1,
-      project_id: 1,
+    // Finally project the necessary fields
+    {
+      $project: {
+        name: 1,
+        label: 1,
+        category: 1,
+        status: 1,
+        cost: 1,
+        config: 1,
+        createdAt: 1,
+        updatedAt: 1,
+        creatorData: "$creatorDetails",
+        customerData: "$customerDetails",
+        companyData: "$companyDetails",
+        settings: 1,
+        project_id: 1,
+      },
     },
-  },
   ];
-
 };
