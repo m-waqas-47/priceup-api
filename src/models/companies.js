@@ -172,6 +172,28 @@ const companySchema = new mongoose.Schema(
         },
       },
     },
+    pdfSettings:{
+      people: {
+        type: Boolean,
+        default: false,
+      },
+      hours: {
+        type: Boolean,
+        default: false,
+      },
+      labor:{
+        type: Boolean,
+        default: true,
+      },
+      cost:{
+        type: Boolean,
+        default: false,
+      },
+      profit:{
+        type: Boolean,
+        default: false
+      }
+    },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "User reference is required",
