@@ -18,7 +18,8 @@ const projectSchema = new mongoose.Schema(
     },
     address_id: {
       type: mongoose.Schema.Types.ObjectId,
-      required: "Address reference is required",
+      // required: "Address reference is required",
+      default: null
     },
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
