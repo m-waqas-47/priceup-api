@@ -1,3 +1,4 @@
+const { fetchGraphData } = require("@utils/DB_Pipelines/customer");
 const Customer = require("../../models/customers");
 
 class CustomerService {
@@ -38,6 +39,19 @@ class CustomerService {
           reject(err);
         });
     });
+  }
+
+  static graphData(condition){
+    return new Promise((resolve,reject)=>{
+      const pipeline = fetchGraphData(condition);
+      Customer.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    })
   }
 
   static findBy(data) {

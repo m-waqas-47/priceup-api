@@ -2,6 +2,7 @@ const {
   fetchAllRecords,
   fetchAllRecordsByCustomer,
   fetchSingleRecord,
+  fetchGraphData,
 } = require("@utils/DB_Pipelines/estimates");
 const Estimate = require("../../models/estimates");
 
@@ -48,6 +49,19 @@ class EstimateService {
           reject(err);
         });
     });
+  }
+
+  static graphData(condition){
+    return new Promise((resolve,reject)=>{
+      const pipeline = fetchGraphData(condition);
+      Estimate.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    })
   }
 
   static findByWithDetail(condition) {

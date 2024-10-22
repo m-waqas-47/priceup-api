@@ -926,3 +926,57 @@ exports.fetchSingleRecord = (condition) => {
     },
   ];
 };
+
+exports.fetchGraphData = (condition) => {
+  return [
+    // Match records within the provided date range
+    {
+        $match: condition
+        // {
+        //     createdAt: { 
+        //         $gte: new Date(startDate), 
+        //         $lte: new Date(endDate) 
+        //     }
+        // }
+    },
+    {
+        $facet: {
+            // Bar chart: group by created date (formatted) and count records
+            barChart: [
+                {
+                    $group: {
+                        _id: { 
+                            $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } 
+                        },
+                        count: { $sum: 1 }
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        x: "$_id", // formatted date as 'x'
+                        y: "$count" // count as 'y'
+                    }
+                },
+                { $sort: { x: 1 } } // sort by date
+            ],
+            // Pie chart: group by category and count records
+            pieChart: [
+                {
+                    $group: {
+                        _id: "$category", // group by category
+                        count: { $sum: 1 } // count number of records per category
+                    }
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        category: "$_id", // return category
+                        count: "$count" // return count
+                    }
+                }
+            ]
+        }
+    }
+];
+}

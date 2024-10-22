@@ -311,3 +311,14 @@ exports.generateFinishes = (finish) => {
     }
   });
 };
+
+// Helper function to get today's start and end time
+exports.getTodayRange = () => {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0); // Set to the start of today (00:00:00)
+  
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999); // Set to the end of today (23:59:59)
+  
+  return { startOfDay, endOfDay };
+};

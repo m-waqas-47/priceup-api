@@ -2,6 +2,7 @@ const Project = require("@models/projects");
 const {
   fetchAllRecords,
   fetchSingleRecord,
+  fetchGraphData,
 } = require("@utils/DB_Pipelines/project");
 
 class ProjectService {
@@ -34,6 +35,19 @@ class ProjectService {
           reject(err);
         });
     });
+  }
+
+  static graphData(condition){
+    return new Promise((resolve,reject)=>{
+      const pipeline = fetchGraphData(condition);
+      Project.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    })
   }
 
   static update(condition, data) {
