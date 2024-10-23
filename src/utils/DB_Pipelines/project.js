@@ -114,7 +114,10 @@ exports.fetchAllRecords = (condition, search, options) => {
       },
     });
   }
-
+  // sort by createdAt
+  pipeline.push({
+    $sort: { createdAt: -1 }
+  })
   // Check if pagination is needed
   if (options && options.skip !== undefined && options.limit !== undefined) {
     pipeline.push(
@@ -141,7 +144,7 @@ exports.fetchAllRecords = (condition, search, options) => {
             },
             { $skip: options?.skip },
             { $limit: options?.limit },
-            { $sort: { createdAt: -1 } },
+            // { $sort: { createdAt: -1 } },
           ],
         },
       },
@@ -171,7 +174,7 @@ exports.fetchAllRecords = (condition, search, options) => {
           updatedAt: 1,
         },
       },
-      { $sort: { createdAt: -1 } }
+      // { $sort: { createdAt: -1 } }
     );
   }
   return pipeline;

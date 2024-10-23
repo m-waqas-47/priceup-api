@@ -1,4 +1,5 @@
 // const customers = require("../../models/customers");
+const { default: mongoose } = require("mongoose");
 const {
   multerActions,
   multerSource,
@@ -16,30 +17,17 @@ const { handleError, handleResponse } = require("../../utils/responses");
 
 exports.getAll = async (req, res) => {
   const company_id = req.user.company_id;
-  const { page, limit, search } = req.query; // Default page is 1 and limit is 10, adjust as needed
-  const customerQuery = { company_id };
+  const { page, limit, search = "" } = req.query; // Default page is 1 and limit is 10, adjust as needed
+  const customerQuery = { company_id: new mongoose.Types.ObjectId(company_id) };
   const options = {};
   if (page && limit) {
     const skip = (page - 1) * limit;
     options.skip = skip;
-    options.limit = limit;
-  }
-  if (search && search?.length) {
-    customerQuery.name = { $regex: search.toLowerCase(), $options: "i" };
+    options.limit = Number(limit);
   }
   try {
-    const customers = await CustomerService.findAll(customerQuery, options);
-    const customersCount = await CustomerService.count(customerQuery);
-    let data = {};
-    if (page && limit) {
-      data = {
-        totalRecords: customersCount,
-        customers: customers,
-      };
-    } else {
-      data = customers;
-    }
-    handleResponse(res, 200, "All Customers", data);
+    const customers = await CustomerService.findAllWithPipeline(customerQuery, search, options);
+    handleResponse(res, 200, "All Customers", customers);
   } catch (err) {
     handleError(res, err);
   }

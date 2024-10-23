@@ -271,6 +271,10 @@ exports.fetchAllRecords = (condition, search, options) => {
           },
         ]
       : []),
+    // Sort first by createdAt
+    {
+      $sort: { createdAt: -1 }
+    },
     {
       $facet: {
         totalRecords: [{ $count: "count" }],
@@ -294,7 +298,6 @@ exports.fetchAllRecords = (condition, search, options) => {
           },
           { $skip: options.skip },
           { $limit: options.limit },
-          { $sort: { createdAt: -1 } },
         ],
       },
     },
@@ -594,6 +597,10 @@ exports.fetchAllRecordsByCustomer = (
           },
         ]
       : []),
+    // Sort first by createdAt
+    {
+      $sort: { createdAt: -1 }
+    },
     {
       $facet: {
         totalRecords: [{ $count: "count" }],
@@ -617,7 +624,6 @@ exports.fetchAllRecordsByCustomer = (
           },
           { $skip: options.skip },
           { $limit: options.limit },
-          { $sort: { createdAt: -1 } },
         ],
       },
     },

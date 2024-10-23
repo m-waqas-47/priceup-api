@@ -15,7 +15,9 @@ exports.fetchAllRecords = (condition, search, options) => {
           },
         ]
       : []),
-
+    {
+      $sort: { createdAt: -1 }
+    },
     // Conditional aggregation based on the presence of pagination options
     ...(options && options.skip !== undefined && options.limit !== undefined
       ? [
@@ -23,7 +25,7 @@ exports.fetchAllRecords = (condition, search, options) => {
             $facet: {
               totalRecords: [{ $count: "count" }],
               staffs: [
-                { $sort: { createdAt: -1 } },
+                // { $sort: { createdAt: -1 } },
                 { $skip: options.skip },
                 { $limit: options.limit },
               ],
@@ -36,7 +38,9 @@ exports.fetchAllRecords = (condition, search, options) => {
             },
           },
         ]
-      : [{ $sort: { createdAt: -1 } }]),
+      : []
+      // [{ $sort: { createdAt: -1 } }]
+    ),
   ];
 
   return pipeline;

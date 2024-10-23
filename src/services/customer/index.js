@@ -1,4 +1,4 @@
-const { fetchGraphData } = require("@utils/DB_Pipelines/customer");
+const { fetchGraphData, fetchAllRecords } = require("@utils/DB_Pipelines/customer");
 const Customer = require("../../models/customers");
 
 class CustomerService {
@@ -14,6 +14,22 @@ class CustomerService {
         .catch((err) => {
           reject(err);
         });
+    });
+  }
+
+  static findAllWithPipeline(condition,search,options) {
+    return new Promise((resolve,reject) => {
+      const pipeline = fetchAllRecords(condition,search,options);
+      Customer.aggregate(pipeline).
+      then((result)=>{
+        if (options && options.skip !== undefined && options.limit !== undefined) {
+          resolve(result[0]);
+        } else {
+          resolve(result);
+        }
+      }).catch((err)=>{
+        reject(err);
+      })
     });
   }
 
