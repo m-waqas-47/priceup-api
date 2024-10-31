@@ -469,3 +469,129 @@ exports.fetchAllLocationsForStaff = (condition, search) => {
   ];
   return pipeline;
 };
+
+exports.fetchTopPerfromingCompaniesWithActiveInactiveCount = (condition) => {
+  const pipeline = [
+    // Step 1: Lookup user details and determine company activity status
+    {
+        $lookup: {
+            from: "users",
+            localField: "user_id",
+            foreignField: "_id",
+            as: "userDetails"
+        }
+    },
+    {
+        $addFields: {
+            isActive: {
+                $gt: [
+                    {
+                        $size: {
+                            $filter: {
+                                input: "$userDetails",
+                                as: "user",
+                                cond: { $eq: ["$$user.status", true] }
+                            }
+                        }
+                    },
+                    0
+                ]
+            }
+        }
+    },
+
+    // Step 2: Group companies, count active/inactive, and push companies into an array
+    {
+        $group: {
+            _id: null,
+            activeCompanyCount: { $sum: { $cond: [{ $eq: ["$isActive", true] }, 1, 0] } },
+            inactiveCompanyCount: { $sum: { $cond: [{ $eq: ["$isActive", false] }, 1, 0] } },
+            companies: { $push: "$$ROOT" }
+        }
+    },
+
+    // Step 3: Unwind companies to prepare for lookup
+    {
+        $unwind: "$companies"
+    },
+
+    // Step 4: Lookup estimates for each company
+    {
+        $lookup: {
+            from: "estimates",
+            localField: "companies._id",
+            foreignField: "company_id",
+            as: "estimateDetails"
+        }
+    },
+    {
+        $addFields: {
+            "companies.estimateCount": { $size: "$estimateDetails" }
+        }
+    },
+
+    // Step 5: Lookup customers for each company
+    {
+        $lookup: {
+            from: "customers",
+            localField: "companies._id",
+            foreignField: "company_id",
+            as: "customerDetails"
+        }
+    },
+    {
+        $addFields: {
+            "companies.customerCount": { $size: "$customerDetails" }
+        }
+    },
+
+    // Step 6: Group again to maintain unique companies after lookups
+    {
+        $group: {
+            _id: null,
+            activeCompanyCount: { $first: "$activeCompanyCount" },
+            inactiveCompanyCount: { $first: "$inactiveCompanyCount" },
+            companies: { $push: "$companies" }
+        }
+    },
+
+    // Step 7: Sort companies by estimateCount and limit to top 5
+    {
+        $addFields: {
+            topCompanies: {
+                $slice: [
+                    {
+                        $sortArray: {
+                            input: "$companies",
+                            sortBy: { "estimateCount": -1 }
+                        }
+                    },
+                    5
+                ]
+            }
+        }
+    },
+
+    // Step 8: Project final structure
+    {
+        $project: {
+            _id: 0,
+            activeCompanyCount: 1,
+            inactiveCompanyCount: 1,
+            topCompanies: {
+                $map: {
+                    input: "$topCompanies",
+                    as: "company",
+                    in: {
+                        name: "$$company.name",
+                        image: "$$company.image",
+                        estimateCount: "$$company.estimateCount",
+                        customerCount: "$$company.customerCount"
+                    }
+                }
+            }
+        }
+    }
+];
+return pipeline;
+}

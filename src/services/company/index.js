@@ -1,14 +1,30 @@
 const { userRoles } = require("@config/common");
 const Company = require("../../models/companies");
-const { fetchAllLocationsForSuperAdmin } = require("@utils/DB_Pipelines/companies");
+const {
+  fetchAllLocationsForSuperAdmin,
+  fetchTopPerfromingCompaniesWithActiveInactiveCount,
+} = require("@utils/DB_Pipelines/companies");
 
 class CompanyService {
-  static findAll(data) {
+  static findAll(condition, projection = "") {
     return new Promise((resolve, reject) => {
-      Company.find(data)
+      Company.find(condition, projection)
         .sort({ createdAt: "desc" })
         .then((companies) => {
           resolve(companies);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findTopPerformingCompanies(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchTopPerfromingCompaniesWithActiveInactiveCount(condition);
+      Company.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
         })
         .catch((err) => {
           reject(err);
