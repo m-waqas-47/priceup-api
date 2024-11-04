@@ -595,3 +595,516 @@ exports.fetchTopPerfromingCompaniesWithActiveInactiveCount = (condition) => {
 ];
 return pipeline;
 }
+
+const { estimateCategory } = require("@config/common");
+const mongoose = require("mongoose");
+
+const CATEGORY_FLAGS = {
+  SHOWERS: "showers",
+  MIRRORS: "mirrors",
+  WINECELLARS: "wineCellars",
+};
+
+exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
+    // const pipeline = [
+    //   // Match the specific company by ID
+    //   {
+    //     $match: condition,
+    //   },
+    //   // Conditionally add lookups based on the category
+    //   {
+    //     $facet: {
+    //       companyInfo: [
+    //         {
+    //           $project: {
+    //             _id: 1,
+    //             name: 1,
+    //             image: 1,
+    //           },
+    //         },
+    //       ],
+    //       ...(category === estimateCategory.SHOWERS && {
+    //         showersData: [
+    //           {
+    //             $lookup: {
+    //               from: "layouts",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "layouts",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "hardwares",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "hardwares",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "glasstypes",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "glassTypes",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "finishes",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "finishes",
+    //             },
+    //           },
+    //         ],
+    //       }),
+    //       ...(category === estimateCategory.MIRRORS && {
+    //         mirrorsData: [
+    //           // {
+    //           //   $lookup: {
+    //           //     from: "mirror_layouts",
+    //           //     localField: "_id",
+    //           //     foreignField: "company_id",
+    //           //     as: "layouts",
+    //           //   },
+    //           // },
+    //           {
+    //             $lookup: {
+    //               from: "mirror_hardwares",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "hardwares",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "mirror_glass_types",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "glassTypes",
+    //             },
+    //           },
+    //         ],
+    //       }),
+    //       ...(category === estimateCategory.WINECELLARS && {
+    //         wineCellarsData: [
+    //           {
+    //             $lookup: {
+    //               from: "wine_cellar_layouts",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "layouts",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "wine_cellar_hardwares",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "hardwares",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "wine_cellar_glass_types",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "glassTypes",
+    //             },
+    //           },
+    //           {
+    //             $lookup: {
+    //               from: "wine_cellar_finishes",
+    //               localField: "_id",
+    //               foreignField: "company_id",
+    //               as: "finishes",
+    //             },
+    //           },
+    //         ],
+    //       }),
+    //     },
+    //   },
+    //   // Merge the facets and structure the output
+    //   {
+    //     $project: {
+    //       _id: { $arrayElemAt: ["$companyInfo._id", 0] },
+    //       name: { $arrayElemAt: ["$companyInfo.name", 0] },
+    //       image: { $arrayElemAt: ["$companyInfo.image", 0] },
+    //       layouts: {
+    //         $cond: {
+    //           if: { $eq: [category, estimateCategory.SHOWERS] },
+    //           then: { $arrayElemAt: ["$showersData.layouts", 0] },
+    //           else: {
+    //             $cond: {
+    //               if: { $eq: [category, estimateCategory.WINECELLARS] },
+    //               then: { $arrayElemAt: ["$wineCellarsData.layouts", 0] },
+    //               else: [],
+    //             },
+    //           },
+    //         },
+    //       },
+    //       hardwares: {
+    //         $cond: {
+    //           if: { $eq: [category, estimateCategory.SHOWERS] },
+    //           then: { $arrayElemAt: ["$showersData.hardwares", 0] },
+    //           else: {
+    //             $cond: {
+    //               if: { $eq: [category, estimateCategory.MIRRORS] },
+    //               then: { $arrayElemAt: ["$mirrorsData.hardwares", 0] },
+    //               else: { $arrayElemAt: ["$wineCellarsData.hardwares", 0] },
+    //             },
+    //           },
+    //         },
+    //       },
+    //       glassTypes:{
+    //         $cond: {
+    //           if: { $eq: [category, estimateCategory.SHOWERS] },
+    //           then: { $arrayElemAt: ["$showersData.glassTypes", 0] },
+    //           else: {
+    //             $cond: {
+    //               if: { $eq: [category, estimateCategory.MIRRORS] },
+    //               then: { $arrayElemAt: ["$mirrorsData.glassTypes", 0] },
+    //               else: { $arrayElemAt: ["$wineCellarsData.glassTypes", 0] },
+    //             },
+    //           },
+    //         },
+    //       },
+    //       finishes:{
+    //         $cond: {
+    //           if: { $eq: [category, estimateCategory.SHOWERS] },
+    //           then: { $arrayElemAt: ["$showersData.finishes", 0] },
+    //           else: {
+    //             $cond: {
+    //               if: { $eq: [category, estimateCategory.WINECELLARS] },
+    //               then: { $arrayElemAt: ["$wineCellarsData.finishes", 0] },
+    //               else: [],
+    //             },
+    //           },
+    //         },
+    //       }
+    //     },
+    //   },
+    // ];
+    const pipeline = [
+      {
+        $match: condition,
+      },
+      {
+        $facet: {
+          companyInfo: [
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                image: 1,
+              },
+            },
+          ],
+          ...(category === estimateCategory.SHOWERS && {
+            showersData: [
+              {
+                $lookup: {
+                  from: "layouts",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "layouts",
+                },
+              },
+              {
+                $addFields: {
+                  layouts: {
+                    $map: {
+                      input: "$layouts",
+                      as: "layout",
+                      in: {
+                        _id: "$$layout._id",
+                        name: "$$layout.name",
+                        image: "$$layout.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "hardwares",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "hardwares",
+                },
+              },
+              {
+                $addFields: {
+                  hardwares: {
+                    $map: {
+                      input: "$hardwares",
+                      as: "hardware",
+                      in: {
+                        _id: "$$hardware._id",
+                        name: "$$hardware.name",
+                        image: "$$hardware.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "glasstypes",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "glassTypes",
+                },
+              },
+              {
+                $addFields: {
+                  glassTypes: {
+                    $map: {
+                      input: "$glassTypes",
+                      as: "glassType",
+                      in: {
+                        _id: "$$glassType._id",
+                        name: "$$glassType.name",
+                        image: "$$glassType.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "finishes",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "finishes",
+                },
+              },
+              {
+                $addFields: {
+                  finishes: {
+                    $map: {
+                      input: "$finishes",
+                      as: "finish",
+                      in: {
+                        _id: "$$finish._id",
+                        name: "$$finish.name",
+                        image: "$$finish.image",
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+          ...(category === estimateCategory.MIRRORS && {
+            mirrorsData: [
+              {
+                $lookup: {
+                  from: "mirror_hardwares",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "hardwares",
+                },
+              },
+              {
+                $addFields: {
+                  hardwares: {
+                    $map: {
+                      input: "$hardwares",
+                      as: "hardware",
+                      in: {
+                        _id: "$$hardware._id",
+                        name: "$$hardware.name",
+                        image: "$$hardware.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "mirror_glass_types",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "glassTypes",
+                },
+              },
+              {
+                $addFields: {
+                  glassTypes: {
+                    $map: {
+                      input: "$glassTypes",
+                      as: "glassType",
+                      in: {
+                        _id: "$$glassType._id",
+                        name: "$$glassType.name",
+                        image: "$$glassType.image",
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+          ...(category === estimateCategory.WINECELLARS && {
+            wineCellarsData: [
+              {
+                $lookup: {
+                  from: "wine_cellar_layouts",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "layouts",
+                },
+              },
+              {
+                $addFields: {
+                  layouts: {
+                    $map: {
+                      input: "$layouts",
+                      as: "layout",
+                      in: {
+                        _id: "$$layout._id",
+                        name: "$$layout.name",
+                        image: "$$layout.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "wine_cellar_hardwares",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "hardwares",
+                },
+              },
+              {
+                $addFields: {
+                  hardwares: {
+                    $map: {
+                      input: "$hardwares",
+                      as: "hardware",
+                      in: {
+                        _id: "$$hardware._id",
+                        name: "$$hardware.name",
+                        image: "$$hardware.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "wine_cellar_glass_types",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "glassTypes",
+                },
+              },
+              {
+                $addFields: {
+                  glassTypes: {
+                    $map: {
+                      input: "$glassTypes",
+                      as: "glassType",
+                      in: {
+                        _id: "$$glassType._id",
+                        name: "$$glassType.name",
+                        image: "$$glassType.image",
+                      },
+                    },
+                  },
+                },
+              },
+              {
+                $lookup: {
+                  from: "wine_cellar_finishes",
+                  localField: "_id",
+                  foreignField: "company_id",
+                  as: "finishes",
+                },
+              },
+              {
+                $addFields: {
+                  finishes: {
+                    $map: {
+                      input: "$finishes",
+                      as: "finish",
+                      in: {
+                        _id: "$$finish._id",
+                        name: "$$finish.name",
+                        image: "$$finish.image",
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+          }),
+        },
+      },
+      {
+        $project: {
+          _id: { $arrayElemAt: ["$companyInfo._id", 0] },
+          name: { $arrayElemAt: ["$companyInfo.name", 0] },
+          image: { $arrayElemAt: ["$companyInfo.image", 0] },
+          layouts: {
+            $cond: {
+              if: { $eq: [category, estimateCategory.SHOWERS] },
+              then: { $arrayElemAt: ["$showersData.layouts", 0] },
+              else: {
+                $cond: {
+                  if: { $eq: [category, estimateCategory.WINECELLARS] },
+                  then: { $arrayElemAt: ["$wineCellarsData.layouts", 0] },
+                  else: [],
+                },
+              },
+            },
+          },
+          hardwares: {
+            $cond: {
+              if: { $eq: [category, estimateCategory.SHOWERS] },
+              then: { $arrayElemAt: ["$showersData.hardwares", 0] },
+              else: {
+                $cond: {
+                  if: { $eq: [category, estimateCategory.MIRRORS] },
+                  then: { $arrayElemAt: ["$mirrorsData.hardwares", 0] },
+                  else: { $arrayElemAt: ["$wineCellarsData.hardwares", 0] },
+                },
+              },
+            },
+          },
+          glassTypes: {
+            $cond: {
+              if: { $eq: [category, estimateCategory.SHOWERS] },
+              then: { $arrayElemAt: ["$showersData.glassTypes", 0] },
+              else: {
+                $cond: {
+                  if: { $eq: [category, estimateCategory.MIRRORS] },
+                  then: { $arrayElemAt: ["$mirrorsData.glassTypes", 0] },
+                  else: { $arrayElemAt: ["$wineCellarsData.glassTypes", 0] },
+                },
+              },
+            },
+          },
+          finishes: {
+            $cond: {
+              if: { $eq: [category, estimateCategory.SHOWERS] },
+              then: { $arrayElemAt: ["$showersData.finishes", 0] },
+              else: {
+                $cond: {
+                  if: { $eq: [category, estimateCategory.WINECELLARS] },
+                  then: { $arrayElemAt: ["$wineCellarsData.finishes", 0] },
+                  else: [],
+                },
+              },
+            },
+          },
+        },
+      },
+    ];
+    
+    return pipeline;
+};

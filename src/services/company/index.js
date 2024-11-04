@@ -3,6 +3,7 @@ const Company = require("../../models/companies");
 const {
   fetchAllLocationsForSuperAdmin,
   fetchTopPerfromingCompaniesWithActiveInactiveCount,
+  fetchAllDataRelatedToCompanyByCategory,
 } = require("@utils/DB_Pipelines/companies");
 
 class CompanyService {
@@ -30,6 +31,18 @@ class CompanyService {
           reject(err);
         });
     });
+  }
+
+  static findAllDataRelatedToCompanyByCategory(condition,category){
+    return new Promise((resolve,reject)=>{
+      const pipeline = fetchAllDataRelatedToCompanyByCategory(condition,category);
+      Company.aggregate(pipeline)
+      .then((result)=>{
+        resolve(result[0]);
+      }).catch((err)=>{
+        reject(err);
+      })
+    })
   }
 
   static findAllByRole(role, filter) {
