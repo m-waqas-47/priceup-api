@@ -11,7 +11,7 @@ router.get("/", (req, res) => {
   res.send("Backend Server Running");
 });
 router.get("/locations", getLocations);
-router.get("/loations-data/:id", getLocationData);
+router.get("/location-data/:id", getLocationData);
 router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
 router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 2), getCustomerRequest);

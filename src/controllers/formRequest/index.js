@@ -6,8 +6,8 @@ const { default: mongoose } = require("mongoose");
 
 exports.getLocations = async (req,res) => {
   try{
-    const locations = await CompanyService.findAll({},'name _id');
-   handleResponse(res,200,'All Locations',locations?.length)
+    const locations = await CompanyService.findAll({},'name _id image');
+   handleResponse(res,200,'All Locations',locations)
   }
   catch(err){
     handleError(res,err);
