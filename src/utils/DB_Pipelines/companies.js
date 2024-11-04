@@ -844,6 +844,7 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
                         _id: "$$hardware._id",
                         name: "$$hardware.name",
                         image: "$$hardware.image",
+                        hardware_category_slug: "$$hardware.hardware_category_slug"
                       },
                     },
                   },
@@ -990,6 +991,7 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
                         _id: "$$hardware._id",
                         name: "$$hardware.name",
                         image: "$$hardware.image",
+                        hardware_category_slug: "$$hardware.hardware_category_slug"
                       },
                     },
                   },
