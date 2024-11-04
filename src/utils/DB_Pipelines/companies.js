@@ -821,6 +821,8 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
                         _id: "$$layout._id",
                         name: "$$layout.name",
                         image: "$$layout.image",
+                        measurementSides: "$$layout.settings.measurementSides",
+                        variant: "$$layout.settings.variant"
                       },
                     },
                   },
@@ -968,6 +970,8 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
                         _id: "$$layout._id",
                         name: "$$layout.name",
                         image: "$$layout.image",
+                        measurementSides: "$$layout.settings.measurementSides",
+                        variant: "$$layout.settings.variant"
                       },
                     },
                   },
