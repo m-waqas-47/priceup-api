@@ -847,11 +847,13 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
                         name: "$$hardware.name",
                         image: "$$hardware.image",
                         hardware_category_slug: "$$hardware.hardware_category_slug",
-                        oneInchHoles: "$$hardware.oneInchHoles",
-                        hingeCut: "$$hardware.hingeCut",
-                        clampCut: "$$hardware.clampCut",
-                        notch: "$$hardware.notch",
-                        outages: "$$hardware.outages",
+                        fabrication: {
+                          oneInchHoles: "$$hardware.oneInchHoles",
+                          hingeCut: "$$hardware.hingeCut",
+                          clampCut: "$$hardware.clampCut",
+                          notch: "$$hardware.notch",
+                          outages: "$$hardware.outages",
+                        }
                       },
                     },
                   },
