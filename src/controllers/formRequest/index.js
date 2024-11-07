@@ -1,5 +1,8 @@
-const { estimateCategory } = require("@config/common");
+const { estimateCategory, userRoles } = require("@config/common");
 const CompanyService = require("@services/company");
+const CustomerService = require("@services/customer");
+const ProjectService = require("@services/project");
+const UserService = require("@services/user");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 
@@ -32,10 +35,45 @@ exports.getLocationData = async (req,res) => {
   }
 }
 
-exports.getCustomerRequest = (req, res) => {
+exports.getCustomerRequest = async (req, res) => {
   try {
     const data = { ...req.body };
-    handleResponse(res, 200, "Success", data);
+    if(data){
+      const location = await CompanyService.findBy({_id:data.location._id});
+      if(!location){
+        throw new Error('Invalid location id');
+      }
+      let customer = null;
+      const query = {
+        name: data.customerDetail.name,
+        company_id: location._id,
+      };
+      if (data?.email) {
+        query.email = data.customerDetail.email;
+      }
+      if (data?.phone) {
+        query.phone = data.customerDetail.phone;
+      }
+  
+      const existingCustomer = await CustomerService.findBy(query);
+      if (existingCustomer) {
+        customer = existingCustomer;
+      } else {
+        customer = await CustomerService.create({ ...data.customerDetail, company_id:location._id });
+      }
+      const project = await ProjectService.create({...data.projectDetail,creator_id:location.user_id,creator_type:userRoles.ADMIN,customer_id:customer._id,company_id:location._id});
+      // Map over the records array and insert each record, returning an array of promises
+      const promises = data.quotes.map((quote) => estimateSaveFormat(quote));
+
+      // Wait until all promises are resolved
+      const results = await Promise.all(promises);
+
+      // Calculate the total cost by summing up each cost value from the responses
+      const totalCost = results.reduce((sum, record) => sum + record.cost, 0);
+      await ProjectService.update({_id:project._id},{totalAmountQuoted:totalCost})
+      // const customer = await CustomerService.create()
+    }
+    handleResponse(res, 200, "Request submitted successfully");
   } catch (err) {
     handleError(res, err);
   }
