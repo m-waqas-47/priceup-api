@@ -85,7 +85,7 @@ exports.wineCellarLayoutVariants = {
 }
 
 exports.requiredProps = {
-  FORMREQUEST: ["location", "layout", "estimateDetail"],
+  FORMREQUEST: ["location", "projectDetail", "customerDetail", "quotes"],
 };
 
 exports.showerGlassThicknessTypes = {

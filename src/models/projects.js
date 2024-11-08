@@ -7,7 +7,7 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: "Name is required",
       minlength: [3, "Name must be atleast 3 character long"],
-      unique: true,
+      // unique: true,
     },
     notes: {
       type: String,

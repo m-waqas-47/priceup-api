@@ -16,7 +16,7 @@ router.get("/locations", getLocations);
 router.get("/location-data/:id", getLocationData);
 router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
-router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 2), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
+router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 50), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
 router.post("/login", loginUser);
 
 module.exports = router;
