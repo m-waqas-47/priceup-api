@@ -759,7 +759,7 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
               },
               {
                 $addFields: {
-                  glassTypes: {
+                  edgeWorks: {
                     $map: {
                       input: "$edgeWorks",
                       as: "edgeWork",
@@ -934,13 +934,7 @@ exports.fetchAllDataRelatedToCompanyByCategory = (condition, category) => {
             $cond: {
               if: { $eq: [category, estimateCategory.MIRRORS] },
               then: { $arrayElemAt: ["$mirrorsData.edgeWorks", 0] },
-              else: {
-                // $cond: {
-                //   if: { $eq: [category, estimateCategory.MIRRORS] },
-                //   then: { $arrayElemAt: ["$mirrorsData.hardwares", 0] },
-                //   else: { $arrayElemAt: ["$wineCellarsData.hardwares", 0] },
-                // },
-              },
+              else: [],
             },
           },
           glassTypes: {
