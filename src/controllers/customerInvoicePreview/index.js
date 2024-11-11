@@ -1,7 +1,10 @@
 const CompanyService = require("@services/company");
+const CustomerService = require("@services/customer");
 const CustomerInvoicePreviewService = require("@services/customerInvoicePreview");
 const EstimateService = require("@services/estimate");
 const { sendEmail } = require("@services/mailgun");
+const ProjectService = require("@services/project");
+const { invoicePreviewTemplate } = require("@templates/email");
 const {
   getShowersHardwareList,
   getMirrorsHardwareList,
@@ -16,40 +19,57 @@ exports.getCustomerInvoicePreview = async (req, res) => {
       _id: id,
     });
     if (invoicePreviewRecord) {
-      const [location, estimatesList, showersHardware, mirrorsHardware, wineCellarsHardware] =
-        await Promise.all([
-          CompanyService.findBy({ _id: invoicePreviewRecord.company_id }),
-          EstimateService.findAll({project_id:invoicePreviewRecord.project_id}),
-          getShowersHardwareList(invoicePreviewRecord.company_id),
-          getMirrorsHardwareList(invoicePreviewRecord.company_id),
-          getWineCellarsHardwareList(invoicePreviewRecord.company_id),
-        ]);
-        
+      const [
+        location,
+        estimatesList,
+        showersHardware,
+        mirrorsHardware,
+        wineCellarsHardware,
+      ] = await Promise.all([
+        CompanyService.findBy({ _id: invoicePreviewRecord.company_id }),
+        EstimateService.findAll({
+          project_id: invoicePreviewRecord.project_id,
+        }),
+        getShowersHardwareList(invoicePreviewRecord.company_id),
+        getMirrorsHardwareList(invoicePreviewRecord.company_id),
+        getWineCellarsHardwareList(invoicePreviewRecord.company_id),
+      ]);
+
       return handleResponse(res, 200, "Preview data found", {
-        project_id:invoicePreviewRecord.project_id,
+        project_id: invoicePreviewRecord.project_id,
         location,
         showersHardware,
         mirrorsHardware,
         wineCellarsHardware,
-        estimatesList
+        estimatesList,
       });
     } else {
       return handleResponse(res, 200, "No preview found", null);
     }
   } catch (err) {
-    handleError(res,err);
+    handleError(res, err);
   }
 };
 
 exports.createInvoicePreview = async (req, res) => {
   const data = { ...req.body };
   try {
-    const findReq = await CustomerInvoicePreviewService.findBy({project_id:data.project_id,company_id:data.company_id});
-    if(findReq){
-        await CustomerInvoicePreviewService.delete({_id:findReq._id});
+    const findReq = await CustomerInvoicePreviewService.findBy({
+      project_id: data.project_id,
+      company_id: data.company_id,
+    });
+    if (findReq) {
+      await CustomerInvoicePreviewService.delete({ _id: findReq._id });
     }
     const resp = await CustomerInvoicePreviewService.create({ ...data });
-    // await sendEmail()
+    const project = await ProjectService.findBy({ _id: data.project_id });
+    const customer = await CustomerService.findBy({
+      _id: project?.customer_id,
+    });
+    if (customer) {
+      const html = invoicePreviewTemplate(resp._id);
+      await sendEmail(customer.email, "Invoice preview link", html);
+    }
     handleResponse(res, 200, "Invoice preview generated", resp);
   } catch (err) {
     handleError(res, err);

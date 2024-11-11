@@ -20,7 +20,7 @@ const customerInvoicePreview = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 900, // 900 seconds = 15 minutes
+    expires: 1296000, // 1296000 seconds = 15 days (15 * 24 * 60 * 60)
   },
 });
 
