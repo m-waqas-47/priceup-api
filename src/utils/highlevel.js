@@ -23,7 +23,7 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
         cost
       );
       console.log("Opportunity created:", opportunity.data);
-      await createContactNote(contact.data.contact.id,contactNote);
+      await createContactNote(contact.data.contact.id, contactNote);
       return opportunity.data?.opportunity; // Return the opportunity data
     } else {
       console.warn("No pipeline data or contact data found.");
@@ -125,4 +125,17 @@ const createContactNote = async (contactId, contactNote) => {
     body: contactNote,
   };
   return await axios.post(url, data, { headers });
+};
+
+exports.updateHighLevelOpportunity = async (opportunityId, status) => {
+  const url = `${baseUrl}/opportunities/${opportunityId}/status`;
+  const headers = {
+    Authorization: `Bearer ${privateIntegrationKey}`,
+    Version: "2021-07-28",
+    "Content-Type": "application/json",
+  };
+  const data = {
+    status: status,
+  };
+  return await axios.put(url, data, { headers });
 };

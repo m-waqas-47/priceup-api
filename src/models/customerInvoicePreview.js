@@ -13,6 +13,10 @@ const customerInvoicePreview = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: "Company reference is required",
   },
+  customer_id:{
+    type: mongoose.Schema.Types.ObjectId,
+    required: "Customer reference is required",
+  },
   content:{
     type: mongoose.Schema.Types.Mixed,
     default: null,

@@ -4,7 +4,7 @@ const CustomerService = require("@services/customer");
 const ProjectService = require("@services/project");
 // const UserService = require("@services/user");
 const { estimateSaveFormat } = require("@utils/generateEstimate");
-const { highLevelFlow } = require("@utils/highlevel");
+const { highLevelFlow, updateHighLevelOpportunity } = require("@utils/highlevel");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 
@@ -92,7 +92,11 @@ exports.getCustomerRequest = async (req, res) => {
     const totalCost = results.reduce((sum, record) => sum + record.cost, 0);
 
     // Call highLevelFlow without awaiting it to avoid blocking the main flow
-    const opportunity = await highLevelFlow(data.customerDetail, totalCost,data.contactNote);
+    const opportunity = await highLevelFlow(
+      data.customerDetail,
+      totalCost,
+      data.contactNote
+    );
 
     await ProjectService.update(
       { _id: project._id },
@@ -108,7 +112,24 @@ exports.getCustomerRequest = async (req, res) => {
 exports.updateCustomerRequest = async (req, res) => {
   const data = { ...req.body };
   try {
-    handleResponse(res, 200, "Request status updated", data);
+    if (!data?.project_id) {
+      throw new Error("Project ref is missing");
+    }
+    let status = "voided";
+    if (data?.status === true) {
+      status = "approved";
+    }
+    const project = await ProjectService.update(
+      { _id: new mongoose.Types.ObjectId(data.project_id) },
+      { status }
+    );
+    if (project?.opportunity_id) {
+      await updateHighLevelOpportunity(
+        project?.opportunity_id,
+        data?.status === true ? "won" : "lost"
+      );
+    }
+    handleResponse(res, 200, "Request status updated", project);
   } catch (err) {
     handleError(res, err);
   }

@@ -2,7 +2,7 @@ const CompanyService = require("@services/company");
 const CustomerService = require("@services/customer");
 const CustomerInvoicePreviewService = require("@services/customerInvoicePreview");
 const EstimateService = require("@services/estimate");
-const { sendEmail } = require("@services/mailgun");
+const MailgunService = require("@services/mailgun");
 const ProjectService = require("@services/project");
 const { invoicePreviewTemplate } = require("@templates/email");
 const {
@@ -11,6 +11,7 @@ const {
   getWineCellarsHardwareList,
 } = require("@utils/common");
 const { handleError, handleResponse } = require("@utils/responses");
+const { default: mongoose } = require("mongoose");
 
 exports.getCustomerInvoicePreview = async (req, res) => {
   const { id } = req.params;
@@ -62,13 +63,13 @@ exports.createInvoicePreview = async (req, res) => {
       await CustomerInvoicePreviewService.delete({ _id: findReq._id });
     }
     const resp = await CustomerInvoicePreviewService.create({ ...data });
-    const project = await ProjectService.findBy({ _id: data.project_id });
     const customer = await CustomerService.findBy({
-      _id: project?.customer_id,
+      _id: new mongoose.Types.ObjectId(data?.customer_id),
     });
+    console.log(customer,"customer");
     if (customer) {
       const html = invoicePreviewTemplate(resp._id);
-      await sendEmail(customer.email, "Invoice preview link", html);
+      await MailgunService.sendEmail(customer.email, "Invoice preview link", html);
     }
     handleResponse(res, 200, "Invoice preview generated", resp);
   } catch (err) {
