@@ -134,6 +134,7 @@ exports.fetchAllRecords = (condition, search, options) => {
                 address: 1,
                 creatorData: "$creatorDetails",
                 creator_type: 1,
+                created_source:1,
                 customerData: "$customerDetails",
                 addressData: "$addressDetails",
                 companyData: "$companyDetails",
