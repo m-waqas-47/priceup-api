@@ -2,6 +2,7 @@ const {
   estimateCategory,
   showerGlassThicknessTypes,
   userRoles,
+  mirrorGlassThicknessTypes,
 } = require("@config/common");
 const EstimateService = require("@services/estimate");
 const HardwareService = require("@services/hardware");
@@ -29,6 +30,10 @@ const {
   getWineCellarGenericFabrication,
 } = require("./helpers/winecellar");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const MirrorGlassTypeService = require("@services/mirror/glassType");
+const MirrorEdgeWorkService = require("@services/mirror/edgeWork");
+const MirrorHardwareService = require("@services/mirror/hardware");
+const { getAreaSqft } = require("./helpers/mirror");
 
 exports.estimateSaveFormat = async (
   estimateData,
@@ -547,8 +552,125 @@ const generateEstimatePayloadForShowers = async (
   }
 };
 
-const generateEstimatePayloadForMirrors = async (estimateData) => {
+const generateEstimatePayloadForMirrors = async (estimateData,companyData,creatorId,projectId) => {
   try {
+  
+    const glassThickness = mirrorGlassThicknessTypes.ONEBYFOUR;
+    const result = getAreaSqft(
+      estimateData.estimateDetail.dimensions
+    );
+    // getting selected items of layout from DB
+    const config = {};
+    let glassPrice = 0;
+    let edgeWorkPrice = 0;
+    let glassAddonsPrice = 0;
+    let hardwarePrice = 0; 
+   let fabricationPrice = 0;
+    const glass = await MirrorGlassTypeService.findBy({
+      _id: estimateData.estimateDetail.glass._id,
+    });
+    if (glass) {
+      glassPrice =
+      (glass?.options?.find(
+        (glass) => glass.thickness === glassThickness
+      )?.cost || 0) * result.areaSqft;
+    }
+    config.glassType = {
+      type: glass?._id ?? null,
+      thickness: mirrorGlassThicknessTypes.ONEBYFOUR,
+    };
+    const edgeWork = await MirrorEdgeWorkService.findBy({
+      _id: estimateData.estimateDetail.edgeWork._id,
+    });
+    if (edgeWork) {
+      const edgeWorkCost =
+      edgeWork?.options?.find(
+        (polish) => polish.thickness === glassThickness
+      )?.cost || 0;
+      estimateData.estimateDetail.dimensions?.forEach(dimension => {
+      const count = dimension.count;
+      const width = dimension.width;
+      const height = dimension.height;
+      for (let i = 0; i < count; i++) {
+        const value = edgeWorkCost * (width * 2 + height * 2) * 1;
+        edgeWorkPrice += value;
+      }
+    });
+    }
+    config.edgeWork = {
+      type: edgeWork?._id ?? null,
+      thickness: mirrorGlassThicknessTypes.ONEBYFOUR,
+    };
+    config.glassAddons = [];
+    if(estimateData.estimateDetail?.hardware?._id){
+      const hardware = await MirrorHardwareService.findBy({
+        _id: estimateData.estimateDetail.hardware._id,
+      });
+      if (hardware) {
+        const price = hardware?.options[0]?.cost || 0;
+        hardwarePrice = price * 1;
+      }
+      config.hardwares = [{
+        type: hardware ?? null,
+        count: hardware ? 1 : 0,
+      }];
+    }else{
+       config.hardwares = [];
+    }
+    const simpleHoles = estimateData.estimateDetail?.simpleHoles > 0 ? estimateData.estimateDetail?.simpleHoles : 0;
+    const lightHoles = estimateData.estimateDetail?.lightHoles > 0 ? estimateData.estimateDetail.lightHoles : 0;
+    const singleOutletCutout = estimateData.estimateDetail?.singleOutletCutout > 0 ? estimateData.estimateDetail.singleOutletCutout : 0;
+    config.simpleHoles = simpleHoles;
+    config.lightHoles = lightHoles;
+    config.notch = 0;
+    config.singleOutletCutout = singleOutletCutout;
+    config.doubleOutletCutout = 0;
+    config.tripleOutletCutout = 0;
+    config.quadOutletCutout = 0;
+    config.modifiedProfitPercentage = 0;
+    config.additionalFields = [];
+    config.people = 0;
+    config.hours = 0;
+    config.measurements = estimateData.estimateDetail.dimensions;
+    // config.perimeter = result.perimeter;
+    config.sqftArea = result.areaSqft;
+    config.layout_id = null;
+
+  fabricationPrice =
+  simpleHoles * (companyData?.mirrors?.holeMultiplier ?? 0) +
+  lightHoles * (companyData?.mirrors?.lightHoleMultiplier ?? 0) +
+  singleOutletCutout *
+      (companyData?.mirrors?.singleOutletCutoutMultiplier ?? 0);
+    
+    fabricationPrice +=
+    edgeWorkPrice +
+    glassAddonsPrice +
+    hardwarePrice;
+
+    const laborPrice =
+      config.people *
+      config.hours *
+      (companyData?.mirrors?.hourlyRate ?? 0);
+    
+    const totalPrice =
+    (glassPrice + fabricationPrice) *
+      (companyData?.mirrors?.pricingFactorStatus
+        ? companyData?.mirrors?.pricingFactor
+        : 1) +
+    laborPrice;
+    
+    return {
+      config,
+      cost: totalPrice,
+      creator_id: creatorId,
+      creator_type: userRoles.ADMIN,
+      status: "pending",
+      category: estimateCategory.MIRRORS,
+      name: getCurrentFormattedDate(),
+      label: "Estimate created from customer form",
+      project_id: projectId,
+      company_id: companyData?._id,
+    };
   } catch (err) {
     throw err;
   }

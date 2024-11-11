@@ -93,6 +93,11 @@ exports.showerGlassThicknessTypes = {
   ONEBYTWO: "1/2",
 };
 
+exports.mirrorGlassThicknessTypes = {
+  ONEBYFOUR: "1/4",
+  ONEBYEIGHT: "1/8",
+};
+
 exports.showerWeightMultiplier = {
   THREEBYEIGHT: 4.91,
   ONEBYTWO: 6.5,

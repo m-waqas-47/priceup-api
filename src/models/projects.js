@@ -37,6 +37,14 @@ const projectSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       required: "Company reference is required",
     },
+    opportunity_id: {
+      type: String,
+      default: null
+    },
+    created_source:{
+      type: String,
+      default: "Application"
+    },
     status: {
       type: String,
       default: projectStatus.PENDING,
