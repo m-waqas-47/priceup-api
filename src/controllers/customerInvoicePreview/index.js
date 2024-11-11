@@ -24,8 +24,9 @@ exports.getCustomerInvoicePreview = async (req, res) => {
           getMirrorsHardwareList(invoicePreviewRecord.company_id),
           getWineCellarsHardwareList(invoicePreviewRecord.company_id),
         ]);
+        
       return handleResponse(res, 200, "Preview data found", {
-        ...data,
+        project_id:invoicePreviewRecord.project_id,
         location,
         showersHardware,
         mirrorsHardware,
@@ -35,7 +36,9 @@ exports.getCustomerInvoicePreview = async (req, res) => {
     } else {
       return handleResponse(res, 200, "No preview found", null);
     }
-  } catch (err) {}
+  } catch (err) {
+    handleError(res,err);
+  }
 };
 
 exports.createInvoicePreview = async (req, res) => {
