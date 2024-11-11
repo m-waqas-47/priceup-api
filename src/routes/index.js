@@ -3,7 +3,7 @@ const { loginUser } = require("../controllers/authentication");
 const { verifyToken } = require("@middlewares/authentication");
 const { getDashboardGraphData, getDashboardStats } = require("@controllers/dashboard");
 const rateLimitMiddleware = require("@middlewares/requestRateLimit");
-const { getCustomerRequest, getLocations, getLocationData } = require("@controllers/formRequest");
+const { getCustomerRequest, getLocations, getLocationData, updateCustomerRequest } = require("@controllers/formRequest");
 const { requiredProps } = require("@config/common");
 const { validateRequiredProps } = require("@middlewares/validator");
 // const { handleError, handleResponse } = require("@utils/responses");
@@ -21,6 +21,7 @@ router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
 router.get("/invoice-preview/:id",getCustomerInvoicePreview);
 router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 50), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
+router.post("/form-request-update",updateCustomerRequest);
 router.post("/login", loginUser);
 // router.post("/create-test-customer", async (req,res) => {
 //   const url = `https://services.leadconnectorhq.com/opportunities/pipelines?locationId=wMf03l211vQKvcwKgDYJ`;
