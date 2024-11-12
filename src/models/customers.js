@@ -30,6 +30,10 @@ const customerSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    highlevel_contact_id:{
+      type: String,
+      default: null
+    },
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Company reference is required",

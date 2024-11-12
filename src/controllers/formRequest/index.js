@@ -92,7 +92,7 @@ exports.getCustomerRequest = async (req, res) => {
     const totalCost = results.reduce((sum, record) => sum + record.cost, 0);
 
     // Call highLevelFlow without awaiting it to avoid blocking the main flow
-    const opportunity = await highLevelFlow(
+    const highLevelResp = await highLevelFlow(
       data.customerDetail,
       totalCost,
       data.contactNote
@@ -100,7 +100,12 @@ exports.getCustomerRequest = async (req, res) => {
 
     await ProjectService.update(
       { _id: project._id },
-      { totalAmountQuoted: totalCost, opportunity_id: opportunity?.id ?? null }
+      { totalAmountQuoted: totalCost, opportunity_id: highLevelResp?.opportunity?.id ?? null }
+    );
+
+    await CustomerService.update(
+      { _id: customer._id },
+      { highlevel_contact_id: highLevelResp?.contact?.id ?? "" }
     );
 
     handleResponse(res, 200, "Request submitted successfully", results);

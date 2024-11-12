@@ -13,7 +13,6 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
       const pipelineStage = pipeline.stages.find(
         (stage) => stage.position === 3
       );
-      // return { pipelineid: pipeline.id, stageId: pipelineStage.id };
 
       const opportunity = await createOpportunity(
         pipeline.id,
@@ -24,7 +23,7 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
       );
       console.log("Opportunity created:", opportunity.data);
       await createContactNote(contact.data.contact.id, contactNote);
-      return opportunity.data?.opportunity; // Return the opportunity data
+      return {opportunity:opportunity.data?.opportunity,contact:contact.data.contact}; // Return the opportunity data
     } else {
       console.warn("No pipeline data or contact data found.");
       return null;
@@ -37,7 +36,7 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
 
 // Create contact function for API request
 const createContact = async (customerDetail) => {
-  const url = `${baseUrl}/contacts/`;
+  const url = `${baseUrl}/contacts/upsert`;
   const headers = {
     Authorization: `Bearer ${privateIntegrationKey}`,
     Version: "2021-07-28",

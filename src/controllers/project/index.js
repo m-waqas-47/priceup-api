@@ -1,4 +1,5 @@
 const { projectStatus } = require("@config/common");
+const CustomerInvoicePreviewService = require("@services/customerInvoicePreview");
 const EstimateService = require("@services/estimate");
 const ProjectService = require("@services/project");
 const { handleError, handleResponse } = require("@utils/responses");
@@ -80,7 +81,8 @@ exports.getSingleRecord = async (req, res) => {
     const record = await Service.findBy({
       _id: new mongoose.Types.ObjectId(id),
     });
-    handleResponse(res, 200, "Single Record", record);
+    const invoicePreview = await CustomerInvoicePreviewService.findBy({project_id:new mongoose.Types.ObjectId(id) });
+    handleResponse(res, 200, "Single Record", {...record,invoicePreview:invoicePreview});
   } catch (err) {
     handleError(res, err);
   }
