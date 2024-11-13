@@ -1,5 +1,5 @@
 const { userRoles } = require("@config/common");
-const Company = require("../../models/companies");
+const Company = require("@models/companies");
 const {
   fetchAllLocationsForSuperAdmin,
   fetchTopPerfromingCompaniesWithActiveInactiveCount,

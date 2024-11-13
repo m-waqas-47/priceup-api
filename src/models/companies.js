@@ -51,6 +51,10 @@ const companySchema = new mongoose.Schema(
           default: 12.89,
         },
       },
+      glassTypesForComparison:{
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: []  
+      }
     },
     mirrors: {
       pricingFactor: {
@@ -93,6 +97,10 @@ const companySchema = new mongoose.Schema(
         type: Number,
         default: 20,
       },
+      glassTypesForComparison:{
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: []  
+      }
     },
     showers: {
       doorWidth: {
@@ -171,6 +179,10 @@ const companySchema = new mongoose.Schema(
           default: 0.13,
         },
       },
+      glassTypesForComparison:{
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: []  
+      }
     },
     pdfSettings:{
       people: {

@@ -964,25 +964,25 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
 };
 
 exports.modifyExistingRecords = async (req, res) => {
-  const companies = await CompanyService.findAll();
   try {
-    await Promise.all(
-      companies?.map(async (company) => 
-        CompanyService.update(
-          { _id: company._id },
-          {
-            $set: {
-            "pdfSettings.people": false,
-            "pdfSettings.hours": false,
-            "pdfSettings.labor": true,
-            "pdfSettings.cost": false,
-            "pdfSettings.profit": false
-            },
-          }
-        )
-      )
+    const result = await CompanyService.updateMany(
+      { 
+        $or: [
+          { 'showers.glassTypesForComparison': { $exists: false } },
+          { 'mirrors.glassTypesForComparison': { $exists: false } },
+          { 'wineCellars.glassTypesForComparison': { $exists: false } },
+        ]
+      },
+      { 
+        $set: { 
+          'showers.glassTypesForComparison': [],
+          'mirrors.glassTypesForComparison': [],
+          'wineCellars.glassTypesForComparison': [],
+        }
+      }
     );
-    handleResponse(res, 200, "Companies info updated");
+    
+    handleResponse(res, 200, "Companies info updated",result);
   } catch (err) {
     handleError(res, err);
   }
