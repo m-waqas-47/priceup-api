@@ -21,6 +21,10 @@ const projectSchema = new mongoose.Schema(
       // required: "Address reference is required",
       default: null
     },
+    contact_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null
+    },
     creator_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Creator reference is required",

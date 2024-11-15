@@ -171,3 +171,26 @@ exports.getAllStats = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.modifyExistingDocuments = async (req,res)=>{
+  try{ 
+
+   // Update all existing documents by setting lastLogin and lastReminderSent to the current time if they don't exist
+   const result = await Service.updateMany(
+     { 
+      opportunity_id: { $exists: false },
+      created_source: { $exists: false } 
+     },
+     { 
+        $set: { 
+          opportunity_id: null,
+          created_source: 'Application'
+        }
+     }
+  );
+   handleResponse(res,200,"Records modified",result);
+  }
+  catch(err){
+   handleError(res,err);
+  }
+}
