@@ -178,11 +178,13 @@ exports.modifyExistingDocuments = async (req,res)=>{
    // Update all existing documents by setting lastLogin and lastReminderSent to the current time if they don't exist
    const result = await Service.updateMany(
      { 
+      contact_id: { $exists: false },
       opportunity_id: { $exists: false },
       created_source: { $exists: false } 
      },
      { 
         $set: { 
+          contact_id: null,
           opportunity_id: null,
           created_source: 'Application'
         }
