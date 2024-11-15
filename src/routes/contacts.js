@@ -1,7 +1,8 @@
 const express = require("express");
 const {
   saveRecord,
-  getSingleRecord,
+  // getSingleRecord,
+  contactsbyCustomer,
   getAll,
   updateRecord,
   deleteRecord
@@ -10,7 +11,7 @@ const { verifyToken } = require("../middlewares/authentication");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
-router.get("/by-customer/:id", verifyToken, getCustomerContacts);
+router.get("/by-customer/:id", verifyToken, contactsbyCustomer);
 // router.get("/:id", getSingleRecord);
 router.put("/:id", verifyToken, updateRecord);
 router.delete("/:id", verifyToken, deleteRecord);

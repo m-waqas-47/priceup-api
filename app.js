@@ -29,6 +29,7 @@ const customUsers = require("@routes/customUsers");
 const mirrorsRouter = require("@routes/mirror");
 const wineCellarsRouter = require("@routes/wineCellar");
 const projectsRouter = require("@routes/projects");
+const contactsRouter = require("@routes/contacts");
 const addressRouter = require("@routes/addresses");
 const notificationsRouter = require("@routes/notifications");
 const { socketIoChannel } = require("@config/common");
@@ -54,6 +55,7 @@ app.use("/mirrors", mirrorsRouter);
 app.use("/wineCellars", wineCellarsRouter);
 app.use("/notifications", notificationsRouter);
 app.use("/projects", projectsRouter);
+app.use("/contacts", contactsRouter);
 app.use("/addresses", addressRouter);
 app.use("/", indexRouter);
 
