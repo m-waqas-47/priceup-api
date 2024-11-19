@@ -28,7 +28,7 @@ exports.getCustomerInvoicePreview = async (req, res) => {
         wineCellarsHardware,
       ] = await Promise.all([
         CompanyService.findBy({ _id: invoicePreviewRecord.company_id }),
-        EstimateService.findAll({
+        EstimateService.findAllWithPipeline({
           project_id: invoicePreviewRecord.project_id,
         }),
         getShowersHardwareList(invoicePreviewRecord.company_id),
