@@ -83,7 +83,34 @@ exports.runCustomScripts = async (req, res) => {
         },
       }
     );
-    handleResponse(res, 200, "Success", result);
+
+    const result1  = await CompanyService.updateMany({
+        "wineCellars.fabricatingPricing.clampCutoutOneByTwoInch": { $exists: false },
+        "wineCellars.fabricatingPricing.clampCutoutThreeByEightInch": { $exists: false },
+        "wineCellars.fabricatingPricing.miterOneByTwoInch": { $exists: false },
+        "wineCellars.fabricatingPricing.miterThreeByEightInch": { $exists: false },
+        "wineCellars.fabricatingPricing.notchOneByTwoInch": { $exists: false },
+        "wineCellars.fabricatingPricing.notchThreeByEightInch": { $exists: false },
+        "wineCellars.fabricatingPricing.outageOneByTwoInch": { $exists: false },
+        "wineCellars.fabricatingPricing.outageThreeByEightInch": { $exists: false },
+        "wineCellars.fabricatingPricing.polishPricePerOneByTwoInch": { $exists: false },
+        "wineCellars.fabricatingPricing.polishPricePerThreeByEightInch": { $exists: false },
+    },{
+        $set: {
+        "wineCellars.fabricatingPricing.clampCutoutOneByTwoInch": 11.61,
+        "wineCellars.fabricatingPricing.clampCutoutThreeByEightInch": 10.79,
+        "wineCellars.fabricatingPricing.miterOneByTwoInch": 0.62,
+        "wineCellars.fabricatingPricing.miterThreeByEightInch": 0.55,
+        "wineCellars.fabricatingPricing.notchOneByTwoInch": 24.51,
+        "wineCellars.fabricatingPricing.notchThreeByEightInch": 21.88,
+        "wineCellars.fabricatingPricing.outageOneByTwoInch": 6,
+        "wineCellars.fabricatingPricing.outageThreeByEightInch": 6,
+        "wineCellars.fabricatingPricing.polishPricePerOneByTwoInch": 0.16,
+        "wineCellars.fabricatingPricing.polishPricePerThreeByEightInch": 0.13,
+        },
+    });
+
+    handleResponse(res, 200, "Success", result1);
   } catch (err) {
     handleError(res, err);
   }

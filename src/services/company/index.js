@@ -88,8 +88,8 @@ class CompanyService {
   static updateMany(condition, data) {
     return new Promise((resolve, reject) => {
       Company.updateMany(condition, data)
-        .then(() => {
-          resolve(true);
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);

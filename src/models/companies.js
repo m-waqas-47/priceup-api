@@ -50,6 +50,46 @@ const companySchema = new mongoose.Schema(
           type: Number,
           default: 12.89,
         },
+        clampCutoutOneByTwoInch: {
+          type: Number,
+          default: 11.61,
+        },
+        clampCutoutThreeByEightInch: {
+          type: Number,
+          default: 10.79,
+        },
+        miterOneByTwoInch: {
+          type: Number,
+          default: 0.62,
+        },
+        miterThreeByEightInch: {
+          type: Number,
+          default: 0.55,
+        },
+        notchOneByTwoInch: {
+          type: Number,
+          default: 24.51,
+        },
+        notchThreeByEightInch: {
+          type: Number,
+          default: 21.88,
+        },
+        outageOneByTwoInch: {
+          type: Number,
+          default: 6,
+        },
+        outageThreeByEightInch: {
+          type: Number,
+          default: 6,
+        },
+        polishPricePerOneByTwoInch: {
+          type: Number,
+          default: 0.16,
+        },
+        polishPricePerThreeByEightInch: {
+          type: Number,
+          default: 0.13,
+        },
       },
       glassTypesForComparison:{
         type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
