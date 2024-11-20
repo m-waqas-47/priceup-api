@@ -54,6 +54,8 @@ const {wineCellarGlassTypes} = require("@seeders/wineCellarGlassTypeSeeder");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 const {wineCellarLayouts} = require("@seeders/wineCellarLayoutSeeder");
 const WineCellarLayoutService = require("@services/wineCellar/layout");
+const { wineCellarGlassAddons } = require("@seeders/wineCellarGlassAddonsSeeder");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 exports.getAll = async (req, res) => {
   try {
     const companies = await CompanyService.findAll();
@@ -252,6 +254,8 @@ exports.deleteUser = async (req, res) => {
     await WineCellarHardwareService.deleteAll({ company_id: company._id });
     // Delete Wine Cellar Glass Types
     await WineCellarGlassTypeService.deleteAll({ company_id: company._id });
+    // Delete Wine Cellar Glass Addons
+    await WineCellarGlassAddonService.deleteAll({ company_id: company._id });
     // Delete Wine Cellar Finishes
     await WineCellarFinishService.deleteAll({ company_id: company._id });
     // Delete Wine Cellar Layouts
@@ -414,6 +418,13 @@ exports.saveUser = async (req, res) => {
     });
     await seedLayouts(wineCellarLayouts, company?.id,estimateCategory.WINECELLARS); // create user layouts
     /** end **/
+    wineCellarGlassAddons?.map(async (glassAddon) => {
+      // create user glass treatments
+      await WineCellarGlassAddonService.create({
+        ...glassAddon,
+        company_id: company?.id,
+      });
+    });
     // Sending an email to the user
     const html = userCreatedTemplate(password);
 

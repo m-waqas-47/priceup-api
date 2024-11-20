@@ -38,11 +38,23 @@ class WineCellarHardwareService {
         });
     }
 
-    static update(condition, data) {
+    static update(condition, data, options) {
         return new Promise((resolve, reject) => {
-            Model.findOneAndUpdate(condition, data, { new: true })
+            Model.findOneAndUpdate(condition, data, options)
                 .then((record) => {
                     resolve(record);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
+    }
+
+    static updateMany(condition, data) {
+        return new Promise((resolve, reject) => {
+            Model.updateMany(condition, data)
+                .then((result) => {
+                    resolve(result);
                 })
                 .catch((err) => {
                     reject(err);

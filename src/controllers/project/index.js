@@ -68,8 +68,8 @@ exports.getProjectAllEstimates = async (req, res) => {
     if (!id) {
       throw new Error("Project Id is required");
     }
-    const estimates = await EstimateService.findAll({ project_id: id });
-    handleResponse(res, 200, "All estimates of project", estimates);
+    const result = await EstimateService.findAllWithPipeline({ project_id: id });
+    handleResponse(res, 200, "All estimates of project", result?.estimates);
   } catch (err) {
     handleError(res, err);
   }

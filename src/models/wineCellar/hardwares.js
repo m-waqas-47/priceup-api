@@ -20,7 +20,7 @@ const hardwareSchema = new mongoose.Schema(
       type: String,
       required: "Hardware Category slug is required",
   },
-    fabrication: {
+  fabrication: {
         oneInchHoles: {
             type: Number,
             default: 0,
@@ -28,6 +28,18 @@ const hardwareSchema = new mongoose.Schema(
         hingeCut: {
             type: Number,
             default: 0,
+        },
+        clampCut: {
+          type: Number,
+          default: 0,
+        },
+        notch: {
+          type: Number,
+          default: 0,
+        },
+        outages: {
+          type: Number,
+          default: 0,
         },
     },
     company_id: {

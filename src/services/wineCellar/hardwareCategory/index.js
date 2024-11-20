@@ -25,6 +25,18 @@ class WineCellarHardwareCategoryService {
         });
     }
 
+    static update(condition, data, options) {
+        return new Promise((resolve, reject) => {
+            Model.findOneAndUpdate(condition, data, options)
+                .then((record) => {
+                    resolve(record);
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
+    }
+
     static count(condition) {
         return new Promise((resolve, reject) => {
             Model.countDocuments(condition)

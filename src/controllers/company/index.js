@@ -28,6 +28,7 @@ const WineCellarFinishService = require("@services/wineCellar/finish");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 const WineCellarLayoutService = require("@services/wineCellar/layout");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 
 exports.getAll = async (req, res) => {
   CompanyService.findAll()
@@ -377,6 +378,23 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone glassTypes
+
+    const wineCellarglassAddons = await WineCellarGlassAddonService.findAll({
+      company_id: data.company_id,
+    }); // find company glassAddons
+
+    await Promise.all(
+      wineCellarglassAddons?.map(async (glassAddon) => {
+        await WineCellarGlassAddonService.create({
+          ...glassAddon,
+          company_id: company._id,
+          name: glassAddon.name,
+          slug: glassAddon.slug,
+          options: glassAddon.options,
+        });
+      })
+    ); // clone glassAddons
+
     const wineCellarLayouts = await WineCellarLayoutService.findAll({
       company_id: data.company_id,
     }); // find company layouts

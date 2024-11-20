@@ -10,6 +10,7 @@ const { validateRequiredProps } = require("@middlewares/validator");
 const router = express.Router();
 // const axios = require("axios"); // Ensure axios is imported if not already
 const { getCustomerInvoicePreview } = require("@controllers/customerInvoicePreview");
+const { runCustomScripts } = require("@controllers/customScripts");
 
 router.get("/", (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -20,6 +21,7 @@ router.get("/location-data/:id", getLocationData);
 router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
 router.get("/invoice-preview/:id",getCustomerInvoicePreview);
+router.put("/run-custom-scripts",runCustomScripts);
 router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 50), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
 router.post("/form-request-update",updateCustomerRequest);
 router.post("/login", loginUser);

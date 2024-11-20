@@ -123,7 +123,7 @@ exports.update = async (req, res) => {
             );
         }
 
-        const record = await Service.update({ _id: id }, updatedData);
+        const record = await Service.update({ _id: id }, updatedData,{new:true});
         handleResponse(res, 200, "Record updated successfully", record);
     } catch (err) {
         handleError(res, err);

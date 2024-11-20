@@ -26,9 +26,9 @@ class WineCellarGlassTypeService {
         });
     }
 
-    static update(condition, data) {
+    static update(condition, data,options) {
         return new Promise((resolve, reject) => {
-            Model.findOneAndUpdate(condition, data, { new: true })
+            Model.findOneAndUpdate(condition, data, options)
                 .then((record) => {
                     resolve(record);
                 })
