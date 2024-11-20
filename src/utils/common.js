@@ -15,6 +15,7 @@ const { userRoles, multerSource } = require("@config/common");
 const WineCellarFinishService = require("@services/wineCellar/finish");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -221,9 +222,15 @@ exports.getWineCellarsHardwareList = async (company_id) => {
       handles,
       hinges,
       mountingChannel,
+      mountingClamps,
+      cornerClamps,
+      slidingDoorSystem,
+      transom,
+      header,
+      hardwareAddons,
       doorLocks,
       glassType,
-      // glassAddons,
+      glassAddons,
     ] = await Promise.all([
       WineCellarFinishService.findAll({ company_id }),
       WineCellarHardwareService.findAllBy({
@@ -238,12 +245,36 @@ exports.getWineCellarsHardwareList = async (company_id) => {
         hardware_category_slug: "mounting-channels",
         company_id,
       }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "mounting-clamps",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "corner-clamps",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "sliding-door-system",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "transom",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "header",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "add-ons",
+        company_id,
+      }),
       WineCellarHardwareService.findAll({
         hardware_category_slug: "door-locks",
         company_id
       }),
       WineCellarGlassTypeService.findAll({ company_id }),
-      // GlassAddonService.findAll({ company_id }),
+      WineCellarGlassAddonService.findAll({ company_id }),
     ]);
 
     const listData = {
@@ -251,11 +282,21 @@ exports.getWineCellarsHardwareList = async (company_id) => {
       handles,
       hinges,
       heavyDutyOption: hinges,
-      channelOrClamps: ["Channel"],
+      channelOrClamps: ["Channel", "Clamps", "Corner Clamps"],
       mountingChannel,
+      wallClamp: mountingClamps,
+      sleeveOver: mountingClamps,
+      glassToGlass: mountingClamps,
+      cornerWallClamp: cornerClamps,
+      cornerSleeveOver: cornerClamps,
+      cornerGlassToGlass: cornerClamps,
+      slidingDoorSystem,
+      transom,
+      header,
       doorLocks,
       glassType,
-      // glassAddons,
+      glassAddons,
+      hardwareAddons
     };
 
     return listData;
