@@ -4,9 +4,9 @@ const locationId = "wMf03l211vQKvcwKgDYJ";
 const axios = require("axios"); // Ensure axios is imported if not already
 
 // The highLevelFlow function which executes the API call
-exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
+exports.highLevelFlow = async (customerDetail, cost, contactNote, utm_parameters) => {
   try {
-    const contact = await createContact(customerDetail);
+    const contact = await createContact(customerDetail,utm_parameters);
     const pipelineData = await getPipelineData();
     if (pipelineData?.data?.pipelines?.length) {
       const pipeline = pipelineData.data.pipelines[0];
@@ -19,7 +19,8 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
         pipelineStage.id,
         `${contact.data.contact.phone} - ${contact.data.contact.firstName}`,
         contact.data.contact.id,
-        cost
+        cost,
+        utm_parameters
       );
       console.log("Opportunity created:", opportunity.data);
       await createContactNote(contact.data.contact.id, contactNote);
@@ -35,7 +36,7 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote) => {
 };
 
 // Create contact function for API request
-const createContact = async (customerDetail) => {
+const createContact = async (customerDetail,utm_parameters) => {
   const url = `${baseUrl}/contacts/upsert`;
   const headers = {
     Authorization: `Bearer ${privateIntegrationKey}`,
@@ -56,7 +57,7 @@ const createContact = async (customerDetail) => {
     state: "AL",
     postalCode: "35061",
     timezone: "America/Chihuahua",
-    source: "public api",
+    source: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "public api",
     tags: ["contact created from api"],
     country: "US",
   };
@@ -86,7 +87,8 @@ const createOpportunity = async (
   stageId,
   customerName,
   contactId,
-  cost
+  cost,
+  utm_parameters
 ) => {
   const url = `${baseUrl}/opportunities/`;
   const headers = {
@@ -102,13 +104,13 @@ const createOpportunity = async (
     status: "open",
     contactId: contactId,
     monetaryValue: cost,
-    source: "Website",
-    // "customFields": [
-    //   {
-    //     "id": "AUKHX7JzEfQu4kiAQsxL",
-    //     "fieldValue": "Standard Pivot Hinge 1"
-    //   }
-    // ]
+    source: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "Website",
+    customFields: [
+      {
+        key: "{{ opportunity.source }}",
+        field_value: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "Website"
+      }
+    ]
   };
   return await axios.post(url, data, { headers });
 };

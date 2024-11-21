@@ -95,7 +95,8 @@ exports.getCustomerRequest = async (req, res) => {
     const highLevelResp = await highLevelFlow(
       data.customerDetail,
       totalCost,
-      data.contactNote
+      data.contactNote,
+      data.utm_parameters
     );
 
     await ProjectService.update(
