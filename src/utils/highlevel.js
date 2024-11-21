@@ -107,7 +107,7 @@ const createOpportunity = async (
     source: utm_parameters?.utm_source?.length > 0 ? utm_parameters?.utm_source : "Website",
     customFields: [
       {
-        key: "{{ opportunity.source }}",
+        key: "opportunity.source",
         field_value: utm_parameters?.utm_source?.length > 0 ? utm_parameters?.utm_source : "Website"
       }
     ]
