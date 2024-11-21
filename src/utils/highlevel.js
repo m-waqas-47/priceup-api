@@ -57,7 +57,7 @@ const createContact = async (customerDetail,utm_parameters) => {
     state: "AL",
     postalCode: "35061",
     timezone: "America/Chihuahua",
-    source: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "public api",
+    source: utm_parameters?.utm_source?.length > 0 ? utm_parameters?.utm_source : "public api",
     tags: ["contact created from api"],
     country: "US",
   };
@@ -104,11 +104,11 @@ const createOpportunity = async (
     status: "open",
     contactId: contactId,
     monetaryValue: cost,
-    source: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "Website",
+    source: utm_parameters?.utm_source?.length > 0 ? utm_parameters?.utm_source : "Website",
     customFields: [
       {
         key: "{{ opportunity.source }}",
-        field_value: utm_parameters?.utm_source > 0 ? utm_parameters?.utm_source : "Website"
+        field_value: utm_parameters?.utm_source?.length > 0 ? utm_parameters?.utm_source : "Website"
       }
     ]
   };
