@@ -4,7 +4,10 @@ const CustomerService = require("@services/customer");
 const ProjectService = require("@services/project");
 // const UserService = require("@services/user");
 const { estimateSaveFormat } = require("@utils/generateEstimate");
-const { highLevelFlow, updateHighLevelOpportunity } = require("@utils/highlevel");
+const {
+  highLevelFlow,
+  updateHighLevelOpportunity,
+} = require("@utils/highlevel");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 
@@ -101,7 +104,10 @@ exports.getCustomerRequest = async (req, res) => {
 
     await ProjectService.update(
       { _id: project._id },
-      { totalAmountQuoted: totalCost, opportunity_id: highLevelResp?.opportunity?.id ?? null }
+      {
+        totalAmountQuoted: totalCost,
+        opportunity_id: highLevelResp?.opportunity?.id ?? null,
+      }
     );
 
     await CustomerService.update(
@@ -136,6 +142,15 @@ exports.updateCustomerRequest = async (req, res) => {
       );
     }
     handleResponse(res, 200, "Request status updated", project);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.formSubmittedWebhook = async (req, res) => {
+  const data = { ...req.body };
+  try {
+    handleResponse(res, 200, "Success", data);
   } catch (err) {
     handleError(res, err);
   }

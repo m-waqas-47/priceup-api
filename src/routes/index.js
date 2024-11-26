@@ -22,6 +22,7 @@ router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
 router.get("/invoice-preview/:id",getCustomerInvoicePreview);
 router.put("/run-custom-scripts",runCustomScripts);
+router.post("/form-submitted-webhook", formSubmittedWebhook);
 router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 50), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
 router.post("/form-request-update",updateCustomerRequest);
 router.post("/login", loginUser);
