@@ -150,6 +150,7 @@ exports.updateCustomerRequest = async (req, res) => {
 exports.formSubmittedWebhook = async (req, res) => {
   const data = { ...req.body };
   try {
+    console.log(data,'data');
     handleResponse(res, 200, "Success", data);
   } catch (err) {
     handleError(res, err);
