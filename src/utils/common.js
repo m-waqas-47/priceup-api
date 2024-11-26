@@ -377,3 +377,22 @@ exports.getCurrentFormattedDate = () => {
 
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
+
+const generateInvoiceId = async () => {
+  const maxDigits = 6;
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  
+  const counter = await db.collection('counters').findOneAndUpdate(
+    { _id: "invoiceId" },
+    { $inc: { sequenceValue: 1 } },
+    { returnDocument: "after", upsert: true }
+  );
+
+  let sequenceNumber = counter.value.sequenceValue;
+  let prefixIndex = Math.floor(sequenceNumber / (10 ** maxDigits));
+  sequenceNumber = sequenceNumber % (10 ** maxDigits);
+
+  const prefix = prefixIndex === 0 ? "INV" : `INV-${alphabet[prefixIndex - 1]}`;
+  const invoiceId = `${prefix}-${sequenceNumber.toString().padStart(maxDigits, '0')}`;
+  return invoiceId;
+}
