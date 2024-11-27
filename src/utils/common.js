@@ -382,18 +382,28 @@ exports.getCurrentFormattedDate = () => {
 exports.generateInvoiceId = async () => {
   const maxDigits = 6;
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  
-  const counter = await InvoicesCounterService.update(
-    { _id: "invoiceId" },
-    { $inc: { sequenceValue: 1 } },
-    { returnDocument: "after", upsert: true }
-  );
 
-  let sequenceNumber = counter.value.sequenceValue;
-  let prefixIndex = Math.floor(sequenceNumber / (10 ** maxDigits));
-  sequenceNumber = sequenceNumber % (10 ** maxDigits);
+  try {
+    // Use Mongoose to find and update the counter
+    const counter = await InvoicesCounterService.update(
+      { _id: "invoiceId" }, // Find the counter document
+      { $inc: { sequenceValue: 1 } }, // Increment sequenceValue
+      { new: true, upsert: true } // Return the updated document; create if not found
+    );
 
-  const prefix = prefixIndex === 0 ? "INV" : `INV-${alphabet[prefixIndex - 1]}`;
-  const invoiceId = `${prefix}-${sequenceNumber.toString().padStart(maxDigits, '0')}`;
-  return invoiceId;
-}
+    if (!counter || typeof counter.sequenceValue !== "number") {
+      throw new Error("Counter document is invalid or not initialized.");
+    }
+
+    let sequenceNumber = counter.sequenceValue;
+    let prefixIndex = Math.floor(sequenceNumber / 10 ** maxDigits);
+    sequenceNumber = sequenceNumber % 10 ** maxDigits;
+
+    const prefix = prefixIndex === 0 ? "INV" : `INV-${alphabet[prefixIndex - 1]}`;
+    const invoiceId = `${prefix}-${sequenceNumber.toString().padStart(maxDigits, "0")}`;
+    return invoiceId;
+  } catch (error) {
+    console.error("Error generating invoice ID:", error);
+    throw new Error("Unable to generate a unique invoice ID.");
+  }
+};
