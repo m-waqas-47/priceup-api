@@ -36,7 +36,7 @@ exports.fetchAllRecords = (condition, search, options) => {
 
     pipeline.push({
       $project: {
-        data: 1,
+        invoices: 1,
         totalRecords: { $ifNull: ["$totalRecords.count", 0] },
       },
     });

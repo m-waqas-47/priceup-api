@@ -7,7 +7,11 @@ class InvoiceService {
       const pipeline = fetchAllRecords(condition,search,options);
       Model.aggregate(pipeline)
         .then((result) => {
-          resolve(result);
+          if (options && options.skip !== undefined && options.limit !== undefined) {
+            resolve(result[0]);
+          } else {
+            resolve(result);
+          }
         })
         .catch((err) => {
           reject(err);
