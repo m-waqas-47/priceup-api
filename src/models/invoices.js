@@ -20,7 +20,9 @@ const schema = new mongoose.Schema(
         type: mongoose.Schema.Types.Mixed,
       },
     ],
-    subTotal: Number, // Sum of all item totals
+    subTotal: {
+      type: Number, // Sum of all item totals
+    },
     tax: {
       type: Number,
       default: 0,
@@ -29,7 +31,9 @@ const schema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    grandTotal: Number, // Final invoice amount after tax and discounts
+    grandTotal: {
+      type: Number, // Final invoice amount after tax and discounts
+    },
     status: {
       type: String, // Invoice status (e.g., "Paid", "Unpaid", "Pending")
       default: "Unpaid",

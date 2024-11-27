@@ -1,3 +1,4 @@
+const EstimateService = require("@services/estimate");
 const InvoiceService = require("@services/invoice");
 const { handleResponse, handleError } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
@@ -71,8 +72,28 @@ exports.save = async (req, res) => {
   const data = { ...req.body };
   const user = req.user;
   try {
+    const invoiceId = await generateInvoiceId();
+    const estimates = await EstimateService.findAll({
+      project_id: data?.project_id,
+    });
+    const items = [];
+    let subTotal = 0;
+    estimates.forEach((item) => {
+      subTotal += item.cost;
+      items.push({
+        name: item.name,
+        label: item.label,
+        category: item.category,
+        cost: item.cost,
+        config: item.config,
+      });
+    });
     const result = await Service.create({
       ...data,
+      invoiceId,
+      items,
+      subTotal,
+      grandTotal: subTotal,
       company_id: user.company_id,
     });
     handleResponse(res, 200, "Record created.", result);

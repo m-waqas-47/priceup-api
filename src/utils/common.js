@@ -16,6 +16,7 @@ const WineCellarFinishService = require("@services/wineCellar/finish");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
+const InvoicesCounterService = require("@services/invoicesCounter");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -378,11 +379,11 @@ exports.getCurrentFormattedDate = () => {
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 };
 
-const generateInvoiceId = async () => {
+exports.generateInvoiceId = async () => {
   const maxDigits = 6;
   const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   
-  const counter = await db.collection('counters').findOneAndUpdate(
+  const counter = await InvoicesCounterService.update(
     { _id: "invoiceId" },
     { $inc: { sequenceValue: 1 } },
     { returnDocument: "after", upsert: true }
