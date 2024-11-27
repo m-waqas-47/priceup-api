@@ -1,3 +1,4 @@
+const CustomerService = require("@services/customer");
 const EstimateService = require("@services/estimate");
 const InvoiceService = require("@services/invoice");
 const { handleResponse, handleError } = require("@utils/responses");
@@ -76,6 +77,16 @@ exports.save = async (req, res) => {
     const estimates = await EstimateService.findAll({
       project_id: data?.project_id,
     });
+    const customer = await CustomerService.findBy({ _id: data?.customer_id });
+    let customerObject = null;
+    if (customer) {
+      customerObject = {
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone,
+        address: customer.address,
+      };
+    }
     const items = [];
     let subTotal = 0;
     estimates.forEach((item) => {
@@ -93,6 +104,7 @@ exports.save = async (req, res) => {
       invoiceId,
       items,
       subTotal,
+      customer: customerObject,
       grandTotal: subTotal,
       company_id: user.company_id,
     });
