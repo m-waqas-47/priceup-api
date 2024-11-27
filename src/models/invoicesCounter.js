@@ -8,6 +8,5 @@ const schema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-// Add the index to the company field
-schema.index({ _id: 1 });
+
 module.exports = mongoose.model("invoices_counter", schema);
