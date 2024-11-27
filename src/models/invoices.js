@@ -14,6 +14,10 @@ const schema = new mongoose.Schema(
       // Customer information
       type: mongoose.Schema.Types.Mixed,
     },
+    source: {
+      // Source information
+      type: mongoose.Schema.Types.Mixed,
+    },
     items: [
       // List of items in the invoice
       {
@@ -47,12 +51,26 @@ const schema = new mongoose.Schema(
     },
     paymentDetails: {
       // Payment information (if applicable)
-      method: String, // Payment method (e.g., "Credit Card", "Bank Transfer")
-      transactionId: String, // Transaction ID (if paid)
-      paidAt: Date, // Date when payment was received
+      method: {
+        // Payment method (e.g., "Credit Card", "Bank Transfer")
+        type: String,
+        default: "",
+      },
+      transactionId: {
+        // Transaction ID (if paid)
+        type: String,
+        default: "",
+      },
+      paidAt: {
+        type: Date, // Date when payment was received
+        default: null,
+      },
     },
     customerPreview: {
-      link: String,
+      link: {
+        type: String,
+        default: "",
+      },
       expiresAt: {
         type: Date,
         default: Date.now,
