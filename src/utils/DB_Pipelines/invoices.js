@@ -22,7 +22,7 @@ exports.fetchAllRecords = (condition, search, options) => {
   if (options && options.skip !== undefined && options.limit !== undefined) {
     pipeline.push({
       $facet: {
-        data: [{ $skip: options.skip }, { $limit: options.limit }],
+        invoices: [{ $skip: options.skip }, { $limit: options.limit }],
         totalRecords: [{ $count: "count" }],
       },
     });
