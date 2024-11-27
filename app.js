@@ -25,6 +25,7 @@ const customerRouter = require("@routes/customers");
 const estimateRouter = require("@routes/estimates");
 const adminRouter = require("@routes/admins");
 const indexRouter = require("@routes/index");
+const invoicesRouter = require("@routes/invoices");
 const customUsers = require("@routes/customUsers");
 const mirrorsRouter = require("@routes/mirror");
 const wineCellarsRouter = require("@routes/wineCellar");
@@ -57,6 +58,7 @@ app.use("/notifications", notificationsRouter);
 app.use("/projects", projectsRouter);
 app.use("/contacts", contactsRouter);
 app.use("/addresses", addressRouter);
+app.use("/invoices", invoicesRouter);
 app.use("/", indexRouter);
 
 // Socket.IO connection

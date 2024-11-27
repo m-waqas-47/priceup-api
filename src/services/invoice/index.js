@@ -1,9 +1,11 @@
 const Model = require("@models/invoices");
+const { fetchAllRecords } = require("@utils/DB_Pipelines/invoices");
 
 class InvoiceService {
-  static findAll(condition) {
+  static findAll(condition, search = "", options) {
     return new Promise((resolve, reject) => {
-      Model.find(condition)
+      const pipeline = fetchAllRecords(condition,search,options);
+      Model.aggregate(pipeline)
         .then((result) => {
           resolve(result);
         })
@@ -27,7 +29,7 @@ class InvoiceService {
 
   static update(condition, data, options) {
     return new Promise((resolve, reject) => {
-      Project.findOneAndUpdate(condition, data, options)
+      Model.findOneAndUpdate(condition, data, options)
         .then((record) => {
           resolve(record);
         })

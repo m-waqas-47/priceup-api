@@ -12,24 +12,23 @@ const schema = new mongoose.Schema(
     },
     customer: {
       // Customer information
-      name: String, // Name of the customer
-      email: String, // Email address
-      phone: String, // Phone number
-      address: String, // Billing or shipping address
+      type: mongoose.Schema.Types.Mixed,
     },
     items: [
       // List of items in the invoice
       {
-        name: String, // Item name
-        description: String, // Optional item description
-        quantity: Number, // Quantity of the item
-        unitPrice: Number, // Price per unit
-        total: Number, // Total price for the item
+        type: mongoose.Schema.Types.Mixed,
       },
     ],
     subTotal: Number, // Sum of all item totals
-    // tax: Number,             // Tax amount
-    // discount: Number,        // Discount amount
+    tax: {
+      type: Number,
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
     grandTotal: Number, // Final invoice amount after tax and discounts
     status: {
       type: String, // Invoice status (e.g., "Paid", "Unpaid", "Pending")
@@ -48,11 +47,17 @@ const schema = new mongoose.Schema(
       transactionId: String, // Transaction ID (if paid)
       paidAt: Date, // Date when payment was received
     },
-    customerPreview:{
-        link: String,
-        expiresAt: Date.now
+    customerPreview: {
+      link: String,
+      expiresAt: {
+        type: Date,
+        default: Date.now,
+      },
     },
-    notes: String, // Additional notes for the invoice
+    notes: {
+      type: String,
+      default: "",
+    },
     customer_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Customer reference is required",
@@ -60,6 +65,10 @@ const schema = new mongoose.Schema(
     source_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Source reference is required",
+    },
+    company_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: "Company reference is required",
     },
   },
   { timestamps: true }
