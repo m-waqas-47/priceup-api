@@ -1,13 +1,17 @@
 const Model = require("@models/invoices");
-const { fetchAllRecords } = require("@utils/DB_Pipelines/invoices");
+const { fetchAllRecords, fetchStats } = require("@utils/DB_Pipelines/invoices");
 
 class InvoiceService {
   static findAll(condition, search = "", options) {
     return new Promise((resolve, reject) => {
-      const pipeline = fetchAllRecords(condition,search,options);
+      const pipeline = fetchAllRecords(condition, search, options);
       Model.aggregate(pipeline)
         .then((result) => {
-          if (options && options.skip !== undefined && options.limit !== undefined) {
+          if (
+            options &&
+            options.skip !== undefined &&
+            options.limit !== undefined
+          ) {
             resolve(result[0]);
           } else {
             resolve(result);
@@ -24,6 +28,19 @@ class InvoiceService {
       Model.findOne(condition)
         .then((result) => {
           resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static stats(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchStats(condition);
+      Model.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
         })
         .catch((err) => {
           reject(err);

@@ -85,3 +85,12 @@ exports.save = async (req, res) => {
     handleError(res, err);
   }
 };
+
+exports.getStats = async (req, res) => {
+  try {
+    const resp = await InvoiceService.stats();
+    handleResponse(res, 200, "Success", resp);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
