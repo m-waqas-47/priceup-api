@@ -68,7 +68,7 @@ exports.getProjectAllEstimates = async (req, res) => {
     if (!id) {
       throw new Error("Project Id is required");
     }
-    const result = await EstimateService.findAllWithPipeline({ project_id: id });
+    const result = await EstimateService.findAllWithPipeline({ project_id: new mongoose.Types.ObjectId(id) });
     handleResponse(res, 200, "All estimates of project", result?.estimates);
   } catch (err) {
     handleError(res, err);
