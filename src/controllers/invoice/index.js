@@ -75,27 +75,9 @@ exports.save = async (req, res) => {
   const user = req.user;
   try {
     const invoiceId = await generateInvoiceId();
-    const estimates = await EstimateService.findAll({
-      project_id: data?.source_id,
-    });
-    const items = [];
-    let subTotal = 0;
-    estimates.forEach((item) => {
-      subTotal += item.cost;
-      items.push({
-        name: item.name,
-        label: item.label,
-        category: item.category,
-        cost: item.cost,
-        config: item.config,
-      });
-    });
     const result = await Service.create({
       ...data,
       invoiceId,
-      items,
-      subTotal,
-      grandTotal: subTotal,
       company_id: user.company_id,
     });
     handleResponse(res, 200, "Record created.", result);
