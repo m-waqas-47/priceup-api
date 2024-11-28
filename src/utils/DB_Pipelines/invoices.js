@@ -58,19 +58,14 @@ exports.fetchStats = (condition = {}) => {
     {
       $group: {
         _id: "$status", // Group by the `status` field
-        count: { $sum: 1 }, // Count the number of documents for each status
+        count: { $sum: 1 }, // Count the number of documents in each group
       },
     },
     {
       $project: {
-        _id: 0, // Exclude the `_id` field from the output
-        status: "$_id", // Rename `_id` to `status`
-        count: 1, // Include the count field
-      },
-    },
-    {
-      $sort: {
-        status: 1, // Sort by `status` alphabetically (optional)
+        status: "$_id",
+        count: 1,
+        _id: 0,
       },
     },
   ];
