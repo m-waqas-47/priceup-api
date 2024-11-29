@@ -69,7 +69,7 @@ exports.update = async (req, res) => {
     if (data?.customerPreview && result?.customer?.email) {
       const html = invoicePreviewTemplate(data?.customerPreview?.link);
       await MailgunService.sendEmail(
-        customer.email,
+        result.customer.email,
         "Invoice preview link",
         html
       );
