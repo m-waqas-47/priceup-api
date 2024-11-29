@@ -65,10 +65,14 @@ exports.update = async (req, res) => {
     if (!id) {
       throw new Error("Invalid id");
     }
-    const result = await Service.update({ _id: id }, data);
-    if(data?.customerPreview && result?.customer?.email){
-    const html = invoicePreviewTemplate(data?.customerPreview?.link);
-    await MailgunService.sendEmail(customer.email, "Invoice preview link", html);
+    const result = await Service.update({ _id: id }, data, { new: true });
+    if (data?.customerPreview && result?.customer?.email) {
+      const html = invoicePreviewTemplate(data?.customerPreview?.link);
+      await MailgunService.sendEmail(
+        customer.email,
+        "Invoice preview link",
+        html
+      );
     }
     handleResponse(res, 200, "Record updated.", result);
   } catch (err) {
