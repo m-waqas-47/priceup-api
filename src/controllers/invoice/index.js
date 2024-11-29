@@ -87,8 +87,11 @@ exports.save = async (req, res) => {
 };
 
 exports.getStats = async (req, res) => {
+  const user = req.user;
   try {
-    const resp = await InvoiceService.stats();
+    const resp = await InvoiceService.stats({
+      company_id: new mongoose.Types.ObjectId(user?.company_id),
+    });
     handleResponse(res, 200, "Success", resp);
   } catch (err) {
     handleError(res, err);
