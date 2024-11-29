@@ -1,6 +1,7 @@
 const { projectStatus } = require("@config/common");
 const CustomerInvoicePreviewService = require("@services/customerInvoicePreview");
 const EstimateService = require("@services/estimate");
+const InvoiceService = require("@services/invoice");
 const ProjectService = require("@services/project");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
@@ -68,7 +69,9 @@ exports.getProjectAllEstimates = async (req, res) => {
     if (!id) {
       throw new Error("Project Id is required");
     }
-    const result = await EstimateService.findAllWithPipeline({ project_id: new mongoose.Types.ObjectId(id) });
+    const result = await EstimateService.findAllWithPipeline({
+      project_id: new mongoose.Types.ObjectId(id),
+    });
     handleResponse(res, 200, "All estimates of project", result?.estimates);
   } catch (err) {
     handleError(res, err);
@@ -81,8 +84,10 @@ exports.getSingleRecord = async (req, res) => {
     const record = await Service.findBy({
       _id: new mongoose.Types.ObjectId(id),
     });
-    const invoicePreview = await CustomerInvoicePreviewService.findBy({project_id:new mongoose.Types.ObjectId(id) });
-    handleResponse(res, 200, "Single Record", {...record,invoicePreview:invoicePreview});
+    const invoice = await InvoiceService.findBy({
+      source_id: new mongoose.Types.ObjectId(id),
+    });
+    handleResponse(res, 200, "Single Record", { ...record, invoice: invoice });
   } catch (err) {
     handleError(res, err);
   }
@@ -172,27 +177,25 @@ exports.getAllStats = async (req, res) => {
   }
 };
 
-exports.modifyExistingDocuments = async (req,res)=>{
-  try{ 
-
-   // Update all existing documents by setting lastLogin and lastReminderSent to the current time if they don't exist
-   const result = await Service.updateMany(
-     { 
-      contact_id: { $exists: false },
-      opportunity_id: { $exists: false },
-      created_source: { $exists: false } 
-     },
-     { 
-        $set: { 
+exports.modifyExistingDocuments = async (req, res) => {
+  try {
+    // Update all existing documents by setting lastLogin and lastReminderSent to the current time if they don't exist
+    const result = await Service.updateMany(
+      {
+        contact_id: { $exists: false },
+        opportunity_id: { $exists: false },
+        created_source: { $exists: false },
+      },
+      {
+        $set: {
           contact_id: null,
           opportunity_id: null,
-          created_source: 'Application'
-        }
-     }
-  );
-   handleResponse(res,200,"Records modified",result);
+          created_source: "Application",
+        },
+      }
+    );
+    handleResponse(res, 200, "Records modified", result);
+  } catch (err) {
+    handleError(res, err);
   }
-  catch(err){
-   handleError(res,err);
-  }
-}
+};

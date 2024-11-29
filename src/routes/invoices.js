@@ -12,6 +12,7 @@ const router = express.Router();
 
 router.get("/", verifyToken, getAll);
 router.get("/stats", verifyToken, getStats);
+router.get("/:id/customer-preview", getCustomerPreview);
 router.get("/:id", verifyToken, getSingle);
 router.put("/:id", verifyToken, update);
 router.delete("/:id", verifyToken, deleteSingle);

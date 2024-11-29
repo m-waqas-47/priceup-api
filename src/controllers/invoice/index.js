@@ -43,6 +43,19 @@ exports.getSingle = async (req, res) => {
   }
 };
 
+exports.getCustomerPreview = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!id) {
+      throw new Error("Invalid id");
+    }
+    const result = await Service.findBy({ _id: id });
+    handleResponse(res, 200, "Success", result);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.update = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };
