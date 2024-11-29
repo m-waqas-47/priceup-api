@@ -5,6 +5,7 @@ const {
   update,
   deleteSingle,
   getStats,
+  getCustomerPreview,
   save,
 } = require("@controllers/invoice");
 const { verifyToken } = require("@middlewares/authentication");
