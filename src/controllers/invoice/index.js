@@ -1,6 +1,8 @@
 const CustomerService = require("@services/customer");
 const EstimateService = require("@services/estimate");
 const InvoiceService = require("@services/invoice");
+const MailgunService = require("@services/mailgun");
+const { invoicePreviewTemplate } = require("@templates/email");
 const { generateInvoiceId } = require("@utils/common");
 const { handleResponse, handleError } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
@@ -64,6 +66,10 @@ exports.update = async (req, res) => {
       throw new Error("Invalid id");
     }
     const result = await Service.update({ _id: id }, data);
+    if(data?.customerPreview && result?.customer?.email){
+    const html = invoicePreviewTemplate(data?.customerPreview?.link);
+    await MailgunService.sendEmail(customer.email, "Invoice preview link", html);
+    }
     handleResponse(res, 200, "Record updated.", result);
   } catch (err) {
     handleError(res, err);

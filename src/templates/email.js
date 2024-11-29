@@ -20,6 +20,6 @@ exports.userNotActiveTemplate = (err) => {
 
 exports.invoicePreviewTemplate = (data) => {
   return `<div><h1 style="color:#8477ad;text-align:center">Price Up</h1>
-  <p style="color:#100d24l;font-size:22px">Invoice preview link is generated. http://3.219.213.248/custom-landing/${data}</p>
+  <p style="color:#100d24l;font-size:22px">Invoice preview link is generated. Click here to redirect:${data}</p>
   </div>`;
 };
