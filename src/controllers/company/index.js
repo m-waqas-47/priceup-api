@@ -153,13 +153,19 @@ exports.cloneCompany = async (req, res) => {
       );
     } // save image if attached in payload
 
-    const user = await UserService.create({...data,image:'images/users/default.jpg'}); // create user
+    const user = await UserService.create({
+      ...data,
+      image: "images/users/default.jpg",
+    }); // create user
 
     const company = await CompanyService.create({
       ...referenceCompany,
       user_id: user?.id,
       name: data?.locationName,
-      image: data?.image !== 'null' ? data?.image : 'images/others/company_default.jpg'
+      image:
+        data?.image !== "null"
+          ? data?.image
+          : "images/others/company_default.jpg",
     }); // create user company
 
     const finishes = await FinishService.findAll({
@@ -219,7 +225,6 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone glassTypes
-
 
     const glassAddons = await GlassAddonService.findAll({
       company_id: data.company_id,
@@ -954,7 +959,8 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
       if (settings?.noOfHoursToCompleteSingleDoor) {
         result = {
           ...result,
-          noOfHoursToCompleteSingleDoor: settings?.noOfHoursToCompleteSingleDoor,
+          noOfHoursToCompleteSingleDoor:
+            settings?.noOfHoursToCompleteSingleDoor,
         };
       }
       // variant
@@ -984,23 +990,25 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
 exports.modifyExistingRecords = async (req, res) => {
   try {
     const result = await CompanyService.updateMany(
-      { 
+      {
         $or: [
-          { 'showers.glassTypesForComparison': { $exists: false } },
-          { 'mirrors.glassTypesForComparison': { $exists: false } },
-          { 'wineCellars.glassTypesForComparison': { $exists: false } },
-        ]
+          { "showers.glassTypesForComparison": { $exists: false } },
+          { "mirrors.glassTypesForComparison": { $exists: false } },
+          { "wineCellars.glassTypesForComparison": { $exists: false } },
+          { highlevelSettings: { $exists: false } },
+        ],
       },
-      { 
-        $set: { 
-          'showers.glassTypesForComparison': [],
-          'mirrors.glassTypesForComparison': [],
-          'wineCellars.glassTypesForComparison': [],
-        }
+      {
+        $set: {
+          "showers.glassTypesForComparison": [],
+          "mirrors.glassTypesForComparison": [],
+          "wineCellars.glassTypesForComparison": [],
+          highlevelSettings: { locationReference: "", apiKey: "" },
+        },
       }
     );
-    
-    handleResponse(res, 200, "Companies info updated",result);
+
+    handleResponse(res, 200, "Companies info updated", result);
   } catch (err) {
     handleError(res, err);
   }

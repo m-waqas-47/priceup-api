@@ -108,7 +108,8 @@ exports.getCustomerRequest = async (req, res) => {
       data.customerDetail,
       totalCost,
       data.contactNote,
-      data.utm_parameters
+      data.utm_parameters,
+      location?.highlevelSettings
     );
 
     await ProjectService.update(

@@ -4,10 +4,10 @@ const locationId = "wMf03l211vQKvcwKgDYJ";
 const axios = require("axios"); // Ensure axios is imported if not already
 
 // The highLevelFlow function which executes the API call
-exports.highLevelFlow = async (customerDetail, cost, contactNote, utm_parameters) => {
+exports.highLevelFlow = async (customerDetail, cost, contactNote, utm_parameters,highlevelSettings) => {
   try {
-    const contact = await createContact(customerDetail,utm_parameters);
-    const pipelineData = await getPipelineData();
+    const contact = await createContact(customerDetail,utm_parameters,highlevelSettings);
+    const pipelineData = await getPipelineData(highlevelSettings);
     if (pipelineData?.data?.pipelines?.length) {
       const pipeline = pipelineData.data.pipelines[0];
       const pipelineStage = pipeline.stages.find(
@@ -36,10 +36,10 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote, utm_parameters
 };
 
 // Create contact function for API request
-const createContact = async (customerDetail,utm_parameters) => {
+const createContact = async (customerDetail,utm_parameters,highlevelSettings) => {
   const url = `${baseUrl}/contacts/upsert`;
   const headers = {
-    Authorization: `Bearer ${privateIntegrationKey}`,
+    Authorization: `Bearer ${highlevelSettings?.apiKey ?? privateIntegrationKey}`,
     Version: "2021-07-28",
     "Content-Type": "application/json",
   };
@@ -49,7 +49,7 @@ const createContact = async (customerDetail,utm_parameters) => {
     lastName: name[1] ?? "",
     name: customerDetail?.name,
     email: customerDetail?.email,
-    locationId: locationId,
+    locationId: highlevelSettings?.locationReference ?? locationId,
     gender: "male",
     phone: customerDetail?.phone,
     address1: customerDetail?.address,
@@ -65,10 +65,10 @@ const createContact = async (customerDetail,utm_parameters) => {
   return await axios.post(url, data, { headers });
 };
 
-const getPipelineData = async () => {
-  const url = `${baseUrl}/opportunities/pipelines?locationId=${locationId}`;
+const getPipelineData = async (highlevelSettings) => {
+  const url = `${baseUrl}/opportunities/pipelines?locationId=${highlevelSettings?.locationReference ?? locationId}`;
   const headers = {
-    Authorization: `Bearer ${privateIntegrationKey}`,
+    Authorization: `Bearer ${highlevelSettings?.apiKey ?? privateIntegrationKey}`,
     Version: "2021-07-28",
     // "Content-Type": "application/json",
   };
@@ -88,17 +88,18 @@ const createOpportunity = async (
   customerName,
   contactId,
   cost,
-  utm_parameters
+  utm_parameters,
+  highlevelSettings
 ) => {
   const url = `${baseUrl}/opportunities/`;
   const headers = {
-    Authorization: `Bearer ${privateIntegrationKey}`,
+    Authorization: `Bearer ${highlevelSettings?.apiKey ?? privateIntegrationKey}`,
     Version: "2021-07-28",
     "Content-Type": "application/json",
   };
   const data = {
     pipelineId: pipelineId,
-    locationId: locationId,
+    locationId: highlevelSettings?.locationReference ?? locationId,
     name: customerName,
     pipelineStageId: stageId,
     status: "open",
@@ -115,10 +116,10 @@ const createOpportunity = async (
   return await axios.post(url, data, { headers });
 };
 
-const createContactNote = async (contactId, contactNote) => {
+const createContactNote = async (contactId, contactNote, highlevelSettings) => {
   const url = `${baseUrl}/contacts/${contactId}/notes`;
   const headers = {
-    Authorization: `Bearer ${privateIntegrationKey}`,
+    Authorization: `Bearer ${highlevelSettings?.apiKey ?? privateIntegrationKey}`,
     Version: "2021-07-28",
     "Content-Type": "application/json",
   };
@@ -128,10 +129,10 @@ const createContactNote = async (contactId, contactNote) => {
   return await axios.post(url, data, { headers });
 };
 
-exports.updateHighLevelOpportunity = async (opportunityId, status) => {
+exports.updateHighLevelOpportunity = async (opportunityId, status, highlevelSettings) => {
   const url = `${baseUrl}/opportunities/${opportunityId}/status`;
   const headers = {
-    Authorization: `Bearer ${privateIntegrationKey}`,
+    Authorization: `Bearer ${highlevelSettings?.apiKey ?? privateIntegrationKey}`,
     Version: "2021-07-28",
     "Content-Type": "application/json",
   };

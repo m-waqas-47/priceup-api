@@ -14,7 +14,7 @@ const companySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    wineCellars:{
+    wineCellars: {
       doorWidth: {
         type: Number,
         default: 36,
@@ -91,10 +91,10 @@ const companySchema = new mongoose.Schema(
           default: 0.13,
         },
       },
-      glassTypesForComparison:{
+      glassTypesForComparison: {
         type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
-        default: []  
-      }
+        default: [],
+      },
     },
     mirrors: {
       pricingFactor: {
@@ -137,10 +137,10 @@ const companySchema = new mongoose.Schema(
         type: Number,
         default: 20,
       },
-      glassTypesForComparison:{
+      glassTypesForComparison: {
         type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
-        default: []  
-      }
+        default: [],
+      },
     },
     showers: {
       doorWidth: {
@@ -219,12 +219,12 @@ const companySchema = new mongoose.Schema(
           default: 0.13,
         },
       },
-      glassTypesForComparison:{
+      glassTypesForComparison: {
         type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
-        default: []  
-      }
+        default: [],
+      },
     },
-    pdfSettings:{
+    pdfSettings: {
       people: {
         type: Boolean,
         default: false,
@@ -233,18 +233,28 @@ const companySchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
-      labor:{
+      labor: {
         type: Boolean,
         default: true,
       },
-      cost:{
+      cost: {
         type: Boolean,
         default: false,
       },
-      profit:{
+      profit: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
+    },
+    highlevelSettings: {
+      locationReference: {
+        type: String,
+        default: "",
+      },
+      apiKey: {
+        type: String,
+        default: "",
+      },
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
