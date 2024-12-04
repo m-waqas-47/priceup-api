@@ -20,10 +20,11 @@ exports.highLevelFlow = async (customerDetail, cost, contactNote, utm_parameters
         `${contact.data.contact.phone} - ${contact.data.contact.firstName}`,
         contact.data.contact.id,
         cost,
-        utm_parameters
+        utm_parameters,
+        highlevelSettings
       );
       console.log("Opportunity created:", opportunity.data);
-      await createContactNote(contact.data.contact.id, contactNote);
+      await createContactNote(contact.data.contact.id, contactNote,highlevelSettings);
       return {opportunity:opportunity.data?.opportunity,contact:contact.data.contact}; // Return the opportunity data
     } else {
       console.warn("No pipeline data or contact data found.");
