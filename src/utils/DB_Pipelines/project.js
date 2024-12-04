@@ -37,6 +37,22 @@ exports.fetchAllRecords = (condition, search, options) => {
       },
     },
 
+    // Lookup to join contact details
+    {
+      $lookup: {
+        from: "contacts",
+        localField: "contact_id",
+        foreignField: "_id",
+        as: "contactDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$contactDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
     // Lookup to join company details
     {
       $lookup: {
@@ -134,8 +150,10 @@ exports.fetchAllRecords = (condition, search, options) => {
                 address: 1,
                 creatorData: "$creatorDetails",
                 creator_type: 1,
+                created_source:1,
                 customerData: "$customerDetails",
                 addressData: "$addressDetails",
+                contactData: "$contactDetails",
                 companyData: "$companyDetails",
                 status: 1,
                 createdAt: 1,
@@ -166,8 +184,10 @@ exports.fetchAllRecords = (condition, search, options) => {
           address: 1,
           creatorData: "$creatorDetails",
           creator_type: 1,
+          created_source:1,
           customerData: "$customerDetails",
           addressData: "$addressDetails",
+          contactData: "$contactDetails",
           companyData: "$companyDetails",
           status: 1,
           createdAt: 1,
@@ -215,6 +235,22 @@ exports.fetchSingleRecord = (condition) => {
     {
       $unwind: {
         path: "$addressDetails",
+        preserveNullAndEmptyArrays: true,
+      },
+    },
+
+    // Lookup to join contact details
+    {
+      $lookup: {
+        from: "contacts",
+        localField: "contact_id",
+        foreignField: "_id",
+        as: "contactDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$contactDetails",
         preserveNullAndEmptyArrays: true,
       },
     },
@@ -295,8 +331,10 @@ exports.fetchSingleRecord = (condition) => {
         address: 1,
         creatorData: "$creatorDetails",
         creator_type: 1,
+        created_source:1,
         customerData: "$customerDetails",
         addressData: "$addressDetails",
+        contactData: "$contactDetails",
         companyData: "$companyDetails",
         status: 1,
         createdAt: 1,

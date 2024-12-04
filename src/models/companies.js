@@ -14,7 +14,7 @@ const companySchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    wineCellars:{
+    wineCellars: {
       doorWidth: {
         type: Number,
         default: 36,
@@ -50,6 +50,50 @@ const companySchema = new mongoose.Schema(
           type: Number,
           default: 12.89,
         },
+        clampCutoutOneByTwoInch: {
+          type: Number,
+          default: 11.61,
+        },
+        clampCutoutThreeByEightInch: {
+          type: Number,
+          default: 10.79,
+        },
+        miterOneByTwoInch: {
+          type: Number,
+          default: 0.62,
+        },
+        miterThreeByEightInch: {
+          type: Number,
+          default: 0.55,
+        },
+        notchOneByTwoInch: {
+          type: Number,
+          default: 24.51,
+        },
+        notchThreeByEightInch: {
+          type: Number,
+          default: 21.88,
+        },
+        outageOneByTwoInch: {
+          type: Number,
+          default: 6,
+        },
+        outageThreeByEightInch: {
+          type: Number,
+          default: 6,
+        },
+        polishPricePerOneByTwoInch: {
+          type: Number,
+          default: 0.16,
+        },
+        polishPricePerThreeByEightInch: {
+          type: Number,
+          default: 0.13,
+        },
+      },
+      glassTypesForComparison: {
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: [],
       },
     },
     mirrors: {
@@ -92,6 +136,10 @@ const companySchema = new mongoose.Schema(
       quadOutletCutoutMultiplier: {
         type: Number,
         default: 20,
+      },
+      glassTypesForComparison: {
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: [],
       },
     },
     showers: {
@@ -171,8 +219,12 @@ const companySchema = new mongoose.Schema(
           default: 0.13,
         },
       },
+      glassTypesForComparison: {
+        type: [mongoose.Schema.Types.ObjectId], // Array of ObjectIds
+        default: [],
+      },
     },
-    pdfSettings:{
+    pdfSettings: {
       people: {
         type: Boolean,
         default: false,
@@ -181,18 +233,28 @@ const companySchema = new mongoose.Schema(
         type: Boolean,
         default: false,
       },
-      labor:{
+      labor: {
         type: Boolean,
         default: true,
       },
-      cost:{
+      cost: {
         type: Boolean,
         default: false,
       },
-      profit:{
+      profit: {
         type: Boolean,
-        default: false
-      }
+        default: false,
+      },
+    },
+    highlevelSettings: {
+      locationReference: {
+        type: String,
+        default: "",
+      },
+      apiKey: {
+        type: String,
+        default: "",
+      },
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,

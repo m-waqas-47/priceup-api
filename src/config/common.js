@@ -83,3 +83,22 @@ exports.wineCellarLayoutVariants = {
   THREESIDEDGLASS: "3-sided-glass",
   GLASSCUBE: "glass-cube"
 }
+
+exports.requiredProps = {
+  FORMREQUEST: ["location", "projectDetail", "customerDetail", "quotes"],
+};
+
+exports.showerGlassThicknessTypes = {
+  THREEBYEIGHT: "3/8",
+  ONEBYTWO: "1/2",
+};
+
+exports.mirrorGlassThicknessTypes = {
+  ONEBYFOUR: "1/4",
+  ONEBYEIGHT: "1/8",
+};
+
+exports.showerWeightMultiplier = {
+  THREEBYEIGHT: 4.91,
+  ONEBYTWO: 6.5,
+};

@@ -28,6 +28,7 @@ const WineCellarFinishService = require("@services/wineCellar/finish");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 const WineCellarLayoutService = require("@services/wineCellar/layout");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 
 exports.getAll = async (req, res) => {
   CompanyService.findAll()
@@ -152,13 +153,19 @@ exports.cloneCompany = async (req, res) => {
       );
     } // save image if attached in payload
 
-    const user = await UserService.create({...data,image:'images/users/default.jpg'}); // create user
+    const user = await UserService.create({
+      ...data,
+      image: "images/users/default.jpg",
+    }); // create user
 
     const company = await CompanyService.create({
       ...referenceCompany,
       user_id: user?.id,
       name: data?.locationName,
-      image: data?.image !== 'null' ? data?.image : 'images/others/company_default.jpg'
+      image:
+        data?.image !== "null"
+          ? data?.image
+          : "images/others/company_default.jpg",
     }); // create user company
 
     const finishes = await FinishService.findAll({
@@ -218,7 +225,6 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone glassTypes
-
 
     const glassAddons = await GlassAddonService.findAll({
       company_id: data.company_id,
@@ -377,6 +383,23 @@ exports.cloneCompany = async (req, res) => {
         });
       })
     ); // clone glassTypes
+
+    const wineCellarglassAddons = await WineCellarGlassAddonService.findAll({
+      company_id: data.company_id,
+    }); // find company glassAddons
+
+    await Promise.all(
+      wineCellarglassAddons?.map(async (glassAddon) => {
+        await WineCellarGlassAddonService.create({
+          ...glassAddon,
+          company_id: company._id,
+          name: glassAddon.name,
+          slug: glassAddon.slug,
+          options: glassAddon.options,
+        });
+      })
+    ); // clone glassAddons
+
     const wineCellarLayouts = await WineCellarLayoutService.findAll({
       company_id: data.company_id,
     }); // find company layouts
@@ -936,7 +959,8 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
       if (settings?.noOfHoursToCompleteSingleDoor) {
         result = {
           ...result,
-          noOfHoursToCompleteSingleDoor: settings?.noOfHoursToCompleteSingleDoor,
+          noOfHoursToCompleteSingleDoor:
+            settings?.noOfHoursToCompleteSingleDoor,
         };
       }
       // variant
@@ -964,25 +988,27 @@ const generateLayoutSettingsForCloneForWineCellar = (settings, companyId) => {
 };
 
 exports.modifyExistingRecords = async (req, res) => {
-  const companies = await CompanyService.findAll();
   try {
-    await Promise.all(
-      companies?.map(async (company) => 
-        CompanyService.update(
-          { _id: company._id },
-          {
-            $set: {
-            "pdfSettings.people": false,
-            "pdfSettings.hours": false,
-            "pdfSettings.labor": true,
-            "pdfSettings.cost": false,
-            "pdfSettings.profit": false
-            },
-          }
-        )
-      )
+    const result = await CompanyService.updateMany(
+      {
+        $or: [
+          { "showers.glassTypesForComparison": { $exists: false } },
+          { "mirrors.glassTypesForComparison": { $exists: false } },
+          { "wineCellars.glassTypesForComparison": { $exists: false } },
+          { highlevelSettings: { $exists: false } },
+        ],
+      },
+      {
+        $set: {
+          "showers.glassTypesForComparison": [],
+          "mirrors.glassTypesForComparison": [],
+          "wineCellars.glassTypesForComparison": [],
+          highlevelSettings: { locationReference: "", apiKey: "" },
+        },
+      }
     );
-    handleResponse(res, 200, "Companies info updated");
+
+    handleResponse(res, 200, "Companies info updated", result);
   } catch (err) {
     handleError(res, err);
   }

@@ -1,3 +1,4 @@
+const { fetchAllGroupByCategory } = require("@utils/DB_Pipelines/hardwares");
 const Hardware = require("../../models/hardwares");
 class HardwareService {
   static findAll(data) {
@@ -20,6 +21,17 @@ class HardwareService {
         .then((hardwares) => {
           resolve(hardwares);
         })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllGroupByCategory(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchAllGroupByCategory(condition);
+      Hardware.aggregate(pipeline)
+        .then((result) => resolve(result[0]))
         .catch((err) => {
           reject(err);
         });

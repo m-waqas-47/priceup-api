@@ -118,7 +118,7 @@ exports.update = async (req, res) => {
                 oldRecord.image
             );
         }
-        const hardware = await Service.update({ _id: id }, updatedData);
+        const hardware = await Service.update({ _id: id }, updatedData,{new: true});
         handleResponse(res, 200, "Record updated successfully", hardware);
     } catch (err) {
         handleError(res, err);

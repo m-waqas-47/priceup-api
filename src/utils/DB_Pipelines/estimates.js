@@ -139,6 +139,12 @@ exports.fetchAllRecords = (condition, search, options) => {
                           0,
                         ],
                       },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.handles",
+                          0,
+                        ],
+                      },
                       glassType: {
                         $arrayElemAt: [
                           "$layoutDetailsShowers.settings.glassType",
@@ -193,6 +199,18 @@ exports.fetchAllRecords = (condition, search, options) => {
                       hinges: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.hinges",
+                          0,
+                        ],
+                      },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.handles",
+                          0,
+                        ],
+                      },
+                      doorLock: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.doorLock",
                           0,
                         ],
                       },
@@ -296,8 +314,8 @@ exports.fetchAllRecords = (condition, search, options) => {
               project_id: 1,
             },
           },
-          { $skip: options.skip },
-          { $limit: options.limit },
+          ...(options.skip > 0 ? [{ $skip: options.skip }] : []),
+          ...(options.limit > 0 ? [{ $limit: options.limit }] : []),
         ],
       },
     },
@@ -464,6 +482,12 @@ exports.fetchAllRecordsByCustomer = (
                           0,
                         ],
                       },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.handles",
+                          0,
+                        ],
+                      },
                       glassType: {
                         $arrayElemAt: [
                           "$layoutDetailsShowers.settings.glassType",
@@ -518,6 +542,18 @@ exports.fetchAllRecordsByCustomer = (
                       hinges: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.hinges",
+                          0,
+                        ],
+                      },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.handles",
+                          0,
+                        ],
+                      },
+                      doorLock: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.doorLock",
                           0,
                         ],
                       },
@@ -775,6 +811,12 @@ exports.fetchSingleRecord = (condition) => {
                           0,
                         ],
                       },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsShowers.settings.handles",
+                          0,
+                        ],
+                      },
                       glassType: {
                         $arrayElemAt: [
                           "$layoutDetailsShowers.settings.glassType",
@@ -829,6 +871,18 @@ exports.fetchSingleRecord = (condition) => {
                       hinges: {
                         $arrayElemAt: [
                           "$layoutDetailsWineCellars.settings.hinges",
+                          0,
+                        ],
+                      },
+                      handles: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.handles",
+                          0,
+                        ],
+                      },
+                      doorLock: {
+                        $arrayElemAt: [
+                          "$layoutDetailsWineCellars.settings.doorLock",
                           0,
                         ],
                       },

@@ -7,7 +7,7 @@ const projectSchema = new mongoose.Schema(
       type: String,
       required: "Name is required",
       minlength: [3, "Name must be atleast 3 character long"],
-      unique: true,
+      // unique: true,
     },
     notes: {
       type: String,
@@ -19,6 +19,10 @@ const projectSchema = new mongoose.Schema(
     address_id: {
       type: mongoose.Schema.Types.ObjectId,
       // required: "Address reference is required",
+      default: null
+    },
+    contact_id: {
+      type: mongoose.Schema.Types.ObjectId,
       default: null
     },
     creator_id: {
@@ -36,6 +40,14 @@ const projectSchema = new mongoose.Schema(
     company_id: {
       type: mongoose.Schema.Types.ObjectId,
       required: "Company reference is required",
+    },
+    opportunity_id: {
+      type: String,
+      default: null
+    },
+    created_source:{
+      type: String,
+      default: "Application"
     },
     status: {
       type: String,

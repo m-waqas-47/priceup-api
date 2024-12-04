@@ -14,12 +14,14 @@ const {
   saveUser,
   updateUser,
   updateUserPassword,
-} = require("../controllers/admin");
+  getDashboardStats,
+} = require("@controllers/admin");
 const { verifyToken } = require("../middlewares/authentication");
 const { upload } = require("../services/multer");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
+router.get("/dashbaord-stats", getDashboardStats)
 router.get("/all-users", verifyToken, getAllUsers);
 router.get("/allLocations", verifyToken, allLocations);
 router.put("/user/updatePassword/:id", verifyToken, updateUserPassword);

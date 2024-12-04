@@ -1,11 +1,15 @@
 const { userRoles } = require("@config/common");
-const Company = require("../../models/companies");
-const { fetchAllLocationsForSuperAdmin } = require("@utils/DB_Pipelines/companies");
+const Company = require("@models/companies");
+const {
+  fetchAllLocationsForSuperAdmin,
+  fetchTopPerfromingCompaniesWithActiveInactiveCount,
+  fetchAllDataRelatedToCompanyByCategory,
+} = require("@utils/DB_Pipelines/companies");
 
 class CompanyService {
-  static findAll(data) {
+  static findAll(condition, projection = "") {
     return new Promise((resolve, reject) => {
-      Company.find(data)
+      Company.find(condition, projection)
         .sort({ createdAt: "desc" })
         .then((companies) => {
           resolve(companies);
@@ -14,6 +18,31 @@ class CompanyService {
           reject(err);
         });
     });
+  }
+
+  static findTopPerformingCompanies(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchTopPerfromingCompaniesWithActiveInactiveCount(condition);
+      Company.aggregate(pipeline)
+        .then((result) => {
+          resolve(result[0]);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllDataRelatedToCompanyByCategory(condition,category){
+    return new Promise((resolve,reject)=>{
+      const pipeline = fetchAllDataRelatedToCompanyByCategory(condition,category);
+      Company.aggregate(pipeline)
+      .then((result)=>{
+        resolve(result[0]);
+      }).catch((err)=>{
+        reject(err);
+      })
+    })
   }
 
   static findAllByRole(role, filter) {
@@ -59,8 +88,8 @@ class CompanyService {
   static updateMany(condition, data) {
     return new Promise((resolve, reject) => {
       Company.updateMany(condition, data)
-        .then(() => {
-          resolve(true);
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);

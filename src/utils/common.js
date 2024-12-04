@@ -15,6 +15,8 @@ const { userRoles, multerSource } = require("@config/common");
 const WineCellarFinishService = require("@services/wineCellar/finish");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
+const InvoicesCounterService = require("@services/invoicesCounter");
 
 exports.generateRandomString = (length) => {
   let result = "";
@@ -221,9 +223,15 @@ exports.getWineCellarsHardwareList = async (company_id) => {
       handles,
       hinges,
       mountingChannel,
+      mountingClamps,
+      cornerClamps,
+      slidingDoorSystem,
+      transom,
+      header,
+      hardwareAddons,
       doorLocks,
       glassType,
-      // glassAddons,
+      glassAddons,
     ] = await Promise.all([
       WineCellarFinishService.findAll({ company_id }),
       WineCellarHardwareService.findAllBy({
@@ -238,12 +246,36 @@ exports.getWineCellarsHardwareList = async (company_id) => {
         hardware_category_slug: "mounting-channels",
         company_id,
       }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "mounting-clamps",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "corner-clamps",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "sliding-door-system",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "transom",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "header",
+        company_id,
+      }),
+      WineCellarHardwareService.findAllBy({
+        hardware_category_slug: "add-ons",
+        company_id,
+      }),
       WineCellarHardwareService.findAll({
         hardware_category_slug: "door-locks",
         company_id
       }),
       WineCellarGlassTypeService.findAll({ company_id }),
-      // GlassAddonService.findAll({ company_id }),
+      WineCellarGlassAddonService.findAll({ company_id }),
     ]);
 
     const listData = {
@@ -251,11 +283,21 @@ exports.getWineCellarsHardwareList = async (company_id) => {
       handles,
       hinges,
       heavyDutyOption: hinges,
-      channelOrClamps: ["Channel"],
+      channelOrClamps: ["Channel", "Clamps", "Corner Clamps"],
       mountingChannel,
+      wallClamp: mountingClamps,
+      sleeveOver: mountingClamps,
+      glassToGlass: mountingClamps,
+      cornerWallClamp: cornerClamps,
+      cornerSleeveOver: cornerClamps,
+      cornerGlassToGlass: cornerClamps,
+      slidingDoorSystem,
+      transom,
+      header,
       doorLocks,
       glassType,
-      // glassAddons,
+      glassAddons,
+      hardwareAddons
     };
 
     return listData;
@@ -321,4 +363,47 @@ exports.getTodayRange = () => {
   endOfDay.setHours(23, 59, 59, 999); // Set to the end of today (23:59:59)
   
   return { startOfDay, endOfDay };
+};
+
+exports.getCurrentFormattedDate = () => {
+  const now = new Date();
+
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const day = String(now.getDate()).padStart(2, '0');
+
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+exports.generateInvoiceId = async () => {
+  const maxDigits = 6;
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  try {
+    // Use Mongoose to find and update the counter
+    const counter = await InvoicesCounterService.update(
+      { _id: "invoiceId" }, // Find the counter document
+      { $inc: { sequenceValue: 1 } }, // Increment sequenceValue
+      { new: true, upsert: true } // Return the updated document; create if not found
+    );
+
+    if (!counter || typeof counter.sequenceValue !== "number") {
+      throw new Error("Counter document is invalid or not initialized.");
+    }
+
+    let sequenceNumber = counter.sequenceValue;
+    let prefixIndex = Math.floor(sequenceNumber / 10 ** maxDigits);
+    sequenceNumber = sequenceNumber % 10 ** maxDigits;
+
+    const prefix = prefixIndex === 0 ? "INV" : `INV-${alphabet[prefixIndex - 1]}`;
+    const invoiceId = `${prefix}-${sequenceNumber.toString().padStart(maxDigits, "0")}`;
+    return invoiceId;
+  } catch (error) {
+    console.error("Error generating invoice ID:", error);
+    throw new Error("Unable to generate a unique invoice ID.");
+  }
 };

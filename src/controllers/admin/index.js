@@ -29,6 +29,19 @@ exports.getAll = async (req, res) => {
     });
 };
 
+exports.getDashboardStats = async (req,res) => {
+  try{
+    const topPerforming = await CompanyService.findTopPerformingCompanies();
+    const staffCount = await StaffService.count();
+    const adminCount = await AdminService.count();
+    const customUserCount = await CustomUserService.count();
+    handleResponse(res,200,'Success',{...topPerforming,totalUsers: (staffCount ?? 0) + (adminCount ?? 0) + (customUserCount ?? 0)})
+  } 
+  catch(err){
+    handleError(res,err);
+  }
+}
+
 exports.updateAdmin = async (req, res) => {
   const { id } = req.params;
   const data = { ...req.body };

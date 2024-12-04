@@ -70,7 +70,8 @@ exports.save = async (req, res) => {
                     { _id: hardware._id },
                     {
                         $push: { finishes: finishData },
-                    }
+                    },
+                    {new: true}
                 );
             })
         );
@@ -101,7 +102,7 @@ exports.deleteRecord = async (req, res) => {
         hardwares?.map(async (hardware) => {
             WineCellarHardwareService.update(
                 { _id: hardware._id },
-                { $pull: { finishes: { finish_id: id } } }
+                { $pull: { finishes: { finish_id: id } } },{new: true}
             );
         });
         handleResponse(res, 200, "Record deleted successfully", finish);
@@ -141,7 +142,8 @@ exports.update = async (req, res) => {
                             "finishes.$.name": data?.name,
                             "finishes.$.image": data?.image,
                         },
-                    }
+                    },
+                    {new: true}
                 );
             }
         }
