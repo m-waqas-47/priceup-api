@@ -50,6 +50,28 @@ exports.fetchAllRecords = (condition, search, options) => {
   return pipeline;
 };
 
+// exports.fetchStats = (condition = {}) => {
+//   const pipeline = [
+//     {
+//       $match: condition,
+//     },
+//     {
+//       $group: {
+//         _id: "$status", // Group by the `status` field
+//         count: { $sum: 1 }, // Count the number of documents in each group
+//       },
+//     },
+//     {
+//       $project: {
+//         status: "$_id",
+//         count: 1,
+//         _id: 0,
+//       },
+//     },
+//   ];
+//   return pipeline;
+// };
+
 exports.fetchStats = (condition = {}) => {
   const pipeline = [
     {
@@ -66,6 +88,25 @@ exports.fetchStats = (condition = {}) => {
         status: "$_id",
         count: 1,
         _id: 0,
+      },
+    },
+    {
+      $group: {
+        _id: null, // Combine all results into one document
+        statusCounts: {
+          $push: {
+            k: "$status",
+            v: "$count",
+          },
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        statusCounts: {
+          $arrayToObject: "$statusCounts", // Convert the array into an object
+        },
       },
     },
   ];

@@ -98,6 +98,15 @@ exports.save = async (req, res) => {
   const user = req.user;
   try {
     const invoiceId = await generateInvoiceId();
+    const invoiceExist = await Service.findBy({
+      source_id: data?.source_id,
+      customer_id: data?.customer_id,
+    });
+    if (invoiceExist) {
+      throw new Error(
+        `Invoice already exist with id ${invoiceExist?.invoiceId}`
+      );
+    }
     const result = await Service.create({
       ...data,
       invoiceId,
@@ -116,6 +125,24 @@ exports.getStats = async (req, res) => {
       company_id: new mongoose.Types.ObjectId(user?.company_id),
     });
     handleResponse(res, 200, "Success", resp);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+expotrs.updateCustomerPreview = async (req, res) => {
+  const data = { ...req.body };
+  const { id } = req.params;
+  try {
+    if (!id) {
+      throw new Error("Invalid id");
+    }
+    let validStatuses = ["Paid", "Voided"];
+    if (!validStatuses.includes(data?.status)) {
+      throw new Error("Invalid payload provided");
+    }
+    await Service.update({ _id: id }, { status: data?.status });
+    handleResponse(res, 200, "Invoice updated");
   } catch (err) {
     handleError(res, err);
   }

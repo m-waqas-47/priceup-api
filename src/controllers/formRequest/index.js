@@ -2,6 +2,7 @@ const { estimateCategory, userRoles } = require("@config/common");
 const CompanyService = require("@services/company");
 const CustomerService = require("@services/customer");
 const ProjectService = require("@services/project");
+const UserService = require("@services/user");
 // const UserService = require("@services/user");
 const { estimateSaveFormat } = require("@utils/generateEstimate");
 const {
@@ -13,7 +14,15 @@ const { default: mongoose } = require("mongoose");
 
 exports.getLocations = async (req, res) => {
   try {
-    const locations = await CompanyService.findAll({}, "name _id image");
+    let ids = [];
+    const users = await UserService.findAll({ status: true });
+    users.forEach((user) => {
+      ids.push(new mongoose.Types.ObjectId(user._id));
+    });
+    const locations = await CompanyService.findAll(
+      { user_id: { $in: ids } },
+      "name _id image"
+    );
     handleResponse(res, 200, "All Locations", locations);
   } catch (err) {
     handleError(res, err);
@@ -150,7 +159,7 @@ exports.updateCustomerRequest = async (req, res) => {
 exports.formSubmittedWebhook = async (req, res) => {
   const data = { ...req.body };
   try {
-    console.log(data,'data');
+    console.log(data, "data");
     handleResponse(res, 200, "Success", data);
   } catch (err) {
     handleError(res, err);
