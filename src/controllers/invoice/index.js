@@ -130,7 +130,7 @@ exports.getStats = async (req, res) => {
   }
 };
 
-expotrs.updateCustomerPreview = async (req, res) => {
+exports.updateCustomerPreview = async (req, res) => {
   const data = { ...req.body };
   const { id } = req.params;
   try {
