@@ -165,7 +165,8 @@ exports.fetchRecordsWithRelativeLocation = (condition) => {
           _id: "$company._id", // Include company ID
           name: "$company.name", // Include company name
           image: "$company.image", // Include company name
-          address: "$company.address", // Include company address
+          address: "$company.address", // Include company address,
+          user_id: "$company.user_id"
         },
       },
     },
