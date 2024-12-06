@@ -135,3 +135,40 @@ exports.fetchAllRecords = (condition, search, options) => {
 
   return pipeline;
 };
+
+exports.fetchRecordsWithRelativeLocation = (condition) => {
+  const pipeline = [
+    // Match the users based on the condition
+    { $match: condition },
+    // Lookup to join the companies collection
+    {
+      $lookup: {
+        from: "companies", // Name of the companies collection
+        localField: "_id", // Field in the users collection
+        foreignField: "user_id", // Field in the companies collection
+        as: "company", // Output array field name
+      },
+    },
+
+    // Unwind the company array (since each user has only one company)
+    { $unwind: { path: "$company", preserveNullAndEmptyArrays: true } },
+
+    // Project to organize the response structure
+    {
+      $project: {
+        user: {
+          _id: "$_id", // Include user ID
+          status: "$status", // Include user name
+          role: "$role", // Include user email
+        },
+        company: {
+          _id: "$company._id", // Include company ID
+          name: "$company.name", // Include company name
+          image: "$company.image", // Include company name
+          address: "$company.address", // Include company address
+        },
+      },
+    },
+  ];
+  return pipeline;
+};

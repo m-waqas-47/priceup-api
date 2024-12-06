@@ -1,3 +1,4 @@
+const { fetchRecordsWithRelativeLocation } = require("@utils/DB_Pipelines/users");
 const User = require("../../models/users");
 class UserService {
   static findAll(data) {
@@ -6,6 +7,19 @@ class UserService {
         .sort({ createdAt: "desc" })
         .then((users) => {
           resolve(users);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
+
+  static findAllWithRelativeLocation(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchRecordsWithRelativeLocation(condition);
+      User.aggregate(pipeline)
+        .then((result) => {
+          resolve(result);
         })
         .catch((err) => {
           reject(err);
