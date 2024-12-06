@@ -145,32 +145,19 @@ exports.saveRecord = async (req, res) => {
 exports.getAllStats = async (req, res) => {
   const company_id = req.user.company_id;
   try {
-    const records = await Service.findAll({ company_id: company_id });
-    let total = 0;
-    let pending = 0;
-    let voided = 0;
-    let approved = 0;
-    records.forEach((record) => {
-      total += record.totalAmountQuoted;
-      switch (record.status) {
-        case projectStatus.PENDING:
-          pending += 1;
-          break;
-        case projectStatus.VOIDED:
-          voided += 1;
-          break;
-        case projectStatus.APPROVED:
-          approved += 1;
-          break;
-        default:
-          break;
-      }
+    const resp = await Service.stats({
+      company_id: new mongoose.Types.ObjectId(company_id),
     });
+    let counts = {
+      total: 0,
+      pending: 0,
+      voided: 0,
+      approved: 0,
+    };
     handleResponse(res, 200, "Project Stats", {
-      total: total,
-      pending: pending,
-      approved: approved,
-      voided: voided,
+      ...counts,
+      ...resp?.statusCounts,
+      total: resp?.total ?? 0,
     });
   } catch (err) {
     handleError(res, err);
