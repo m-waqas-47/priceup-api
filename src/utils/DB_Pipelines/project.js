@@ -132,8 +132,8 @@ exports.fetchAllRecords = (condition, search, options) => {
   }
   // sort by createdAt
   pipeline.push({
-    $sort: { createdAt: -1 }
-  })
+    $sort: { createdAt: -1 },
+  });
   // Check if pagination is needed
   if (options && options.skip !== undefined && options.limit !== undefined) {
     pipeline.push(
@@ -150,7 +150,7 @@ exports.fetchAllRecords = (condition, search, options) => {
                 address: 1,
                 creatorData: "$creatorDetails",
                 creator_type: 1,
-                created_source:1,
+                created_source: 1,
                 customerData: "$customerDetails",
                 addressData: "$addressDetails",
                 contactData: "$contactDetails",
@@ -184,7 +184,7 @@ exports.fetchAllRecords = (condition, search, options) => {
           address: 1,
           creatorData: "$creatorDetails",
           creator_type: 1,
-          created_source:1,
+          created_source: 1,
           customerData: "$customerDetails",
           addressData: "$addressDetails",
           contactData: "$contactDetails",
@@ -193,7 +193,7 @@ exports.fetchAllRecords = (condition, search, options) => {
           createdAt: 1,
           updatedAt: 1,
         },
-      },
+      }
       // { $sort: { createdAt: -1 } }
     );
   }
@@ -331,7 +331,7 @@ exports.fetchSingleRecord = (condition) => {
         address: 1,
         creatorData: "$creatorDetails",
         creator_type: 1,
-        created_source:1,
+        created_source: 1,
         customerData: "$customerDetails",
         addressData: "$addressDetails",
         contactData: "$contactDetails",
@@ -350,30 +350,66 @@ exports.fetchGraphData = (condition) => {
   return [
     // Match records within the provided date range
     {
-        $match: condition
+      $match: condition,
     },
     {
-        $facet: {
-            // Bar chart: group by created date (formatted) and count records
-            lineChart: [
-                {
-                    $group: {
-                        _id: { 
-                            $dateToString: { format: "%Y/%m/%d", date: "$createdAt" } 
-                        },
-                        count: { $sum: 1 }
-                    }
-                },
-                {
-                    $project: {
-                        _id: 0,
-                        x: "$_id", // formatted date as 'x'
-                        y: "$count" // count as 'y'
-                    }
-                },
-                { $sort: { x: 1 } } // sort by date
-            ]
-        }
-    }
-];
-}
+      $facet: {
+        // Bar chart: group by created date (formatted) and count records
+        lineChart: [
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: "%Y/%m/%d", date: "$createdAt" },
+              },
+              count: { $sum: 1 },
+            },
+          },
+          {
+            $project: {
+              _id: 0,
+              x: "$_id", // formatted date as 'x'
+              y: "$count", // count as 'y'
+            },
+          },
+          { $sort: { x: 1 } }, // sort by date
+        ],
+      },
+    },
+  ];
+};
+
+exports.fetchStats = (condition = {}) => {
+  const pipeline = [
+    {
+      $match: condition,
+    },
+    {
+      $group: {
+        _id: "$status", // Group by the `status` field
+        count: { $sum: 1 }, // Count the number of documents in each group
+      },
+    },
+    {
+      $group: {
+        _id: null, // Combine all results into one document
+        statusCounts: {
+          $push: {
+            k: "$_id",
+            v: "$count",
+          },
+        },
+        total: { $sum: "$count" }, // Calculate the total count
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        statusCounts: {
+          $arrayToObject: "$statusCounts", // Convert the array into an object
+        },
+        total: 1, // Include the total count in the final output
+      },
+    },
+  ];
+  return pipeline;
+};

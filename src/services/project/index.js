@@ -3,6 +3,7 @@ const {
   fetchAllRecords,
   fetchSingleRecord,
   fetchGraphData,
+  fetchStats,
 } = require("@utils/DB_Pipelines/project");
 
 class ProjectService {
@@ -11,7 +12,11 @@ class ProjectService {
       const pipeline = fetchAllRecords(condition, search, options);
       Project.aggregate(pipeline)
         .then((result) => {
-          if (options && options.skip !== undefined && options.limit !== undefined) {
+          if (
+            options &&
+            options.skip !== undefined &&
+            options.limit !== undefined
+          ) {
             const { totalRecords, projects } = result[0];
             resolve({ totalRecords, projects });
           } else {
@@ -37,8 +42,17 @@ class ProjectService {
     });
   }
 
-  static graphData(condition){
-    return new Promise((resolve,reject)=>{
+  static stats(condition) {
+    return new Promise((resolve, reject) => {
+      const pipeline = fetchStats(condition);
+      Project.aggregate(pipeline)
+        .then((result) => resolve(result[0]))
+        .catch((err) => reject(err));
+    });
+  }
+
+  static graphData(condition) {
+    return new Promise((resolve, reject) => {
       const pipeline = fetchGraphData(condition);
       Project.aggregate(pipeline)
         .then((result) => {
@@ -47,7 +61,7 @@ class ProjectService {
         .catch((err) => {
           reject(err);
         });
-    })
+    });
   }
 
   static update(condition, data) {

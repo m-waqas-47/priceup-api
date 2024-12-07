@@ -58,31 +58,32 @@ const { wineCellarGlassAddons } = require("@seeders/wineCellarGlassAddonsSeeder"
 const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 exports.getAll = async (req, res) => {
   try {
-    const companies = await CompanyService.findAll();
-    const estimates = await EstimateService.findAll();
-    const customers = await CustomerService.findAll();
-    const staffs = await StaffService.findAll();
-    const layouts = await LayoutService.findAll();
-    const users = await UserService.findAll();
-    let results = [];
-    results = await Promise.all(
-      companies?.map(async(company) => {
-        const companyEstimates = await estimates?.filter(item => item.company_id.toString() === company.id);
-        const companyCustomers = await customers?.filter(item => item.company_id.toString() === company.id );
-        const companyStaffs = await staffs?.filter(item => item.company_id.toString() === company.id || item?.haveAccessTo?.includes(company.id));
-        const companyLayouts = await layouts?.filter(item => item.company_id.toString() === company.id);
-        const user = await users?.find( item => item.id === company.user_id.toString());
-        return {
-          company: company,
-          user: user,
-          estimates: companyEstimates?.length || 0,
-          customers: companyCustomers?.length || 0,
-          staffs: companyStaffs?.length || 0,
-          layouts: companyLayouts?.length || 0,
-        };
-      })
-    );
-    handleResponse(res, 200, "All Locations", results);
+    // const companies = await CompanyService.findAll();
+    // const estimates = await EstimateService.findAll();
+    // const customers = await CustomerService.findAll();
+    // const staffs = await StaffService.findAll();
+    // const layouts = await LayoutService.findAll();
+    // const users = await UserService.findAll();
+    // let results = [];
+    // results = await Promise.all(
+    //   companies?.map(async(company) => {
+    //     const companyEstimates = await estimates?.filter(item => item.company_id.toString() === company.id);
+    //     const companyCustomers = await customers?.filter(item => item.company_id.toString() === company.id );
+    //     const companyStaffs = await staffs?.filter(item => item.company_id.toString() === company.id || item?.haveAccessTo?.includes(company.id));
+    //     const companyLayouts = await layouts?.filter(item => item.company_id.toString() === company.id);
+    //     const user = await users?.find( item => item.id === company.user_id.toString());
+    //     return {
+    //       company: company,
+    //       user: user,
+    //       estimates: companyEstimates?.length || 0,
+    //       customers: companyCustomers?.length || 0,
+    //       staffs: companyStaffs?.length || 0,
+    //       layouts: companyLayouts?.length || 0,
+    //     };
+    //   })
+    // );
+    const resp = await UserService.findAllWithRelativeLocation({});
+    handleResponse(res, 200, "All Locations", resp);
   } catch (err) {
     handleError(res, err);
   }
