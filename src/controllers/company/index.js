@@ -182,11 +182,11 @@ exports.cloneCompany = async (req, res) => {
           image: finish.image,
         });
       })
-    ); // clone finishes
+    ); // clone shower finishes
 
     const hardwares = await HardwareService.findAll({
       company_id: data.company_id,
-    }); // find hardwares
+    }); // find shower hardwares
 
     await Promise.all(
       hardwares?.map(async (hardware) => {
@@ -208,11 +208,11 @@ exports.cloneCompany = async (req, res) => {
           slug: hardware.slug,
         });
       })
-    ); // clone hardwares
+    ); // clone shower hardwares
 
     const glassTypes = await GlassTypeService.findAll({
       company_id: data.company_id,
-    }); // find company glassTypes
+    }); // find shower glassTypes
 
     await Promise.all(
       glassTypes?.map(async (glassType) => {
@@ -224,11 +224,11 @@ exports.cloneCompany = async (req, res) => {
           options: glassType.options,
         });
       })
-    ); // clone glassTypes
+    ); // clone shower glassTypes
 
     const glassAddons = await GlassAddonService.findAll({
       company_id: data.company_id,
-    }); // find company glassAddons
+    }); // find shower glassAddons
 
     await Promise.all(
       glassAddons?.map(async (glassAddon) => {
@@ -240,11 +240,11 @@ exports.cloneCompany = async (req, res) => {
           options: glassAddon.options,
         });
       })
-    ); // clone glassAddons
+    ); // clone shower glassAddons
 
     const layouts = await LayoutService.findAll({
       company_id: data.company_id,
-    }); // find company layouts
+    }); // find shower layouts
 
     await Promise.all(
       layouts?.map(async (layout) => {
@@ -260,7 +260,7 @@ exports.cloneCompany = async (req, res) => {
           settings: settings,
         });
       })
-    ); // clone layouts
+    ); // clone shower layouts
 
     /** Mirror hardware clone */
     const mirrorGlassTypes = await MirrorGlassTypeService.findAll({
@@ -328,7 +328,7 @@ exports.cloneCompany = async (req, res) => {
     /** Wine Cellar hardware clone */
     const wineCellarFinishes = await WineCellarFinishService.findAll({
       company_id: data.company_id,
-    }); // find company finishes
+    }); // find wineCellar finishes
 
     const wineCellarNewFinishes = await Promise.all(
       wineCellarFinishes?.map(async (finish) => {
@@ -340,11 +340,11 @@ exports.cloneCompany = async (req, res) => {
           image: finish.image,
         });
       })
-    ); // clone finishes
+    ); // clone winecellar finishes
 
     const wineCellarHardwares = await WineCellarHardwareService.findAll({
       company_id: data.company_id,
-    }); // find hardwares
+    }); // find wineCellar hardwares
 
     await Promise.all(
       wineCellarHardwares?.map(async (hardware) => {
@@ -366,11 +366,11 @@ exports.cloneCompany = async (req, res) => {
           slug: hardware.slug,
         });
       })
-    ); // clone hardwares
+    ); // clone wineCellar hardwares
 
     const wineCellarGlassTypes = await WineCellarGlassTypeService.findAll({
       company_id: data.company_id,
-    }); // find company glassTypes
+    }); // find wineCellar glassTypes
 
     await Promise.all(
       wineCellarGlassTypes?.map(async (glassType) => {
@@ -382,11 +382,11 @@ exports.cloneCompany = async (req, res) => {
           options: glassType.options,
         });
       })
-    ); // clone glassTypes
+    ); // clone wineCellar glassTypes
 
     const wineCellarglassAddons = await WineCellarGlassAddonService.findAll({
       company_id: data.company_id,
-    }); // find company glassAddons
+    }); // find wineCellar glassAddons
 
     await Promise.all(
       wineCellarglassAddons?.map(async (glassAddon) => {
@@ -398,11 +398,11 @@ exports.cloneCompany = async (req, res) => {
           options: glassAddon.options,
         });
       })
-    ); // clone glassAddons
+    ); // clone wineCellar glassAddons
 
     const wineCellarLayouts = await WineCellarLayoutService.findAll({
       company_id: data.company_id,
-    }); // find company layouts
+    }); // find wineCellar layouts
 
     await Promise.all(
       wineCellarLayouts?.map(async (layout) => {
@@ -418,7 +418,7 @@ exports.cloneCompany = async (req, res) => {
           settings: settings,
         });
       })
-    ); // clone layouts
+    ); // clone wineCellar layouts
     /** end */
 
     handleResponse(res, 200, "Company cloned successfully", company);

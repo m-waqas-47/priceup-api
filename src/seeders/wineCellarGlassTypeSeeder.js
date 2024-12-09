@@ -50,4 +50,49 @@ exports.wineCellarGlassTypes = [
       },
     ],
   },
+  {
+    name: "Opti White",
+    slug: "opti-white",
+    image: "images/others/default.png",
+    options: [
+      {
+        thickness: "3/8",
+        cost: 13.5,
+      },
+      {
+        thickness: "1/2",
+        cost: 15.5,
+      },
+    ],
+  },
+  {
+    name: "Grey",
+    slug: "grey",
+    image: "images/others/default.png",
+    options: [
+      {
+        thickness: "3/8",
+        cost: 14.5,
+      },
+      {
+        thickness: "1/2",
+        cost: 18.75,
+      },
+    ],
+  },
+  {
+    name: "Rain",
+    slug: "rain",
+    image: "images/others/default.png",
+    options: [
+      {
+        thickness: "3/8",
+        cost: 13.96,
+      },
+      {
+        thickness: "1/2",
+        cost: 0.0,
+      },
+    ],
+  },
 ];
