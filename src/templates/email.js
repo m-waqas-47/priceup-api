@@ -18,8 +18,8 @@ exports.userNotActiveTemplate = (err) => {
   </div>`;
 };
 
-exports.invoicePreviewTemplate = (data) => {
+exports.landingPagePreview = (data) => {
   return `<div><h1 style="color:#8477ad;text-align:center">Price Up</h1>
-  <p style="color:#100d24l;font-size:22px">Invoice preview link is generated. Click here to redirect:${data}</p>
+  <p style="color:#100d24l;font-size:22px">Your quote preview link is generated. Click here to redirect:${data}</p>
   </div>`;
 };

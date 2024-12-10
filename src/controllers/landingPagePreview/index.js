@@ -1,6 +1,6 @@
 const CustomerService = require("@services/customer");
 const MailgunService = require("@services/mailgun");
-const { invoicePreviewTemplate } = require("@templates/email");
+const { landingPagePreview } = require("@templates/email");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 const LandingPagePreviewService = require("@services/landingPagePreview");
@@ -35,28 +35,34 @@ exports.createLandingPagePreview = async (req, res) => {
       ...data,
       company_id: user.company_id,
     });
-    const customer = await CustomerService.findBy({
-      _id: new mongoose.Types.ObjectId(data?.customer_id),
-    });
-    if (customer) {
-      const html = invoicePreviewTemplate(resp._id);
-      await MailgunService.sendEmail(
-        customer.email,
-        "Invoice preview link",
-        html
-      );
-    }
     handleResponse(res, 200, "Invoice preview generated", resp);
   } catch (err) {
     handleError(res, err);
   }
 };
 
-exports.updateLandingPagePreview = (req, res) => {
+exports.updateLandingPagePreview = async (req, res) => {
   const data = { ...req.body };
   const { id } = req.params;
   try {
-    handleResponse(res, 200, "Success", data);
+    const resp = await LandingPagePreviewService.update(
+      { project_id: id },
+      data
+    );
+    if (resp && resp?.customer_id) {
+      const customer = await CustomerService.findBy({
+        _id: new mongoose.Types.ObjectId(resp?.customer_id),
+      });
+      if (customer) {
+        const html = landingPagePreview(resp.customerPreview?.link ?? "");
+        await MailgunService.sendEmail(
+          customer.email,
+          "Priceup: Quote preview",
+          html
+        );
+      }
+    }
+    handleResponse(res, 200, "Success", resp);
   } catch (err) {
     handleError(res, err);
   }

@@ -25,6 +25,16 @@ const landingPagePreview = new mongoose.Schema({
     type: mongoose.Schema.Types.Mixed,
     default: null,
   },
+  customerPreview: {
+    link: {
+      type: String,
+      default: "",
+    },
+    expiresAt: {
+      type: Date,
+      default: Date.now,
+    },
+  },
   estimates: [{ type: mongoose.Schema.Types.Mixed }],
   createdAt: {
     type: Date,
