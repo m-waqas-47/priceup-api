@@ -7,7 +7,7 @@ const { getCustomerRequest, getLocations, getLocationData, updateCustomerRequest
 const { requiredProps } = require("@config/common");
 const { validateRequiredProps } = require("@middlewares/validator");
 const router = express.Router();
-const { getCustomerInvoicePreview } = require("@controllers/landingPagePreview");
+const { getLandingPagePreview } = require("@controllers/landingPagePreview");
 const { runCustomScripts } = require("@controllers/customScripts");
 
 router.get("/", (req, res) => {
@@ -18,7 +18,7 @@ router.get("/locations", getLocations);
 router.get("/location-data/:id", getLocationData);
 router.get("/dashboard-stats", verifyToken, getDashboardStats);
 router.get("/dashboard-graph-data", verifyToken, getDashboardGraphData);
-router.get("/invoice-preview/:id",getCustomerInvoicePreview);
+router.get("/invoice-preview/:id",getLandingPagePreview);
 router.put("/run-custom-scripts",runCustomScripts);
 router.post("/form-submitted-webhook", formSubmittedWebhook);
 router.post("/form-request", rateLimitMiddleware(5 * 60 * 1000, 50), validateRequiredProps(requiredProps.FORMREQUEST), getCustomerRequest);
