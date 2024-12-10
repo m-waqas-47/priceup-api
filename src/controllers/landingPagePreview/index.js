@@ -22,15 +22,19 @@ exports.getLandingPagePreview = async (req, res) => {
 
 exports.createLandingPagePreview = async (req, res) => {
   const data = { ...req.body };
+  const user = req.user;
   try {
     const findReq = await LandingPagePreviewService.findBy({
       project_id: data.project_id,
-      company_id: data.company_id,
+      company_id: user.company_id,
     });
     if (findReq) {
       await LandingPagePreviewService.delete({ _id: findReq._id });
     }
-    const resp = await LandingPagePreviewService.create({ ...data });
+    const resp = await LandingPagePreviewService.create({
+      ...data,
+      company_id: user.company_id,
+    });
     const customer = await CustomerService.findBy({
       _id: new mongoose.Types.ObjectId(data?.customer_id),
     });
