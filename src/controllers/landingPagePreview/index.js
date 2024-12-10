@@ -47,7 +47,8 @@ exports.updateLandingPagePreview = async (req, res) => {
   try {
     const resp = await LandingPagePreviewService.update(
       { project_id: id },
-      data
+      data,
+      { new: true }
     );
     if (resp && resp?.customer_id) {
       const customer = await CustomerService.findBy({
