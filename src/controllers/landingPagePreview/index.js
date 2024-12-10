@@ -58,7 +58,7 @@ exports.updateLandingPagePreview = async (req, res) => {
         const html = landingPagePreview(resp.customerPreview?.link ?? "");
         await MailgunService.sendEmail(
           customer.email,
-          "Priceup: Quote preview",
+          "Priceup: Quote Preview",
           html
         );
       }
