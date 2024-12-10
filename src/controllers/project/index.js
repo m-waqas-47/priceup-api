@@ -5,6 +5,7 @@ const InvoiceService = require("@services/invoice");
 const ProjectService = require("@services/project");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
+const LandingPagePreviewService = require("@services/landingPagePreview");
 const Service = ProjectService;
 exports.getAll = async (req, res) => {
   try {
@@ -84,10 +85,10 @@ exports.getSingleRecord = async (req, res) => {
     const record = await Service.findBy({
       _id: new mongoose.Types.ObjectId(id),
     });
-    const invoice = await .findBy({
-      source_id: new mongoose.Types.ObjectId(id),
+    const landingPagePreview = await LandingPagePreviewService.findBy({
+      project_id: new mongoose.Types.ObjectId(id),
     });
-    handleResponse(res, 200, "Single Record", { ...record, invoice: invoice });
+    handleResponse(res, 200, "Single Record", { ...record, landingPage: landingPagePreview ?? null });
   } catch (err) {
     handleError(res, err);
   }
