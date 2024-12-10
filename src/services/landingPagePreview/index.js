@@ -1,6 +1,6 @@
-const Model = require("@models/customerInvoicePreview");
+const Model = require("@models/landingPagePreview");
 
-class CustomerInvoicePreviewService {
+class LandingPagePreviewService {
   static findAll(condition = {}, search = "", options = {}) {
     return new Promise((resolve, reject) => {
       Model.findAll(condition)
@@ -25,9 +25,9 @@ class CustomerInvoicePreviewService {
     });
   }
 
-  static update(condition, data) {
+  static update(condition, data, options) {
     return new Promise((resolve, reject) => {
-      Model.findOneAndUpdate(condition, data, { new: true })
+      Model.findOneAndUpdate(condition, data, options)
         .then((result) => {
           resolve(result);
         })
@@ -86,4 +86,4 @@ class CustomerInvoicePreviewService {
   }
 }
 
-module.exports = CustomerInvoicePreviewService;
+module.exports = LandingPagePreviewService;

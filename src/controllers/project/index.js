@@ -1,5 +1,5 @@
 const { projectStatus } = require("@config/common");
-const CustomerInvoicePreviewService = require("@services/customerInvoicePreview");
+const CustomerInvoicePreviewService = require("@services/landingPagePreview");
 const EstimateService = require("@services/estimate");
 const InvoiceService = require("@services/invoice");
 const ProjectService = require("@services/project");
@@ -84,7 +84,7 @@ exports.getSingleRecord = async (req, res) => {
     const record = await Service.findBy({
       _id: new mongoose.Types.ObjectId(id),
     });
-    const invoice = await InvoiceService.findBy({
+    const invoice = await .findBy({
       source_id: new mongoose.Types.ObjectId(id),
     });
     handleResponse(res, 200, "Single Record", { ...record, invoice: invoice });

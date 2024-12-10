@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const customerInvoicePreview = new mongoose.Schema({
+const landingPagePreview = new mongoose.Schema({
   name: {
     type: String,
     default: "",
@@ -13,19 +13,20 @@ const customerInvoicePreview = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: "Company reference is required",
   },
-  customer_id:{
+  customer_id: {
     type: mongoose.Schema.Types.ObjectId,
     required: "Customer reference is required",
   },
-  content:{
+  content: {
     type: mongoose.Schema.Types.Mixed,
     default: null,
   },
+  estimates: [{ type: mongoose.Schema.Types.Mixed }],
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 1296000, // 1296000 seconds = 15 days (15 * 24 * 60 * 60)
+    // expires: 1296000, // 1296000 seconds = 15 days (15 * 24 * 60 * 60)
   },
 });
 
-module.exports = mongoose.model("customer_invoice_preview", customerInvoicePreview);
+module.exports = mongoose.model("landing_page_preview", landingPagePreview);

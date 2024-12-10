@@ -7,7 +7,7 @@ const { getCustomerRequest, getLocations, getLocationData, updateCustomerRequest
 const { requiredProps } = require("@config/common");
 const { validateRequiredProps } = require("@middlewares/validator");
 const router = express.Router();
-const { getCustomerInvoicePreview } = require("@controllers/customerInvoicePreview");
+const { getCustomerInvoicePreview } = require("@controllers/landingPagePreview");
 const { runCustomScripts } = require("@controllers/customScripts");
 
 router.get("/", (req, res) => {

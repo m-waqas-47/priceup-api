@@ -22,6 +22,7 @@ const ProjectService = require("@services/project");
 const StaffService = require("@services/staff");
 const UserService = require("@services/user");
 const WineCellarFinishService = require("@services/wineCellar/finish");
+const WineCellarGlassAddonService = require("@services/wineCellar/glassAddon");
 const WineCellarGlassTypeService = require("@services/wineCellar/glassType");
 const WineCellarHardwareService = require("@services/wineCellar/hardware");
 const WineCellarLayoutService = require("@services/wineCellar/layout");
@@ -437,6 +438,22 @@ const getWineCellarMissingProps = async (estimate) => {
   const mountingChannel = estimate.config?.mountingChannel
     ? await WineCellarHardwareService.findBy({ _id: estimate.config.mountingChannel })
     : null;
+  const slidingDoorSystem = estimate.config?.slidingDoorSystem?.type
+    ? {
+        item: await WineCellarHardwareService.findBy({
+          _id: estimate.config.slidingDoorSystem?.type,
+        }),
+        count: estimate.config.slidingDoorSystem.count,
+      }
+    : { item: null, count: 0 };
+  const header = estimate.config?.header?.type
+    ? {
+        item: await WineCellarHardwareService.findBy({
+          _id: estimate.config.header?.type,
+        }),
+        count: estimate.config.header.count,
+      }
+    : { item: null, count: 0 };
   const glassType = estimate.config?.glassType?.type
     ? {
         item: await WineCellarGlassTypeService.findBy({
@@ -445,23 +462,54 @@ const getWineCellarMissingProps = async (estimate) => {
         thickness: estimate.config.glassType.thickness,
       }
     : { item: null, thickness: "3/8" };
-  // const glassAddons =
-  //   estimate.config?.glassAddons?.length > 0
-  //     ? await fetchDocumentsByIds(estimate.config?.glassAddons,GlassAddonService)
-  //     : [];
-  // let noGlassAddons = null;
-  // if(glassAddons?.length <= 0){
-  // noGlassAddons = await GlassAddonService?.findBy({
-  //   slug: "no-treatment",
-  // });
-  // }
+  const glassAddons =
+    estimate.config?.glassAddons?.length > 0
+      ? await fetchDocumentsByIds(estimate.config?.glassAddons,WineCellarGlassAddonService)
+      : [];
+  let noGlassAddons = null;
+  if(glassAddons?.length <= 0){
+  noGlassAddons = await WineCellarGlassAddonService?.findBy({
+    slug: "no-treatment",
+  });
+  }
+  const hardwareAddons =
+  estimate.config?.hardwareAddons?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.hardwareAddons,WineCellarHardwareService)
+    : [];
+  const wallClamp = estimate.config?.mountingClamps?.wallClamp?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.wallClamp,WineCellarHardwareService)
+    : [];
+  const sleeveOver = estimate.config?.mountingClamps?.sleeveOver?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.sleeveOver,WineCellarHardwareService)
+    : [];
+  const glassToGlass = estimate.config?.mountingClamps?.glassToGlass?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.mountingClamps?.glassToGlass,WineCellarHardwareService)
+    : [];
+  const cornerWallClamp = estimate.config?.cornerClamps?.wallClamp?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.wallClamp,WineCellarHardwareService)
+    : [];
+  const cornerSleeveOver = estimate.config?.cornerClamps?.sleeveOver?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.sleeveOver,WineCellarHardwareService)
+    : [];
+  const cornerGlassToGlass = estimate.config?.cornerClamps?.glassToGlass?.length > 0
+    ? await fetchDocumentsByIdsWithCount(estimate.config?.cornerClamps?.glassToGlass,WineCellarHardwareService)
+    : [];
   return {
     hardwareFinishes: finishes,
     handles,
     hinges,
     doorLock,
     mountingChannel,
+    slidingDoorSystem: slidingDoorSystem,
+    header: header,
     glassType,
-    // glassAddons: glassAddons?.length ? glassAddons : [noGlassAddons],
+    glassAddons: glassAddons?.length ? glassAddons : [noGlassAddons],
+    hardwareAddons: hardwareAddons,
+    wallClamp: wallClamp,
+    sleeveOver: sleeveOver,
+    glassToGlass: glassToGlass,
+    cornerWallClamp: cornerWallClamp,
+    cornerSleeveOver: cornerSleeveOver,
+    cornerGlassToGlass: cornerGlassToGlass,
   };
 };

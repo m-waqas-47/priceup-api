@@ -42,13 +42,13 @@ const schema = new mongoose.Schema(
       type: String, // Invoice status (e.g., "Paid", "Unpaid", "Pending")
       default: "Unpaid",
     },
-    issuedAt: {
-      type: Date, // Date when the invoice was issued
-      default: Date.now,
-    },
-    dueDate: {
-      type: Date, // Payment due date
-    },
+    // issuedAt: {
+    //   type: Date, // Date when the invoice was issued
+    //   default: Date.now,
+    // },
+    // dueDate: {
+    //   type: Date, // Payment due date
+    // },
     paymentDetails: {
       // Payment information (if applicable)
       method: {
@@ -66,16 +66,16 @@ const schema = new mongoose.Schema(
         default: null,
       },
     },
-    customerPreview: {
-      link: {
-        type: String,
-        default: "",
-      },
-      expiresAt: {
-        type: Date,
-        default: Date.now,
-      },
-    },
+    // customerPreview: {
+    //   link: {
+    //     type: String,
+    //     default: "",
+    //   },
+    //   expiresAt: {
+    //     type: Date,
+    //     default: Date.now,
+    //   },
+    // },
     notes: {
       type: String,
       default: "",
