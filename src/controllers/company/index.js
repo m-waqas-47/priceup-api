@@ -186,29 +186,33 @@ exports.cloneCompany = async (req, res) => {
 
     const hardwares = await HardwareService.findAll({
       company_id: data.company_id,
-    }); // find shower hardwares
-
+    }); // Find shower hardwares
+    
     await Promise.all(
       hardwares?.map(async (hardware) => {
-        const hardwareFinishes = hardware.finishes.map((finish) => {
+        const hardwareObject = hardware.toObject();
+        const hardwareFinishes = hardwareObject.finishes.map((finish) => {
           const finishFound = newFinishes.find(
             (item) => item.name === finish.name
           );
           return {
             ...finish,
-            finish_id: finishFound._id,
+            finish_id: finishFound?._id, // Ensure new finish_id is set
           };
         });
         await HardwareService.create({
-          ...hardware,
           company_id: company?.id,
           finishes: hardwareFinishes,
-          hardware_category_slug: hardware.hardware_category_slug,
-          name: hardware.name,
-          slug: hardware.slug,
-        });
-      })
-    ); // clone shower hardwares
+          hardware_category_slug: hardwareObject.hardware_category_slug,
+          name: hardwareObject.name,
+          slug: hardwareObject.slug,
+          oneInchHoles: hardwareObject.oneInchHoles,
+          hingeCut: hardwareObject.hingeCut,
+          clampCut: hardwareObject.clampCut,
+          notch: hardwareObject.notch,
+          outages: hardwareObject.outages,
+        });    
+      }));    
 
     const glassTypes = await GlassTypeService.findAll({
       company_id: data.company_id,
@@ -348,7 +352,8 @@ exports.cloneCompany = async (req, res) => {
 
     await Promise.all(
       wineCellarHardwares?.map(async (hardware) => {
-        const hardwareFinishes = hardware.finishes.map((finish) => {
+        const hardwareObject = hardware.toObject();
+        const hardwareFinishes = hardwareObject.finishes.map((finish) => {
           const finishFound = wineCellarNewFinishes.find(
             (item) => item.name === finish.name
           );
@@ -358,12 +363,12 @@ exports.cloneCompany = async (req, res) => {
           };
         });
         await WineCellarHardwareService.create({
-          ...hardware,
+          fabrication:hardwareObject.fabrication,
           company_id: company?.id,
           finishes: hardwareFinishes,
-          hardware_category_slug: hardware.hardware_category_slug,
-          name: hardware.name,
-          slug: hardware.slug,
+          hardware_category_slug: hardwareObject.hardware_category_slug,
+          name: hardwareObject.name,
+          slug: hardwareObject.slug,
         });
       })
     ); // clone wineCellar hardwares
