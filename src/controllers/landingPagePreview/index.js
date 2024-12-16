@@ -39,7 +39,7 @@ exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
         }
       });
     });
-    const resp = await EstimateService.findAll({
+    const resp = await EstimateService.findAllWithPipeline({
       _id: { $nin: estimateIdsArray },
       project_id: new mongoose.Types.ObjectId(id),
     });
