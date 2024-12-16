@@ -3,7 +3,7 @@ const Model = require("@models/landingPagePreview");
 class LandingPagePreviewService {
   static findAll(condition = {}, search = "", options = {}) {
     return new Promise((resolve, reject) => {
-      Model.findAll(condition)
+      Model.find(condition)
         .then((result) => {
           resolve(result);
         })
