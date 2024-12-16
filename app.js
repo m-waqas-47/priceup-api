@@ -68,6 +68,10 @@ socketIo.on("connection", (socket) => {
     console.log("message: " + msg);
     socket.broadcast.emit(socketIoChannel.NOTIFICATIONS, msg);
   });
+  socket.on(socketIoChannel.EDITLANDINGPAGE, (msg) => {
+    console.log("message: " + msg);
+    socket.broadcast.emit(socketIoChannel.EDITLANDINGPAGE, msg);
+  });
   socket.on("disconnect", () => {
     console.log("client disconnected");
   });

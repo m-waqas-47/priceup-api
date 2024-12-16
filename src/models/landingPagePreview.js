@@ -17,6 +17,18 @@ const landingPagePreview = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: "Customer reference is required",
   },
+  project: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+  },
+  customer: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+  },
+  company: {
+    type: mongoose.Schema.Types.Mixed,
+    default: null,
+  },
   description: {
     type: String,
     default: "",

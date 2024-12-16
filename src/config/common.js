@@ -53,6 +53,7 @@ exports.maxDoorWidthStandard = 39;
 
 exports.socketIoChannel = {
   NOTIFICATIONS: "notifications",
+  EDITLANDINGPAGE: "edit-landing-page"
 };
 
 exports.notificationCategories = {

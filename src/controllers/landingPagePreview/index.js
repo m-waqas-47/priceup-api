@@ -4,6 +4,22 @@ const { landingPagePreview } = require("@templates/email");
 const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 const LandingPagePreviewService = require("@services/landingPagePreview");
+const { multerActions, multerSource } = require("@config/common");
+
+exports.getAllLandingPagePreview = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!id) {
+      throw new Error("Project Id is required");
+    }
+    const records = await LandingPagePreviewService.findAll({
+      project_id: new mongoose.Types.ObjectId(id),
+    });
+    handleResponse(res, 200, "Success", records);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
 
 exports.getLandingPagePreview = async (req, res) => {
   const { id } = req.params;
@@ -24,13 +40,6 @@ exports.createLandingPagePreview = async (req, res) => {
   const data = { ...req.body };
   const user = req.user;
   try {
-    const findReq = await LandingPagePreviewService.findBy({
-      project_id: data.project_id,
-      company_id: user.company_id,
-    });
-    if (findReq) {
-      await LandingPagePreviewService.delete({ _id: findReq._id });
-    }
     const resp = await LandingPagePreviewService.create({
       ...data,
       company_id: user.company_id,
@@ -41,15 +50,28 @@ exports.createLandingPagePreview = async (req, res) => {
   }
 };
 
+exports.deleteLandingPagePreview = async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!id) {
+      throw new Error("Id is required");
+    }
+    const resp = await LandingPagePreviewService.delete({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+    handleResponse(res, 200, "Success", resp);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
 exports.updateLandingPagePreview = async (req, res) => {
   const data = { ...req.body };
   const { id } = req.params;
   try {
-    const resp = await LandingPagePreviewService.update(
-      { project_id: id },
-      data,
-      { new: true }
-    );
+    const resp = await LandingPagePreviewService.update({ _id: id }, data, {
+      new: true,
+    });
     if (resp && resp?.customer_id) {
       const customer = await CustomerService.findBy({
         _id: new mongoose.Types.ObjectId(resp?.customer_id),
