@@ -25,9 +25,12 @@ exports.getAllLandingPagePreview = async (req, res) => {
 exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
   const { id } = req.params;
   try {
+    if (!id) {
+      throw new Error("Project Id is required");
+    }
     let estimateIdsArray = [];
     const allPreviews = await LandingPagePreviewService.findAll({
-      project_id: id,
+      project_id: new mongoose.Types.ObjectId(id),
     });
     allPreviews?.forEach((preview) => {
       preview?.estimates?.forEach((estimate) => {
@@ -38,7 +41,7 @@ exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
     });
     const resp = await EstimateService.findAll({
       _id: { $nin: estimateIdsArray },
-      project_id: id,
+      project_id: new mongoose.Types.ObjectId(id),
     });
     handleResponse(res, 200, "Success", resp);
   } catch (err) {
