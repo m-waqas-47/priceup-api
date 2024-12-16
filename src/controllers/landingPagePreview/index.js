@@ -55,7 +55,7 @@ exports.getLandingPagePreview = async (req, res) => {
   const { id } = req.params;
   try {
     const invoicePreviewRecord = await LandingPagePreviewService.findBy({
-      project_id: id,
+      _id: new mongoose.Types.ObjectId(id),
     });
     if (!invoicePreviewRecord) {
       return handleResponse(res, 200, "No preview found", null);
