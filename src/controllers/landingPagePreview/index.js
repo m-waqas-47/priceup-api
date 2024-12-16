@@ -5,6 +5,7 @@ const { handleError, handleResponse } = require("@utils/responses");
 const { default: mongoose } = require("mongoose");
 const LandingPagePreviewService = require("@services/landingPagePreview");
 const { multerActions, multerSource } = require("@config/common");
+const EstimateService = require("@services/estimate");
 
 exports.getAllLandingPagePreview = async (req, res) => {
   const { id } = req.params;
@@ -16,6 +17,30 @@ exports.getAllLandingPagePreview = async (req, res) => {
       project_id: new mongoose.Types.ObjectId(id),
     });
     handleResponse(res, 200, "Success", records);
+  } catch (err) {
+    handleError(res, err);
+  }
+};
+
+exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
+  const { id } = req.params;
+  try {
+    let estimateIdsArray = [];
+    const allPreviews = await LandingPagePreviewService.findAll({
+      project_id: id,
+    });
+    allPreviews?.forEach((preview) => {
+      preview?.estimates?.forEach((estimate) => {
+        if (estimate?.estimate_id) {
+          estimateIdsArray.push(estimate?.estimate_id);
+        }
+      });
+    });
+    const resp = await EstimateService.findAll({
+      _id: { $nin: estimateIdsArray },
+      project_id: id,
+    });
+    handleResponse(res, 200, "Success", resp);
   } catch (err) {
     handleError(res, err);
   }
