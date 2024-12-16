@@ -35,7 +35,9 @@ exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
     allPreviews?.forEach((preview) => {
       preview?.estimates?.forEach((estimate) => {
         if (estimate?.estimate_id) {
-          estimateIdsArray.push(estimate?.estimate_id);
+          estimateIdsArray.push(
+            new mongoose.Types.ObjectId(estimate?.estimate_id)
+          );
         }
       });
     });
@@ -43,7 +45,7 @@ exports.getPendingEstimatesForLandingPagePreview = async (req, res) => {
       _id: { $nin: estimateIdsArray },
       project_id: new mongoose.Types.ObjectId(id),
     });
-    handleResponse(res, 200, "Success", resp);
+    handleResponse(res, 200, "Success", resp?.estimates);
   } catch (err) {
     handleError(res, err);
   }
