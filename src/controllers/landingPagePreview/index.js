@@ -110,18 +110,52 @@ exports.updateLandingPagePreview = async (req, res) => {
       const dynamicValue = getValueByPath(foundRecord, data?.key);
       console.log(dynamicValue, "value");
       if (req.file && req.file.fieldname === "image" && data?.key) {
-        const path = await addOrUpdateOrDelete(
-          multerActions.PUT,
+        if (data?.key.includes("estimates")) {
+          const path = await addOrUpdateOrDelete(
+            multerActions.SAVE,
+            multerSource.PROJECTS,
+            req.file.filename
+          );
+          resp = await LandingPagePreviewService.update(
+            { _id: id }, // Ensure the 0-index exists
+            {
+              $push: { [data.key]: path }, // Push the image path to the gallery
+            },
+            {
+              new: true,
+            }
+          );
+        } else {
+          const path = await addOrUpdateOrDelete(
+            multerActions.PUT,
+            multerSource.PROJECTS,
+            req.file.filename,
+            dynamicValue ?? ""
+          );
+          const updateData = {
+            [data.key]: path, // Use computed property names
+          };
+          resp = await LandingPagePreviewService.update(
+            { _id: id },
+            updateData,
+            {
+              new: true,
+            }
+          );
+        }
+      } else if (data?.removeGalleryImage && data?.key) {
+        await addOrUpdateOrDelete(
+          multerActions.DELETE,
           multerSource.PROJECTS,
-          req.file.filename,
-          dynamicValue ?? ""
+          data?.removeGalleryImage
         );
-        const updateData = {
-          [data.key]: path, // Use computed property names
-        };
-        resp = await LandingPagePreviewService.update({ _id: id }, updateData, {
-          new: true,
-        });
+        resp = await LandingPagePreviewService.update(
+          { _id: id },
+          { [data.key]: data?.gallery },
+          {
+            new: true,
+          }
+        );
       } else {
         resp = await LandingPagePreviewService.update({ _id: id }, data, {
           new: true,
@@ -152,15 +186,15 @@ const getValueByPath = (obj, path) => {
   return path.split(".").reduce((acc, part) => acc && acc[part], obj);
 };
 
-const deleteAllImages = async (record) => {
-  try {
-    // section 1
+// const deleteAllImages = async (record) => {
+//   try {
+//     // section 1
 
-    // section 2
+//     // section 2
 
-    // section 3
-    console.log("image deleted");
-  } catch (err) {
-    console.error(err);
-  }
-};
+//     // section 3
+//     console.log("image deleted");
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
