@@ -13,6 +13,7 @@ const {
 } = require("../controllers/project");
 const { verifyToken } = require("../middlewares/authentication");
 const { createLandingPagePreview, getLandingPagePreview, updateLandingPagePreview, getAllLandingPagePreview, deleteLandingPagePreview, getPendingEstimatesForLandingPagePreview } = require("@controllers/landingPagePreview");
+const { upload } = require("@services/multer");
 const router = express.Router();
 
 router.get("/", verifyToken, getAll);
@@ -24,7 +25,7 @@ router.get("/pending-estimates-for-landing-page-preview/:id", verifyToken, getPe
 router.get("/landing-page-preview/:id", verifyToken, getLandingPagePreview);
 router.get("/:id", verifyToken, getSingleRecord);
 router.put("/modifyExisting",modifyExistingDocuments); // run only once to update existing documents
-router.put("/landing-page-preview/:id", verifyToken, updateLandingPagePreview);
+router.put("/landing-page-preview/:id", verifyToken, upload.single("image"), updateLandingPagePreview);
 router.put("/:id", verifyToken, updateRecord);
 router.delete("/landing-page-preview/:id", verifyToken, deleteLandingPagePreview);
 router.delete("/:id", verifyToken, deleteRecord);

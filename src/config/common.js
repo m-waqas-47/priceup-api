@@ -37,6 +37,7 @@ exports.multerSource = {
   CUSTOMUSERS: "customUsers",
   ADMINS: "admins",
   CUSTOMERS: "customers",
+  PROJECTS: "projects",
   MIRROREDGEWORKS: "mirrorEdgeWorks",
   MIRRORGLASSTYPES: "mirrorGlassTypes",
   MIRRORGLASSADDONS: "mirrorGlassAddons",

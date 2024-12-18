@@ -6,6 +6,7 @@ const { default: mongoose } = require("mongoose");
 const LandingPagePreviewService = require("@services/landingPagePreview");
 const { multerActions, multerSource } = require("@config/common");
 const EstimateService = require("@services/estimate");
+const { addOrUpdateOrDelete } = require("@services/multer");
 
 exports.getAllLandingPagePreview = async (req, res) => {
   const { id } = req.params;
@@ -99,24 +100,67 @@ exports.updateLandingPagePreview = async (req, res) => {
   const data = { ...req.body };
   const { id } = req.params;
   try {
-    const resp = await LandingPagePreviewService.update({ _id: id }, data, {
-      new: true,
-    });
-    if (resp && resp?.customer_id) {
-      const customer = await CustomerService.findBy({
-        _id: new mongoose.Types.ObjectId(resp?.customer_id),
-      });
-      if (customer) {
-        const html = landingPagePreview(resp.customerPreview?.link ?? "");
-        await MailgunService.sendEmail(
-          customer.email,
-          "Priceup: Quote Preview",
-          html
+    let resp = null;
+    if (!id) {
+      throw new Error("Id is required");
+    }
+    const foundRecord = await LandingPagePreviewService.findBy({ _id: id });
+    if (foundRecord) {
+      // Access the value dynamically
+      const dynamicValue = getValueByPath(foundRecord, data?.key);
+      console.log(dynamicValue, "value");
+      if (req.file && req.file.fieldname === "image" && data?.key) {
+        const path = await addOrUpdateOrDelete(
+          multerActions.PUT,
+          multerSource.PROJECTS,
+          req.file.filename,
+          dynamicValue ?? ""
         );
+        const updateData = {
+          [data.key]: path, // Use computed property names
+        };
+        resp = await LandingPagePreviewService.update({ _id: id }, updateData, {
+          new: true,
+        });
+      } else {
+        resp = await LandingPagePreviewService.update({ _id: id }, data, {
+          new: true,
+        });
       }
+
+      // if (resp && resp?.customer_id) {
+      //   const customer = await CustomerService.findBy({
+      //     _id: new mongoose.Types.ObjectId(resp?.customer_id),
+      //   });
+      //   if (customer) {
+      //     const html = landingPagePreview(resp.customerPreview?.link ?? "");
+      //     await MailgunService.sendEmail(
+      //       customer.email,
+      //       "Priceup: Quote Preview",
+      //       html
+      //     );
+      //   }
+      // }
     }
     handleResponse(res, 200, "Success", resp);
   } catch (err) {
     handleError(res, err);
+  }
+};
+
+const getValueByPath = (obj, path) => {
+  return path.split(".").reduce((acc, part) => acc && acc[part], obj);
+};
+
+const deleteAllImages = async (record) => {
+  try {
+    // section 1
+
+    // section 2
+
+    // section 3
+    console.log("image deleted");
+  } catch (err) {
+    console.error(err);
   }
 };
