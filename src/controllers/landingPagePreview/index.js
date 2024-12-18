@@ -106,10 +106,15 @@ exports.updateLandingPagePreview = async (req, res) => {
     }
     const foundRecord = await LandingPagePreviewService.findBy({ _id: id });
     if (foundRecord) {
+      console.log(data, "data");
       // Access the value dynamically
-      const dynamicValue = getValueByPath(foundRecord, data?.key);
+      let dynamicValue = "";
+      if (data?.key) {
+        dynamicValue = getValueByPath(foundRecord, data?.key);
+      }
       console.log(dynamicValue, "value");
       if (req.file && req.file.fieldname === "image" && data?.key) {
+        console.log("if console");
         if (data?.key.includes("estimates")) {
           const path = await addOrUpdateOrDelete(
             multerActions.SAVE,
@@ -144,6 +149,7 @@ exports.updateLandingPagePreview = async (req, res) => {
           );
         }
       } else if (data?.removeGalleryImage && data?.key) {
+        console.log("key");
         await addOrUpdateOrDelete(
           multerActions.DELETE,
           multerSource.PROJECTS,
@@ -157,6 +163,7 @@ exports.updateLandingPagePreview = async (req, res) => {
           }
         );
       } else {
+        console.log("called 1");
         resp = await LandingPagePreviewService.update({ _id: id }, data, {
           new: true,
         });
